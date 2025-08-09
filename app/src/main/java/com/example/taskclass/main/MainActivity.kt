@@ -1,4 +1,4 @@
-package com.example.taskclass
+package com.example.taskclass.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.taskclass.agenda.AgendaScreen
 import com.example.taskclass.ui.theme.TaskClassTheme
 
-
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -17,11 +16,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TaskClassTheme {
-                AgendaScreen()
+                App()
             }
         }
     }
 }
-
-
-
