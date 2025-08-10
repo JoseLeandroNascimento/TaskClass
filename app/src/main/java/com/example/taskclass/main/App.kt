@@ -5,16 +5,47 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.taskclass.discipline.DisciplineScreen
+import com.example.taskclass.schedules.SchedulesScreen
+import com.example.taskclass.typeEvents.TypeEventsScreen
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
 
-    val navControl = rememberNavController()
+    val appNavController = rememberNavController()
 
-    NavHost(navController = navControl, startDestination = Screen.MAIN.route) {
+    NavHost(navController = appNavController, startDestination = Screen.MAIN.route) {
 
         composable(Screen.MAIN.route) {
-            MainScreen()
+            MainScreen(
+                onNavigationDrawer = { screen ->
+                    appNavController.navigate(screen.route) {
+                        if (screen == Screen.MAIN) {
+                            popUpTo(Screen.MAIN.route) { inclusive = false }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.DISCIPLINE.route) {
+            DisciplineScreen {
+                appNavController.navigateUp()
+            }
+        }
+
+        composable(Screen.SCHEDULES.route) {
+            SchedulesScreen {
+                appNavController.navigateUp()
+            }
+        }
+
+        composable(Screen.TYPE_EVENTS.route) {
+            TypeEventsScreen {
+                appNavController.popBackStack()
+            }
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.example.taskclass.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -13,26 +16,39 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -41,88 +57,46 @@ import com.example.taskclass.R
 import com.example.taskclass.agenda.AgendaScreen
 import com.example.taskclass.events.EventsScreen
 import com.example.taskclass.notes.NotesScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-
+fun MainScreen(
+    onNavigationDrawer: (Screen) -> Unit
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val startDestination = remember { Screen.AGENDA }
+    val mainNavController = rememberNavController()
+
+    val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: startDestination.route
+
+    val currentScreen = remember(currentRoute) {
+        Screen.entries.find { it.route == currentRoute } ?: startDestination
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 20.dp, horizontal = 10.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.app_name),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+            DrawerContent(
+                onCloseDrawer = { scope.launch { drawerState.close() } },
+                onNavigationDrawer = { screen ->
+                    onNavigationDrawer(screen)
+                    scope.launch { drawerState.close() }
                 }
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(8.dp))
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null
-                        )
-                    },
-                    label = {
-                        Text(text = "Disciplinas")
-                    },
-                    onClick = {},
-                    shape = RoundedCornerShape(0.dp),
-                    selected = false
-                )
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null
-                        )
-                    },
-                    label = {
-                        Text(text = "Horários de aula")
-                    },
-                    onClick = {},
-                    shape = RoundedCornerShape(0.dp),
-                    selected = false
-                )
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.EventAvailable,
-                            contentDescription = null
-                        )
-                    },
-                    label = {
-                        Text(text = "Tipos de eventos")
-                    },
-                    onClick = {},
-                    shape = RoundedCornerShape(0.dp),
-                    selected = false
-                )
-            }
+            )
         }
     ) {
         MainContent(
+            navController = mainNavController,
+            startDestination = startDestination,
+            currentScreen = currentScreen,
             openNavigationDrawer = {
                 scope.launch {
-                    drawerState.apply {
-                        if (isOpen) {
-                            close()
-                        } else {
-                            open()
-                        }
-                    }
+                    if (drawerState.isOpen) drawerState.close() else drawerState.open()
                 }
             }
         )
@@ -130,58 +104,130 @@ fun MainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MainContent(modifier: Modifier = Modifier, openNavigationDrawer: () -> Unit) {
-
-    val startDestination = Screen.AGENDA
-    val navController = rememberNavController()
-    val navBackStack by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStack?.destination?.route ?: startDestination.route
-
-    NavHost(navController = navController, startDestination = startDestination.route) {
-
-        composable(Screen.AGENDA.route) {
-            AgendaScreen(
-                navigationBar = {
-                    MainNavigationBar(
-                        currentRouter = Screen.valueOf(currentRoute),
-                        onChangeNavigation = {
-                            navController.navigate(it.route)
-                        }
-                    )
-                },
-                openNavigationDrawer = openNavigationDrawer
+private fun DrawerContent(
+    onCloseDrawer: () -> Unit,
+    onNavigationDrawer: (Screen) -> Unit
+) {
+    ModalDrawerSheet {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp, horizontal = 10.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = stringResource(id = R.string.app_name),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
+        HorizontalDivider()
+        Spacer(modifier = Modifier.height(8.dp))
 
-        composable(Screen.EVENTS.route) {
-            EventsScreen(
-                navigationBar = {
-                    MainNavigationBar(
-                        currentRouter = Screen.valueOf(currentRoute),
-                        onChangeNavigation = {
-                            navController.navigate(it.route)
-                        }
-                    )
-                },
+        DrawerItem(Icons.AutoMirrored.Filled.MenuBook, "Disciplinas") {
+            onNavigationDrawer(Screen.DISCIPLINE)
+            onCloseDrawer()
+        }
+        DrawerItem(Icons.Default.AccessTime, "Horários de aula") {
+            onNavigationDrawer(Screen.SCHEDULES)
+            onCloseDrawer()
+        }
+        DrawerItem(Icons.Default.EventAvailable, "Tipos de eventos") {
+            onNavigationDrawer(Screen.TYPE_EVENTS)
+            onCloseDrawer()
+        }
+    }
+}
+
+@Composable
+private fun DrawerItem(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
+    NavigationDrawerItem(
+        icon = { Icon(icon, contentDescription = null) },
+        label = { Text(label) },
+        onClick = onClick,
+        shape = RoundedCornerShape(0.dp),
+        selected = false
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainContent(
+    openNavigationDrawer: () -> Unit,
+    startDestination: Screen,
+    currentScreen: Screen,
+    navController: NavHostController,
+) {
+
+    Scaffold(
+        topBar = {
+            MainTopBar(
+                currentScreen = currentScreen,
                 openNavigationDrawer = openNavigationDrawer
             )
-        }
-
-        composable(Screen.NOTES.route) {
-            NotesScreen(
-                navigationBar = {
-                    MainNavigationBar(
-                        currentRouter = Screen.valueOf(currentRoute),
-                        onChangeNavigation = {
-                            navController.navigate(it.route)
-                        }
-                    )
-                },
-                openNavigationDrawer = openNavigationDrawer
+        },
+        bottomBar = {
+            MainNavigationBar(
+                currentRouter = currentScreen,
+                onChangeNavigation = { screen ->
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
+    ) { innerPadding ->
+
+        NavHost(
+            modifier = Modifier
+                .padding(innerPadding),
+            navController = navController,
+            startDestination = startDestination.route,
+        ) {
+            composable(Screen.AGENDA.route) {
+                AgendaScreen()
+            }
+            composable(Screen.EVENTS.route) {
+                EventsScreen()
+            }
+            composable(Screen.NOTES.route) {
+                NotesScreen()
+            }
+        }
+
 
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainTopBar(currentScreen: Screen, openNavigationDrawer: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                text = when (currentScreen) {
+                    Screen.AGENDA -> "Horários da Semana"
+                    Screen.EVENTS -> "Eventos"
+                    else -> "Notas"
+                },
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = openNavigationDrawer
+            ) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = null)
+            }
+        }
+    )
 }
 
 @Composable
@@ -190,49 +236,24 @@ fun MainNavigationBar(
     currentRouter: Screen,
     onChangeNavigation: (Screen) -> Unit
 ) {
-
     NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
         NavigationBarItem(
             selected = Screen.AGENDA.route == currentRouter.route,
-            onClick = {
-                onChangeNavigation(Screen.AGENDA)
-            },
-            label = {
-                Text(text = "Início")
-            },
-            icon = {
-                Icon(imageVector = Icons.Default.Home, contentDescription = null)
-            }
+            onClick = { onChangeNavigation(Screen.AGENDA) },
+            label = { Text("Início") },
+            icon = { Icon(Icons.Default.Home, contentDescription = null) }
         )
         NavigationBarItem(
             selected = Screen.EVENTS.route == currentRouter.route,
-            onClick = {
-                onChangeNavigation(Screen.EVENTS)
-            },
-            label = {
-                Text(text = "Eventos")
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null
-                )
-            }
+            onClick = { onChangeNavigation(Screen.EVENTS) },
+            label = { Text("Eventos") },
+            icon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) }
         )
         NavigationBarItem(
             selected = Screen.NOTES.route == currentRouter.route,
-            onClick = {
-                onChangeNavigation(Screen.NOTES)
-            },
-            label = {
-                Text(text = "Notas")
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Notes,
-                    contentDescription = null
-                )
-            }
+            onClick = { onChangeNavigation(Screen.NOTES) },
+            label = { Text("Notas") },
+            icon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) }
         )
     }
 }
