@@ -145,9 +145,10 @@ val listDiscipline: List<Discipline> = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisciplineScreen(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onCreateDiscipline: () -> Unit
 ) {
+
 
     Scaffold(
         topBar = {
@@ -171,23 +172,25 @@ fun DisciplineScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {}
+                onClick = onCreateDiscipline
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         }
     ) { innerPadding ->
+
         DisciplineContent(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding),
         )
     }
 
 }
 
 @Composable
-fun DisciplineContent(modifier: Modifier = Modifier) {
-
+fun DisciplineContent(
+    modifier: Modifier = Modifier,
+) {
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),

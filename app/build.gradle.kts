@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+    implementation(libs.colorpicker.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.core.ktx)

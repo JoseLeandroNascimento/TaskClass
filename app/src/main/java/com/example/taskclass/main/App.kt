@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.taskclass.discipline.DisciplineCreateScreen
 import com.example.taskclass.discipline.DisciplineScreen
 import com.example.taskclass.schedules.SchedulesScreen
 import com.example.taskclass.typeEvents.TypeEventsScreen
@@ -31,7 +32,22 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.DISCIPLINE.route) {
-            DisciplineScreen {
+            DisciplineScreen (
+                onBack = {
+                    appNavController.navigateUp()
+                         },
+                onCreateDiscipline = {
+                    appNavController.navigate(Screen.DISCIPLINE_CREATE.route){
+                        popUpTo(Screen.DISCIPLINE.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable(Screen.DISCIPLINE_CREATE.route) {
+            DisciplineCreateScreen {
                 appNavController.navigateUp()
             }
         }
