@@ -11,7 +11,7 @@ import com.example.taskclass.agenda.composables.sampleEvents
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgendaScreen(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
 
 

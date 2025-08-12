@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.taskclass.discipline.DisciplineCreateScreen
 import com.example.taskclass.discipline.DisciplineScreen
+import com.example.taskclass.schedules.NewScheduleScreen
 import com.example.taskclass.schedules.SchedulesScreen
 import com.example.taskclass.typeEvents.TypeEventsScreen
 
@@ -19,6 +20,9 @@ fun App(modifier: Modifier = Modifier) {
 
         composable(Screen.MAIN.route) {
             MainScreen(
+                onNavigationNewSchedule = {
+                    appNavController.navigate(Screen.NEW_SCHEDULES.route)
+                },
                 onNavigationDrawer = { screen ->
                     appNavController.navigate(screen.route) {
                         if (screen == Screen.MAIN) {
@@ -32,12 +36,12 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.DISCIPLINE.route) {
-            DisciplineScreen (
+            DisciplineScreen(
                 onBack = {
                     appNavController.navigateUp()
-                         },
+                },
                 onCreateDiscipline = {
-                    appNavController.navigate(Screen.DISCIPLINE_CREATE.route){
+                    appNavController.navigate(Screen.DISCIPLINE_CREATE.route) {
                         popUpTo(Screen.DISCIPLINE.route) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
@@ -54,6 +58,12 @@ fun App(modifier: Modifier = Modifier) {
 
         composable(Screen.SCHEDULES.route) {
             SchedulesScreen {
+                appNavController.navigateUp()
+            }
+        }
+
+        composable(Screen.NEW_SCHEDULES.route) {
+            NewScheduleScreen {
                 appNavController.navigateUp()
             }
         }
