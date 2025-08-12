@@ -3,6 +3,7 @@ package com.example.taskclass.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,12 +24,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -108,21 +111,31 @@ private fun DrawerContent(
     onCloseDrawer: () -> Unit,
     onNavigationDrawer: (Screen) -> Unit
 ) {
-    ModalDrawerSheet {
+    ModalDrawerSheet(
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(vertical = 16.dp)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 20.dp, horizontal = 10.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
                 text = stringResource(id = R.string.app_name),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
             )
         }
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            thickness = 1.dp
+        )
+        Spacer(modifier = Modifier.height(12.dp))
 
         DrawerItem(Icons.AutoMirrored.Filled.MenuBook, "Disciplinas") {
             onNavigationDrawer(Screen.DISCIPLINE)
@@ -146,10 +159,30 @@ private fun DrawerItem(
     onClick: () -> Unit
 ) {
     NavigationDrawerItem(
-        icon = { Icon(icon, contentDescription = null) },
-        label = { Text(label) },
+        icon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        label = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
         onClick = onClick,
-        shape = RoundedCornerShape(0.dp),
+        colors = NavigationDrawerItemDefaults.colors(
+            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
         selected = false
     )
 }

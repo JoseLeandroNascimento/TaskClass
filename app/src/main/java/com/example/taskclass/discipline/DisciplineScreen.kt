@@ -1,6 +1,7 @@
 package com.example.taskclass.discipline
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,96 +54,15 @@ data class Discipline(
 )
 
 val listDiscipline: List<Discipline> = listOf(
-    Discipline(
-        id = 1,
-        title = "Matemática",
-        color = Color(0xFF2979FF)
-    ),
-    Discipline(
-        id = 2,
-        title = "Química",
-        color = Color(0xFF9C27B0)
-    ),
-    Discipline(
-        id = 3,
-        title = "Geografia",
-        color = Color(0xFF4CAF50)
-    ),
-    Discipline(
-        id = 4,
-        title = "Biologia",
-        color = Color(0xFFFFC107)
-    ),
-    Discipline(
-        id = 5,
-        title = "Sociologia",
-        color = Color(0xFFFF5722)
-    ),
-    Discipline(
-        id = 6,
-        title = "Filosofia",
-        color = Color(0xFF673AB7)
-    ),
-    Discipline(
-        id = 7,
-        title = "Educação física",
-        color = Color(0xFFFFEB3B)
-    ),
-    Discipline(
-        id = 8,
-        title = "Inglês",
-        color = Color(0xFF009688)
-    ),
-    Discipline(
-        id = 9,
-        title = "História",
-        color = Color(0xFFF44336)
-    ),
-    Discipline(
-        id = 10,
-        title = "Matemática",
-        color = Color(0xFF2979FF)
-    ),
-    Discipline(
-        id = 11,
-        title = "Química",
-        color = Color(0xFF9C27B0)
-    ),
-    Discipline(
-        id = 12,
-        title = "Geografia",
-        color = Color(0xFF4CAF50)
-    ),
-    Discipline(
-        id = 13,
-        title = "Biologia",
-        color = Color(0xFFFFC107)
-    ),
-    Discipline(
-        id = 14,
-        title = "Sociologia",
-        color = Color(0xFFFF5722)
-    ),
-    Discipline(
-        id = 15,
-        title = "Filosofia",
-        color = Color(0xFF673AB7)
-    ),
-    Discipline(
-        id = 16,
-        title = "Educação física",
-        color = Color(0xFFFFEB3B)
-    ),
-    Discipline(
-        id = 17,
-        title = "Inglês",
-        color = Color(0xFF009688)
-    ),
-    Discipline(
-        id = 18,
-        title = "História",
-        color = Color(0xFFF44336)
-    )
+    Discipline(1, "Matemática", Color(0xFF2979FF)),
+    Discipline(2, "Química", Color(0xFF9C27B0)),
+    Discipline(3, "Geografia", Color(0xFF4CAF50)),
+    Discipline(4, "Biologia", Color(0xFFFFC107)),
+    Discipline(5, "Sociologia", Color(0xFFFF5722)),
+    Discipline(6, "Filosofia", Color(0xFF673AB7)),
+    Discipline(7, "Educação Física", Color(0xFFFFEB3B)),
+    Discipline(8, "Inglês", Color(0xFF009688)),
+    Discipline(9, "História", Color(0xFFF44336))
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -148,56 +71,53 @@ fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit
 ) {
-
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Disciplinas", fontSize = 16.sp, fontWeight = FontWeight.SemiBold
+                        text = "Disciplinas",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = "Voltar"
                         )
                     }
-                },
+                }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onCreateDiscipline
+                onClick = onCreateDiscipline,
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Adicionar"
+                )
             }
         }
     ) { innerPadding ->
-
         DisciplineContent(
-            modifier = Modifier
-                .padding(innerPadding),
+            modifier = Modifier.padding(innerPadding)
         )
     }
-
 }
 
 @Composable
 fun DisciplineContent(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
-
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(items = listDiscipline, key = { it.id }) { discipline ->
+        items(listDiscipline, key = { it.id }) { discipline ->
             DisciplineItem(discipline = discipline)
         }
         item {
@@ -207,64 +127,79 @@ fun DisciplineContent(
 }
 
 @Composable
-fun DisciplineItem(modifier: Modifier = Modifier, discipline: Discipline) {
-
+fun DisciplineItem(
+    modifier: Modifier = Modifier,
+    discipline: Discipline
+) {
     var openDropdown by rememberSaveable { mutableStateOf(false) }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(0.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 12.dp),
+                .padding(vertical = 12.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(20.dp)
-                        .background(color = discipline.color, shape = CircleShape)
+                        .size(28.dp)
+                        .background(discipline.color, CircleShape)
+                        .border(1.dp, Color.Black.copy(alpha = 0.1f), CircleShape)
+                        .shadow(2.dp, CircleShape, clip = false)
                 )
                 Text(
                     text = discipline.title,
-                    fontStyle = MaterialTheme.typography.bodyMedium.fontStyle
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp
+                    )
                 )
             }
 
             Box {
-                IconButton(
-                    onClick = { openDropdown = !openDropdown }
-                ) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                IconButton(onClick = { openDropdown = !openDropdown }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opções"
+                    )
                 }
                 DropdownMenu(
                     expanded = openDropdown,
-                    containerColor = MaterialTheme.colorScheme.background,
-                    onDismissRequest = {
-                        openDropdown = false
-                    }
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    onDismissRequest = { openDropdown = false }
                 ) {
                     DropdownMenuItem(
-                        text = {
-                            Text(text = "Editar")
-                        },
-                        onClick = {
-                            openDropdown = false
+                        text = { Text("Editar") },
+                        onClick = { openDropdown = false },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
                     )
                     DropdownMenuItem(
-                        text = {
-                            Text(text = "Excluir")
-                        },
-                        onClick = {
-                            openDropdown = false
+                        text = { Text("Excluir") },
+                        onClick = { openDropdown = false },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
                     )
                 }
