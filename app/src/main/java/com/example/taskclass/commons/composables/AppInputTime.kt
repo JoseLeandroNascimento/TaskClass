@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -69,33 +70,37 @@ fun AppInputTime(
         }
     }
 
-    OutlinedTextField(
-        modifier = modifier,
-        label = {
-            Text(text = label, style = MaterialTheme.typography.labelMedium)
-        },
-        value = value,
-        readOnly = true,
-        onValueChange = {},
-        trailingIcon = {
-            Icon(Icons.Default.AccessTime, contentDescription = "Selecionar horário")
-        },
-        interactionSource = interactionSource
-    )
-
-    AnimatedVisibility (showTimePicker) {
-        TimePickerDialog(
-            title = "Selecionar horário",
-            onDismiss = { showTimePicker = false },
-            onConfirm = {
-                val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", timeState.hour, timeState.minute)
-                onValueChange(formattedTime)
-                showTimePicker = false
+    Box(
+        modifier = modifier
+    ){
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = {
+                Text(text = label, style = MaterialTheme.typography.labelMedium)
+            },
+            value = value,
+            readOnly = true,
+            onValueChange = {},
+            trailingIcon = {
+                Icon(Icons.Default.AccessTime, contentDescription = "Selecionar horário")
+            },
+            interactionSource = interactionSource
+        )
+        AnimatedVisibility (showTimePicker) {
+            TimePickerDialog(
+                title = "Selecionar horário",
+                onDismiss = { showTimePicker = false },
+                onConfirm = {
+                    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", timeState.hour, timeState.minute)
+                    onValueChange(formattedTime)
+                    showTimePicker = false
+                }
+            ) {
+                TimePicker(state = timeState)
             }
-        ) {
-            TimePicker(state = timeState)
         }
     }
+
 }
 
 @Composable
