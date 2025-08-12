@@ -1,13 +1,13 @@
 package com.example.taskclass.commons.composables
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,34 +18,39 @@ import androidx.compose.ui.window.Dialog
 import com.example.taskclass.ui.theme.TaskClassTheme
 
 @Composable
-fun Dialog(
+fun AppDialog(
     onDismissRequest: () -> Unit,
     title: String,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
-
     Dialog(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth()
+        Surface (
+            shape = RoundedCornerShape(16.dp),
+            tonalElevation = 6.dp,
+            color = MaterialTheme.colorScheme.surface
         ) {
             Column(
-                modifier = Modifier.padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Título
                 Text(
                     text = title,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    content()
-                }
+
+                // Conteúdo
+                content()
             }
         }
     }
-
 }
 
 
@@ -55,7 +60,7 @@ fun DialogPreview() {
     TaskClassTheme(
         dynamicColor = false
     ) {
-        Dialog(
+        AppDialog(
             onDismissRequest = {},
             title = "Titulo"
         ) {
