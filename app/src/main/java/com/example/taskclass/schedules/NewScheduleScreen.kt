@@ -5,16 +5,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,8 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.taskclass.commons.composables.AppDropdown
+import com.example.taskclass.commons.composables.AppInputTime
 import com.example.taskclass.discipline.Discipline
 import com.example.taskclass.ui.theme.TaskClassTheme
 
@@ -55,145 +59,115 @@ fun NewScheduleScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit
 ) {
+    var weekDay by remember { mutableStateOf("") }
+    var disciplineSelect by remember { mutableStateOf("") }
+    var timeFirst by remember { mutableStateOf("") }
+    var lastTime by remember { mutableStateOf("") }
 
-    var weekDay by remember {
-        mutableStateOf("")
-    }
-
-    var discipline by remember {
-        mutableStateOf("")
-    }
-
+    val daysOfWeek = listOf(
+        "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Novo horário", fontSize = 16.sp, fontWeight = FontWeight.SemiBold
+                        text = "Novo Horário",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = "Voltar"
                         )
                     }
                 }
             )
         }
     ) { innerPadding ->
-
         Surface(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxWidth()
         ) {
-
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 20.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 AppDropdown(
                     value = weekDay,
                     label = "Dia da Semana *"
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Domingo")
-                        },
-                        onClick = {
-                            weekDay = "Domingo"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Segunda")
-                        },
-                        onClick = {
-                            weekDay = "Segunda"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Terça")
-                        },
-                        onClick = {
-                            weekDay = "Terça"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Quarta")
-                        },
-                        onClick = {
-                            weekDay = "Quarta"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Quinta")
-                        },
-                        onClick = {
-                            weekDay = "Quinta"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Sexta")
-                        },
-                        onClick = {
-                            weekDay = "Sexta"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Sábado")
-                        },
-                        onClick = {
-                            weekDay = "Sábado"
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                    )
-                }
-
-                AppDropdown(
-                    value = discipline,
-                    label = "Disciplina *"
-                ) {
-                    listDiscipline.forEach { discipline ->
+                    daysOfWeek.forEach { day ->
                         DropdownMenuItem(
-                            text = {
-                                Text(text = discipline.title)
-                            },
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .background(discipline.color, CircleShape)
-                                        .border(1.dp, Color.Black.copy(alpha = 0.1f), CircleShape)
-                                        .shadow(2.dp, CircleShape, clip = false)
-                                )
-                            },
-                            onClick = {
-                                weekDay = discipline.title
-                            },
+                            text = { Text(day) },
+                            onClick = { weekDay = day },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                         )
                     }
                 }
 
-            }
+                AppDropdown(
+                    value = disciplineSelect,
+                    label = "Disciplina *"
+                ) {
+                    listDiscipline.forEach { discipline ->
+                        DropdownMenuItem(
+                            text = { Text(discipline.title) },
+                            leadingIcon = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(26.dp)
+                                        .background(discipline.color, CircleShape)
+                                        .border(1.dp, Color.Black.copy(alpha = 0.08f), CircleShape)
+                                        .shadow(3.dp, CircleShape, clip = false)
+                                )
+                            },
+                            onClick = { disciplineSelect = discipline.title },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+                    }
+                }
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AppInputTime(
+                        modifier = Modifier.weight(1f),
+                        value = timeFirst,
+                        onValueChange = { timeFirst = it },
+                        label = "Início"
+                    )
+                    AppInputTime(
+                        modifier = Modifier.weight(1f),
+                        value = lastTime,
+                        onValueChange = { lastTime = it },
+                        label = "Fim"
+                    )
+                }
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    onClick = { /* salvar */ }
+                ) {
+                    Text(
+                        text = "Cadastrar Horário",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+            }
         }
     }
 }
