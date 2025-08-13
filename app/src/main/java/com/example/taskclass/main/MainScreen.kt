@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -37,10 +38,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -223,6 +222,15 @@ fun MainContent(
                     Icon(Icons.Default.Add, contentDescription = "Adicionar evento")
                 }
             }
+
+            if (currentScreen == Screen.EVENTS) {
+                FloatingActionButton(
+                    onClick = {},
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Adicionar evento")
+                }
+            }
         }
 
     ) { innerPadding ->
@@ -295,8 +303,8 @@ fun MainNavigationBar(
         NavigationBarItem(
             selected = Screen.NOTES.route == currentRouter.route,
             onClick = { onChangeNavigation(Screen.NOTES) },
-            label = { Text("Notas") },
-            icon = { Icon(Icons.AutoMirrored.Filled.Notes, contentDescription = null) }
+            label = { Text("Anotações") },
+            icon = { Icon(Icons.Default.Draw, contentDescription = null) }
         )
     }
 }
