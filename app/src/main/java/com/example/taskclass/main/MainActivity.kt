@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TaskClassTheme(
-                dynamicColor = false
+                dynamicColor = false,
             ) {
                 App()
             }

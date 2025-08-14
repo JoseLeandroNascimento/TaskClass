@@ -72,25 +72,33 @@ fun EventsScreen(modifier: Modifier = Modifier) {
     ) {
         LazyColumn(
             state = listState,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 24.dp, start = 16.dp, end = 16.dp)
         ) {
             stickyHeader {
-                AppCalendar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    selectedDate = selectedDate,
-                    onDateSelected = { selectedDate = it },
-                    compactMode = isCalendarCompact
-                )
+                Surface {
+                    Column(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        AppCalendar(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background),
+                            selectedDate = selectedDate,
+                            onDateSelected = { selectedDate = it },
+                            compactMode = isCalendarCompact
+                        )
+                        Text(text = "Proximos eventos", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+
             }
+
 
             items(10) { index ->
                 EventCard(
                     modifier = Modifier
-                        .padding(horizontal = 20.dp)
                         .fillMaxWidth(),
                     title = "Evento $index",
                     date = "12 Ago 2025",
@@ -182,14 +190,14 @@ private fun EventDetailRow(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(14.dp)
         )
 
         Spacer(Modifier.width(8.dp))
 
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
         )
     }
@@ -224,7 +232,7 @@ fun AppCalendar(
 
             Spacer(Modifier.height(12.dp))
 
-            AnimatedVisibility (compactMode) {
+            AnimatedVisibility(compactMode) {
                 val baseDate = selectedDate ?: today
                 val weekDates = getWeekDates(baseDate)
                 Row(
@@ -236,7 +244,7 @@ fun AppCalendar(
                     }
                 }
             }
-            AnimatedVisibility(!compactMode){
+            AnimatedVisibility(!compactMode) {
                 MonthDaysGridFlat(currentMonth, today, selectedDate, onDateSelected)
             }
         }

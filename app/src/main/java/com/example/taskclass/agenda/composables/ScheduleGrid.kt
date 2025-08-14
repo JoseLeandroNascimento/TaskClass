@@ -167,7 +167,7 @@ fun ScheduleGrid(
                                 ) {
                                     Text(
                                         text = hour.parseHors(),
-                                        style = TextStyle(fontSize = 10.sp),
+                                        style = MaterialTheme.typography.labelSmall,
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -263,7 +263,7 @@ fun ScheduleGridHeader(modifier: Modifier = Modifier) {
                     fontSize = 12.sp,
                     lineHeight = 12.sp
                 )
-                Text(text = day, textAlign = TextAlign.Center, fontSize = 12.sp, lineHeight = 12.sp)
+                Text(text = day, style = MaterialTheme.typography.labelMedium)
             }
         }
     }

@@ -29,6 +29,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
@@ -215,10 +217,16 @@ fun MainContent(
         floatingActionButton = {
             if (currentScreen == Screen.AGENDA) {
                 FloatingActionButton(
-                    onClick = onNavigationNewSchedule,
+                    onClick = {
+                        onNavigationNewSchedule()
+                    },
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Adicionar evento")
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Adicionar evento",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 
@@ -227,7 +235,11 @@ fun MainContent(
                     onClick = {},
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Adicionar evento")
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Adicionar evento",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -286,20 +298,38 @@ fun MainNavigationBar(
     currentRouter: Screen,
     onChangeNavigation: (Screen) -> Unit
 ) {
-    NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        windowInsets = NavigationBarDefaults.windowInsets,
+    ) {
         NavigationBarItem(
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+            ),
             selected = Screen.AGENDA.route == currentRouter.route,
             onClick = { onChangeNavigation(Screen.AGENDA) },
             label = { Text("Início") },
             icon = { Icon(Icons.Default.Home, contentDescription = null) }
         )
         NavigationBarItem(
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+            ),
             selected = Screen.EVENTS.route == currentRouter.route,
             onClick = { onChangeNavigation(Screen.EVENTS) },
             label = { Text("Eventos") },
             icon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) }
         )
         NavigationBarItem(
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+            ),
             selected = Screen.NOTES.route == currentRouter.route,
             onClick = { onChangeNavigation(Screen.NOTES) },
             label = { Text("Anotações") },
