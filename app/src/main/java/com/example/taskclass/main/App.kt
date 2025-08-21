@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.taskclass.discipline.DisciplineCreateScreen
 import com.example.taskclass.discipline.DisciplineScreen
+import com.example.taskclass.events.EventCreateScreen
 import com.example.taskclass.schedules.NewScheduleScreen
 import com.example.taskclass.schedules.SchedulesScreen
 import com.example.taskclass.typeEvents.TypeEventsScreen
@@ -22,6 +23,9 @@ fun App(modifier: Modifier = Modifier) {
             MainScreen(
                 onNavigationNewSchedule = {
                     appNavController.navigate(Screen.NEW_SCHEDULES.route)
+                },
+                onNavigationNewEvent = {
+                    appNavController.navigate(Screen.NEW_EVENT.route)
                 },
                 onNavigationDrawer = { screen ->
                     appNavController.navigate(screen.route) {
@@ -64,6 +68,12 @@ fun App(modifier: Modifier = Modifier) {
 
         composable(Screen.NEW_SCHEDULES.route) {
             NewScheduleScreen {
+                appNavController.navigateUp()
+            }
+        }
+
+        composable(Screen.NEW_EVENT.route) {
+            EventCreateScreen {
                 appNavController.navigateUp()
             }
         }

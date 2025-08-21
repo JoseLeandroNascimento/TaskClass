@@ -1,7 +1,9 @@
 package com.example.taskclass.events
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
@@ -203,7 +205,6 @@ private fun EventDetailRow(
     }
 }
 
-
 @Composable
 fun AppCalendar(
     modifier: Modifier = Modifier,
@@ -211,41 +212,52 @@ fun AppCalendar(
     onDateSelected: (Calendar) -> Unit,
     compactMode: Boolean = false
 ) {
-    val today = Calendar.getInstance()
+    val today = remember { Calendar.getInstance() }
     var currentMonth by remember { mutableStateOf(today.clone() as Calendar) }
+
+    // Datas calculadas apenas quando realmente mudam
+    val monthDays = remember(currentMonth) {
+        generateMonthDays(currentMonth)
+    }
+    val weekDays = remember(selectedDate) {
+        getWeekDates(selectedDate ?: today)
+    }
 
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        shadowElevation = 0.dp
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Column(Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+
             if (!compactMode) {
                 MonthHeader(currentMonth) {
                     currentMonth = it
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
             }
 
             DaysOfWeekHeader()
+            Spacer(Modifier.height(8.dp))
 
-            Spacer(Modifier.height(12.dp))
-
-            AnimatedVisibility(compactMode) {
-                val baseDate = selectedDate ?: today
-                val weekDates = getWeekDates(baseDate)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    weekDates.forEach { dateCal ->
-                        DayItemFlat(dateCal, today, selectedDate, onDateSelected)
+            // Transição suave e leve
+            Crossfade(
+                targetState = compactMode,
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                label = "calendarCrossfade"
+            ) { isCompact ->
+                if (isCompact) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        weekDays.forEach { dateCal ->
+                            DayItemFlat(dateCal, today, selectedDate, onDateSelected)
+                        }
                     }
+                } else {
+                    MonthDaysGridFlat(monthDays, today, selectedDate, onDateSelected)
                 }
-            }
-            AnimatedVisibility(!compactMode) {
-                MonthDaysGridFlat(currentMonth, today, selectedDate, onDateSelected)
             }
         }
     }
@@ -303,7 +315,7 @@ fun DaysOfWeekHeader() {
             Text(
                 it,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 13.sp,
+                fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 color = MaterialTheme.colorScheme.primary
             )
         }
@@ -349,36 +361,33 @@ fun DayItemFlat(
 
 @Composable
 fun MonthDaysGridFlat(
-    currentMonth: Calendar,
+    monthDays: List<Calendar?>,
     today: Calendar,
     selectedDate: Calendar?,
     onDateSelected: (Calendar) -> Unit
 ) {
-    val tempCal = (currentMonth.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
-    val firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1
-    val daysInMonth = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
-    var dayCounter = 1 - firstDayOfWeek
-
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        while (dayCounter <= daysInMonth) {
+        monthDays.chunked(7).forEach { week ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                for (i in 0..6) {
-                    if (dayCounter in 1..daysInMonth) {
-                        val dateCal = (currentMonth.clone() as Calendar).apply {
-                            set(Calendar.DAY_OF_MONTH, dayCounter)
-                        }
-                        DayItemFlat(dateCal, today, selectedDate, onDateSelected)
+                week.forEach { day ->
+                    if (day != null) {
+                        DayItemFlat(day, today, selectedDate, onDateSelected)
                     } else {
                         Spacer(Modifier.size(40.dp))
                     }
-                    dayCounter++
                 }
             }
         }
     }
+}
+
+
+private fun Calendar.isSameDay(other: Calendar): Boolean {
+    return get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
+            get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
 }
 
 private fun getWeekDates(date: Calendar): List<Calendar> {
@@ -390,9 +399,26 @@ private fun getWeekDates(date: Calendar): List<Calendar> {
     }
 }
 
-private fun Calendar.isSameDay(other: Calendar): Boolean {
-    return get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
-            get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
+private fun generateMonthDays(month: Calendar): List<Calendar?> {
+    val tempCal = (month.clone() as Calendar).apply { set(Calendar.DAY_OF_MONTH, 1) }
+    val firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK) - 1
+    val daysInMonth = month.getActualMaximum(Calendar.DAY_OF_MONTH)
+    var dayCounter = 1 - firstDayOfWeek
+
+    val daysList = mutableListOf<Calendar?>()
+    while (dayCounter <= daysInMonth) {
+        for (i in 0..6) {
+            if (dayCounter in 1..daysInMonth) {
+                daysList.add((month.clone() as Calendar).apply {
+                    set(Calendar.DAY_OF_MONTH, dayCounter)
+                })
+            } else {
+                daysList.add(null)
+            }
+            dayCounter++
+        }
+    }
+    return daysList
 }
 
 @Preview(showBackground = true)

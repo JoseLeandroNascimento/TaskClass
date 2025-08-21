@@ -4,6 +4,7 @@ enum class Screen(val route: String) {
     MAIN("MAIN"),
     AGENDA("AGENDA"),
     EVENTS("EVENTS"),
+    NEW_EVENT("NEW_EVENT"),
     NOTES("NOTES"),
     DISCIPLINE("DISCIPLINE"),
     DISCIPLINE_CREATE("DISCIPLINE_CREATE"),

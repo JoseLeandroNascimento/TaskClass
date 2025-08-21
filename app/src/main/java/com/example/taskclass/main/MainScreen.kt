@@ -29,11 +29,11 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -63,7 +63,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(
     onNavigationDrawer: (Screen) -> Unit,
-    onNavigationNewSchedule:()-> Unit
+    onNavigationNewSchedule: () -> Unit,
+    onNavigationNewEvent: () -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -99,7 +100,8 @@ fun MainScreen(
                 scope.launch {
                     if (drawerState.isOpen) drawerState.close() else drawerState.open()
                 }
-            }
+            },
+            onNavigationNewEvent = onNavigationNewEvent
         )
     }
 }
@@ -112,7 +114,7 @@ private fun DrawerContent(
     ModalDrawerSheet(
         modifier = Modifier
             .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surface)
 
     ) {
         Box(
@@ -192,7 +194,8 @@ fun MainContent(
     startDestination: Screen,
     currentScreen: Screen,
     navController: NavHostController,
-    onNavigationNewSchedule:()-> Unit
+    onNavigationNewSchedule: () -> Unit,
+    onNavigationNewEvent: () -> Unit
 ) {
 
     Scaffold(
@@ -232,7 +235,9 @@ fun MainContent(
 
             if (currentScreen == Screen.EVENTS) {
                 FloatingActionButton(
-                    onClick = {},
+                    onClick = {
+                        onNavigationNewEvent()
+                    },
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(
@@ -246,20 +251,22 @@ fun MainContent(
 
     ) { innerPadding ->
 
-        NavHost(
-            modifier = Modifier
-                .padding(innerPadding),
-            navController = navController,
-            startDestination = startDestination.route,
-        ) {
-            composable(Screen.AGENDA.route) {
-                AgendaScreen()
-            }
-            composable(Screen.EVENTS.route) {
-                EventsScreen()
-            }
-            composable(Screen.NOTES.route) {
-                NotesScreen()
+        Surface {
+            NavHost(
+                modifier = Modifier
+                    .padding(innerPadding),
+                navController = navController,
+                startDestination = startDestination.route,
+            ) {
+                composable(Screen.AGENDA.route) {
+                    AgendaScreen()
+                }
+                composable(Screen.EVENTS.route) {
+                    EventsScreen()
+                }
+                composable(Screen.NOTES.route) {
+                    NotesScreen()
+                }
             }
         }
 

@@ -140,7 +140,7 @@ fun ScheduleGrid(
 
         Surface(
             modifier = modifier,
-            color = MaterialTheme.colorScheme.background
+            color = MaterialTheme.colorScheme.surface
         ) {
 
             Column {

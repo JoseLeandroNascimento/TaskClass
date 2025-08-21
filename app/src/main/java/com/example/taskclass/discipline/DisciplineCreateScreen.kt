@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -153,124 +154,130 @@ fun DisciplineCreateScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+
+        Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                ,
         ) {
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = subjectName,
-                onValueChange = { subjectName = it },
-                label = {
-                    Text(
-                        "Nome da Disciplina *",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                singleLine = true
-            )
 
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = teacherName,
-                onValueChange = { teacherName = it },
-                label = {
-                    Text(
-                        "Nome do Professor",
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                placeholder = {
-                    Text(
-                        "Opcional",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                    )
-                },
-                singleLine = true
-            )
-
-            Text(
-                text = "Cor atual",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium)
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(colorSelect)
-                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = subjectName,
+                    onValueChange = { subjectName = it },
+                    label = {
+                        Text(
+                            "Nome da Disciplina *",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    singleLine = true
+                )
+
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = teacherName,
+                    onValueChange = { teacherName = it },
+                    label = {
+                        Text(
+                            "Nome do Professor",
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            "Opcional",
+                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                        )
+                    },
+                    singleLine = true
+                )
+
+                Text(
+                    text = "Cor atual",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium)
                 )
 
                 Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val presetColors = listOf(
-                        Color(0xFF9C27B0),
-                        Color(0xFF4CAF50),
-                        Color(0xFFFFC107),
-                        Color(0xFFFF5722),
-                        Color(0xFF673AB7),
-                        Color(0xFF2979FF)
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(colorSelect)
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     )
 
-                    presetColors.forEach { color ->
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val presetColors = listOf(
+                            Color(0xFF9C27B0),
+                            Color(0xFF4CAF50),
+                            Color(0xFFFFC107),
+                            Color(0xFFFF5722),
+                            Color(0xFF673AB7),
+                            Color(0xFF2979FF)
+                        )
+
+                        presetColors.forEach { color ->
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(color)
+                                    .border(
+                                        2.dp,
+                                        if (color == colorSelect) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .clickable { colorSelect = color }
+                            )
+                        }
+
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(color)
-                                .border(
-                                    2.dp,
-                                    if (color == colorSelect) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    RoundedCornerShape(8.dp)
-                                )
-                                .clickable { colorSelect = color }
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Red,
-                                        Color(0xFFFF7F00),
-                                        Color.Yellow,
-                                        Color.Green,
-                                        Color.Blue,
-                                        Color(0xFF4B0082),
-                                        Color(0xFF8F00FF)
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(
+                                            Color.Red,
+                                            Color(0xFFFF7F00),
+                                            Color.Yellow,
+                                            Color.Green,
+                                            Color.Blue,
+                                            Color(0xFF4B0082),
+                                            Color(0xFF8F00FF)
+                                        )
                                     )
                                 )
-                            )
-                            .clickable {
-                                tempColor = colorSelect
-                                showPickerColor = true
-                            }
+                                .clickable {
+                                    tempColor = colorSelect
+                                    showPickerColor = true
+                                }
+                        )
+                    }
+                }
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = subjectName.isNotBlank(),
+                    onClick = { /* salvar */ }
+                ) {
+                    Text(
+                        "Cadastrar Disciplina",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
-            }
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                enabled = subjectName.isNotBlank(),
-                onClick = { /* salvar */ }
-            ) {
-                Text(
-                    "Cadastrar Disciplina",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
-                )
             }
         }
     }
