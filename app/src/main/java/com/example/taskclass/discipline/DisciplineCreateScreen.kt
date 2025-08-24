@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.taskclass.commons.composables.AppButton
 import com.example.taskclass.commons.composables.AppDialog
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
@@ -268,29 +269,39 @@ fun DisciplineCreateScreen(
                     }
                 }
 
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
+                AppButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     enabled = subjectName.isNotBlank(),
+                    label = "Cadastrar Disciplina",
                     onClick = { /* salvar */ }
-                ) {
-                    Text(
-                        "Cadastrar Disciplina",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
-                    )
-                }
+                )
             }
         }
     }
 }
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun DisciplineCreatePreview() {
+private fun DisciplineCreateLightPreview() {
 
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = false
+    ) {
+        DisciplineCreateScreen { }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DisciplineCreateDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
     ) {
         DisciplineCreateScreen { }
     }

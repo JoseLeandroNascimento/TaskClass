@@ -247,6 +247,21 @@ fun MainContent(
                     )
                 }
             }
+
+            if (currentScreen == Screen.NOTES) {
+                FloatingActionButton(
+                    onClick = {
+
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Adicionar evento",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
 
     ) { innerPadding ->

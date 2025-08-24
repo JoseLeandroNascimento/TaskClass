@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.taskclass.commons.composables.AppButton
 import com.example.taskclass.commons.composables.AppDropdown
 import com.example.taskclass.commons.composables.AppInputTime
 import com.example.taskclass.discipline.Discipline
@@ -154,19 +155,13 @@ fun NewScheduleScreen(
                     )
                 }
 
-                Button(
+                AppButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
+                    label = "Cadastrar Horário",
                     onClick = { /* salvar */ }
-                ) {
-                    Text(
-                        text = "Cadastrar Horário",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
+                )
             }
         }
     }
@@ -174,11 +169,27 @@ fun NewScheduleScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun NewSchedulePreview() {
+private fun NewScheduleLightPreview() {
 
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = false
+    ) {
+        NewScheduleScreen(
+            onBack = {
+
+            }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NewScheduleDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
     ) {
         NewScheduleScreen(
             onBack = {

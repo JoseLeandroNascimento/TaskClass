@@ -69,9 +69,7 @@ fun AppDropdown(
                 expanded = false
             }
         ) {
-
             content()
-
         }
     }
 
