@@ -18,4 +18,8 @@ class DisciplineRepositoryImpl @Inject constructor(
     override suspend fun findAll(): Flow<List<Discipline>> {
         return dao.findAll()
     }
+
+    override suspend fun delete(id: Int) {
+        dao.delete(id)
+    }
 }

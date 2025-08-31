@@ -10,4 +10,6 @@ interface DisciplineRepository {
     suspend fun update(data: Discipline)
 
     suspend fun findAll():  Flow<List<Discipline>>
+
+    suspend fun delete(id: Int)
 }

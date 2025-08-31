@@ -35,4 +35,18 @@ class DisciplineViewModel @Inject constructor(
 
     }
 
+    fun deleteDiscipline(id: Int) {
+
+        _uiState.update {
+            it.copy(loading = true)
+        }
+        viewModelScope.launch {
+            repo.delete(id)
+            _uiState.update {
+                it.copy(loading = false)
+            }
+
+        }
+    }
+
 }

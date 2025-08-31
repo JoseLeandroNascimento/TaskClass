@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,7 +66,10 @@ fun DisciplineScreen(
     DisciplineScreen(
         onBack = onBack,
         uiState = uiState,
-        onCreateDiscipline = onCreateDiscipline
+        onCreateDiscipline = onCreateDiscipline,
+        onDeleteDiscipline = {
+            viewModel.deleteDiscipline(it)
+        }
     )
 }
 
@@ -72,6 +78,7 @@ fun DisciplineScreen(
 fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit,
+    onDeleteDiscipline: (Int) -> Unit,
     uiState: DisciplineUiState
 ) {
     Scaffold(
@@ -109,7 +116,8 @@ fun DisciplineScreen(
         Surface {
             DisciplineContent(
                 modifier = Modifier.padding(innerPadding),
-                disciplines = uiState.disciplines
+                uiState = uiState,
+                onDeleteDiscipline = onDeleteDiscipline
             )
         }
     }
@@ -118,25 +126,67 @@ fun DisciplineScreen(
 @Composable
 fun DisciplineContent(
     modifier: Modifier = Modifier,
-    disciplines: List<Discipline>
+    uiState: DisciplineUiState,
+    onDeleteDiscipline: (Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(disciplines, key = { it.id!! }) { discipline ->
-            DisciplineItem(discipline = discipline)
-        }
-        item {
-            Spacer(modifier = Modifier.height(80.dp))
+
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+        when {
+            uiState.loading -> {
+                CircularProgressIndicator(
+                    strokeWidth = 4.dp
+                )
+            }
+
+            uiState.disciplines.isNotEmpty() -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    items(uiState.disciplines, key = { it.id!! }) { discipline ->
+                        DisciplineItem(
+                            discipline = discipline,
+                            onDeleteDiscipline = onDeleteDiscipline
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
+                    }
+
+                }
+            }
+
+            else -> {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.List,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Nenhuma disciplina",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
         }
     }
+
+
 }
 
 @Composable
 fun DisciplineItem(
     modifier: Modifier = Modifier,
+    onDeleteDiscipline: (Int) -> Unit,
     discipline: Discipline
 ) {
     var openDropdown by rememberSaveable { mutableStateOf(false) }
@@ -200,7 +250,10 @@ fun DisciplineItem(
                     )
                     DropdownMenuItem(
                         text = { Text("Excluir") },
-                        onClick = { openDropdown = false },
+                        onClick = {
+                            onDeleteDiscipline(discipline.id!!)
+                            openDropdown = false
+                        },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Delete,

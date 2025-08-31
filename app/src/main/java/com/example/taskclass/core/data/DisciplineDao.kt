@@ -14,4 +14,7 @@ interface DisciplineDao {
     @Query("SELECT * FROM discipline_table")
     fun findAll(): Flow<List<Discipline>>
 
+    @Query("DELETE FROM discipline_table WHERE id = :id")
+    suspend fun delete(id: Int)
+
 }
