@@ -1,4 +1,4 @@
-package com.example.taskclass.commons.composables
+package com.example.taskclass.common.composables
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme

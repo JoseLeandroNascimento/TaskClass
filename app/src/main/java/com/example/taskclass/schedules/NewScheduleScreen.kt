@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -35,23 +34,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.taskclass.commons.composables.AppButton
-import com.example.taskclass.commons.composables.AppDropdown
-import com.example.taskclass.commons.composables.AppInputTime
-import com.example.taskclass.discipline.Discipline
+import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppDropdown
+import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.ui.theme.TaskClassTheme
-
-val listDiscipline: List<Discipline> = listOf(
-    Discipline(1, "Matemática", Color(0xFF2979FF)),
-    Discipline(2, "Química", Color(0xFF9C27B0)),
-    Discipline(3, "Geografia", Color(0xFF4CAF50)),
-    Discipline(4, "Biologia", Color(0xFFFFC107)),
-    Discipline(5, "Sociologia", Color(0xFFFF5722)),
-    Discipline(6, "Filosofia", Color(0xFF673AB7)),
-    Discipline(7, "Educação Física", Color(0xFFFFEB3B)),
-    Discipline(8, "Inglês", Color(0xFF009688)),
-    Discipline(9, "História", Color(0xFFF44336))
-)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,22 +104,22 @@ fun NewScheduleScreen(
                     value = disciplineSelect,
                     label = "Disciplina *"
                 ) {
-                    listDiscipline.forEach { discipline ->
-                        DropdownMenuItem(
-                            text = { Text(discipline.title) },
-                            leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(26.dp)
-                                        .background(discipline.color, CircleShape)
-                                        .border(1.dp, Color.Black.copy(alpha = 0.08f), CircleShape)
-                                        .shadow(3.dp, CircleShape, clip = false)
-                                )
-                            },
-                            onClick = { disciplineSelect = discipline.title },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                        )
-                    }
+//                    listDiscipline.forEach { discipline ->
+//                        DropdownMenuItem(
+//                            text = { Text(discipline.title) },
+//                            leadingIcon = {
+//                                Box(
+//                                    modifier = Modifier
+//                                        .size(26.dp)
+//                                        .background(discipline.color, CircleShape)
+//                                        .border(1.dp, Color.Black.copy(alpha = 0.08f), CircleShape)
+//                                        .shadow(3.dp, CircleShape, clip = false)
+//                                )
+//                            },
+//                            onClick = { disciplineSelect = discipline.title },
+//                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+//                        )
+//                    }
                 }
 
                 Row(

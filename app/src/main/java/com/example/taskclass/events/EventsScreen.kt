@@ -165,13 +165,11 @@ fun EventCard(
 
             EventDetailRow(
                 icon = Icons.Outlined.CalendarToday,
-                contentDescription = "",
                 text = date
             )
 
             EventDetailRow(
                 icon = Icons.Outlined.Schedule,
-                contentDescription = "",
                 text = time
             )
         }
@@ -181,7 +179,6 @@ fun EventCard(
 @Composable
 private fun EventDetailRow(
     icon: ImageVector,
-    contentDescription: String,
     text: String
 ) {
     Row(
@@ -190,7 +187,7 @@ private fun EventDetailRow(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = contentDescription,
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             modifier = Modifier.size(14.dp)
         )
@@ -243,7 +240,7 @@ fun AppCalendar(
             // Transição suave e leve
             Crossfade(
                 targetState = compactMode,
-                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                animationSpec = tween(durationMillis = 100, easing = FastOutSlowInEasing),
                 label = "calendarCrossfade"
             ) { isCompact ->
                 if (isCompact) {
@@ -423,8 +420,22 @@ private fun generateMonthDays(month: Calendar): List<Calendar?> {
 
 @Preview(showBackground = true)
 @Composable
-private fun EventsScreenPreview() {
-    TaskClassTheme(darkTheme = false) {
+private fun EventsScreenLightPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        EventsScreen()
+    }
+}
+
+@Preview
+@Composable
+private fun EventsScreenDarkPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
         EventsScreen()
     }
 }

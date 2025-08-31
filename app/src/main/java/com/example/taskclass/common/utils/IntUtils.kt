@@ -1,4 +1,4 @@
-package com.example.taskclass.commons.utils
+package com.example.taskclass.common.utils
 
 fun Int.parseHors(): String {
     if (this < 10)

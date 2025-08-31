@@ -1,0 +1,38 @@
+package com.example.taskclass.discipline.presentation.disciplineScreen
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.taskclass.discipline.domain.DisciplineRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+@HiltViewModel
+class DisciplineViewModel @Inject constructor(
+    private val repo: DisciplineRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(DisciplineUiState())
+    val uiState: StateFlow<DisciplineUiState> = _uiState.asStateFlow()
+
+    init {
+
+        _uiState.update {
+            it.copy(loading = true)
+        }
+
+        viewModelScope.launch {
+            repo.findAll().collect { disciplines ->
+                _uiState.update {
+                    it.copy(loading = false, disciplines = disciplines)
+                }
+            }
+        }
+
+    }
+
+}

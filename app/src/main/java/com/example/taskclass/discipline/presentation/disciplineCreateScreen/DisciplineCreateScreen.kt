@@ -1,4 +1,4 @@
-package com.example.taskclass.discipline
+package com.example.taskclass.discipline.presentation.disciplineCreateScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,98 +44,62 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.taskclass.commons.composables.AppButton
-import com.example.taskclass.commons.composables.AppDialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppDialog
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
+@Composable
+fun DisciplineCreateScreen(
+    onBack: () -> Unit,
+    viewModel: DisciplineCreateViewModel
+) {
+
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    DisciplineCreateScreen(
+        onBack = onBack,
+        uiState = uiState,
+        updateTitle = {
+            viewModel.updateTitle(it)
+        },
+        updateTeacherName = {
+            viewModel.updateTeacherName(it)
+        },
+        updateColorSelect = {
+            viewModel.updateColorSelect(it)
+        },
+        changePickerColor = {
+            viewModel.changePickerColor(it)
+        },
+        onSave = {
+            viewModel.save()
+        }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisciplineCreateScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    uiState: DisciplineCreateUiState,
+    updateTitle: ((String) -> Unit)? = null,
+    updateTeacherName: ((String) -> Unit)? = null,
+    updateColorSelect: ((Color) -> Unit)? = null,
+    changePickerColor: ((Boolean) -> Unit)? = null,
+    onSave: () -> Unit
 ) {
-    val colorDefault = Color(0xFF9C27B0)
-    val controller = rememberColorPickerController()
-    var colorSelect by remember { mutableStateOf(colorDefault) }
-    var tempColor by remember { mutableStateOf(colorDefault) }
-    var showPickerColor by remember { mutableStateOf(false) }
-    var subjectName by remember { mutableStateOf("") }
-    var teacherName by remember { mutableStateOf("") }
 
-    if (showPickerColor) {
-        AppDialog(
-            title = "Selecionar Cor",
-            onDismissRequest = { showPickerColor = false }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Escolha uma cor para representar a disciplina",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    ),
-                    textAlign = TextAlign.Center
-                )
+    if (uiState.showPickerColor) {
 
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(CircleShape)
-                        .background(tempColor)
-                        .border(
-                            width = 3.dp,
-                            brush = Brush.linearGradient(
-                                listOf(Color.White, Color.Gray.copy(alpha = 0.5f))
-                            ),
-                            shape = CircleShape
-                        )
-                        .shadow(elevation = 6.dp, shape = CircleShape, clip = false)
-                )
-
-                HsvColorPicker(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp),
-                    initialColor = colorSelect,
-                    controller = controller,
-                    onColorChanged = { envelope: ColorEnvelope ->
-                        tempColor = envelope.color
-                    }
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = { showPickerColor = false }
-                    ) {
-                        Text("Cancelar", style = MaterialTheme.typography.labelLarge)
-                    }
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        onClick = {
-                            colorSelect = tempColor
-                            showPickerColor = false
-                        }
-                    ) {
-                        Text("Confirmar", style = MaterialTheme.typography.labelLarge)
-                    }
-                }
-            }
-        }
-
+        SelectColorDialog(
+            colorSelect = uiState.colorSelect,
+            changePickerColor = { changePickerColor?.invoke(it) },
+            changeColorSelect = { updateColorSelect?.invoke(it) }
+        )
     }
 
     Scaffold(
@@ -143,8 +107,8 @@ fun DisciplineCreateScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Nova Disciplina",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        text = "Nova Disciplina",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 navigationIcon = {
@@ -159,8 +123,7 @@ fun DisciplineCreateScreen(
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                ,
+                .padding(innerPadding),
         ) {
 
             Column(
@@ -169,8 +132,20 @@ fun DisciplineCreateScreen(
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = subjectName,
-                    onValueChange = { subjectName = it },
+                    value = uiState.title.value,
+                    isError = uiState.title.error != null,
+                    supportingText = if (uiState.title.error != null) {
+                        {
+                            Text(
+                                text = uiState.title.error,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    onValueChange = { updateTitle?.invoke(it) },
                     label = {
                         Text(
                             "Nome da Disciplina *",
@@ -182,8 +157,9 @@ fun DisciplineCreateScreen(
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = teacherName,
-                    onValueChange = { teacherName = it },
+
+                    value = uiState.teacherName.value,
+                    onValueChange = { updateTeacherName?.invoke(it) },
                     label = {
                         Text(
                             "Nome do Professor",
@@ -212,7 +188,7 @@ fun DisciplineCreateScreen(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
-                            .background(colorSelect)
+                            .background(uiState.colorSelect)
                             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                     )
 
@@ -237,10 +213,10 @@ fun DisciplineCreateScreen(
                                     .background(color)
                                     .border(
                                         2.dp,
-                                        if (color == colorSelect) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                        if (color == uiState.colorSelect) MaterialTheme.colorScheme.primary else Color.Transparent,
                                         RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { colorSelect = color }
+                                    .clickable { updateColorSelect?.invoke(color) }
                             )
                         }
 
@@ -262,8 +238,7 @@ fun DisciplineCreateScreen(
                                     )
                                 )
                                 .clickable {
-                                    tempColor = colorSelect
-                                    showPickerColor = true
+                                    changePickerColor?.invoke(true)
                                 }
                         )
                     }
@@ -273,10 +248,91 @@ fun DisciplineCreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    enabled = subjectName.isNotBlank(),
                     label = "Cadastrar Disciplina",
-                    onClick = { /* salvar */ }
+                    onClick = onSave
                 )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SelectColorDialog(
+    colorSelect: Color,
+    changeColorSelect: (Color) -> Unit,
+    changePickerColor: (Boolean) -> Unit
+) {
+
+    val controller = rememberColorPickerController()
+    var tempColor by remember { mutableStateOf(colorSelect) }
+
+    AppDialog(
+        title = "Selecionar Cor",
+        onDismissRequest = { changePickerColor(false) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Escolha uma cor para representar a disciplina",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                ),
+                textAlign = TextAlign.Center
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(tempColor)
+                    .border(
+                        width = 3.dp,
+                        brush = Brush.linearGradient(
+                            listOf(Color.White, Color.Gray.copy(alpha = 0.5f))
+                        ),
+                        shape = CircleShape
+                    )
+                    .shadow(elevation = 6.dp, shape = CircleShape, clip = false)
+            )
+
+            HsvColorPicker(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp),
+                initialColor = colorSelect,
+                controller = controller,
+                onColorChanged = { envelope: ColorEnvelope ->
+                    tempColor = envelope.color
+                }
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = { changePickerColor?.invoke(false) }
+                ) {
+                    Text("Cancelar", style = MaterialTheme.typography.labelLarge)
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        changeColorSelect(tempColor)
+                        changePickerColor.invoke(false)
+                    }
+                ) {
+                    Text("Confirmar", style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }
@@ -291,7 +347,12 @@ private fun DisciplineCreateLightPreview() {
         dynamicColor = false,
         darkTheme = false
     ) {
-        DisciplineCreateScreen { }
+        DisciplineCreateScreen(
+            uiState = DisciplineCreateUiState(),
+            onBack = {},
+            updateTitle = {},
+            onSave = {}
+        )
     }
 }
 
@@ -303,6 +364,12 @@ private fun DisciplineCreateDarkPreview() {
         dynamicColor = false,
         darkTheme = true
     ) {
-        DisciplineCreateScreen { }
+        DisciplineCreateScreen(
+            uiState = DisciplineCreateUiState(),
+            onBack = {},
+            updateTitle = {},
+            onSave = {}
+
+        )
     }
 }

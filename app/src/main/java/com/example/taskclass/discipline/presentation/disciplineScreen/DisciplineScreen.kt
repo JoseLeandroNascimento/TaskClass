@@ -1,4 +1,4 @@
-package com.example.taskclass.discipline
+package com.example.taskclass.discipline.presentation.disciplineScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,30 +47,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.core.data.Discipline
 
-data class Discipline(
-    val id: Int,
-    val title: String,
-    val color: Color
-)
 
-val listDiscipline: List<Discipline> = listOf(
-    Discipline(1, "Matemática", Color(0xFF2979FF)),
-    Discipline(2, "Química", Color(0xFF9C27B0)),
-    Discipline(3, "Geografia", Color(0xFF4CAF50)),
-    Discipline(4, "Biologia", Color(0xFFFFC107)),
-    Discipline(5, "Sociologia", Color(0xFFFF5722)),
-    Discipline(6, "Filosofia", Color(0xFF673AB7)),
-    Discipline(7, "Educação Física", Color(0xFFFFEB3B)),
-    Discipline(8, "Inglês", Color(0xFF009688)),
-    Discipline(9, "História", Color(0xFFF44336))
-)
+@Composable
+fun DisciplineScreen(
+    onBack: () -> Unit,
+    onCreateDiscipline: () -> Unit,
+    viewModel: DisciplineViewModel
+) {
+
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    DisciplineScreen(
+        onBack = onBack,
+        uiState = uiState,
+        onCreateDiscipline = onCreateDiscipline
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisciplineScreen(
     onBack: () -> Unit,
-    onCreateDiscipline: () -> Unit
+    onCreateDiscipline: () -> Unit,
+    uiState: DisciplineUiState
 ) {
     Scaffold(
         topBar = {
@@ -106,7 +108,8 @@ fun DisciplineScreen(
 
         Surface {
             DisciplineContent(
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                disciplines = uiState.disciplines
             )
         }
     }
@@ -114,14 +117,15 @@ fun DisciplineScreen(
 
 @Composable
 fun DisciplineContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    disciplines: List<Discipline>
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(listDiscipline, key = { it.id }) { discipline ->
+        items(disciplines, key = { it.id!! }) { discipline ->
             DisciplineItem(discipline = discipline)
         }
         item {

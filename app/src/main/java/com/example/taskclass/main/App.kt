@@ -2,11 +2,14 @@ package com.example.taskclass.main
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.taskclass.discipline.DisciplineCreateScreen
-import com.example.taskclass.discipline.DisciplineScreen
+import com.example.taskclass.discipline.presentation.disciplineCreateScreen.DisciplineCreateScreen
+import com.example.taskclass.discipline.presentation.disciplineCreateScreen.DisciplineCreateViewModel
+import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineScreen
+import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineViewModel
 import com.example.taskclass.events.EventCreateScreen
 import com.example.taskclass.schedules.NewScheduleScreen
 import com.example.taskclass.schedules.SchedulesScreen
@@ -39,11 +42,13 @@ fun App(modifier: Modifier = Modifier) {
             )
         }
 
-        composable(Screen.DISCIPLINE.route) {
+        composable(Screen.DISCIPLINE.route) { backStackEntry ->
+            val viewModel = hiltViewModel<DisciplineViewModel>(backStackEntry)
             DisciplineScreen(
                 onBack = {
                     appNavController.navigateUp()
                 },
+                viewModel = viewModel,
                 onCreateDiscipline = {
                     appNavController.navigate(Screen.DISCIPLINE_CREATE.route) {
                         popUpTo(Screen.DISCIPLINE.route) { saveState = true }
@@ -54,10 +59,14 @@ fun App(modifier: Modifier = Modifier) {
             )
         }
 
-        composable(Screen.DISCIPLINE_CREATE.route) {
-            DisciplineCreateScreen {
-                appNavController.navigateUp()
-            }
+        composable(Screen.DISCIPLINE_CREATE.route) { backStackEntry ->
+            val viewModel = hiltViewModel<DisciplineCreateViewModel>(backStackEntry)
+            DisciplineCreateScreen(
+                viewModel = viewModel,
+                onBack = {
+                    appNavController.navigateUp()
+                }
+            )
         }
 
         composable(Screen.SCHEDULES.route) {
