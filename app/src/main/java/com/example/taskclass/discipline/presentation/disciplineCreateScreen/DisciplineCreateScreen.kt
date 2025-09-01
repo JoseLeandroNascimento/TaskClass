@@ -30,7 +30,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDialog
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
@@ -62,11 +62,12 @@ fun DisciplineCreateScreen(
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
-    LaunchedEffect(uiState.saveSuccess) {
+    when {
 
-        if (uiState.saveSuccess) {
+        uiState.disciplineResponse is Resource.Success -> {
             onSaveSuccess()
         }
+
     }
 
     DisciplineCreateScreen(
@@ -257,6 +258,7 @@ fun DisciplineCreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
+                    isLoading = uiState.disciplineResponse is Resource.Loading,
                     label = "Cadastrar Disciplina",
                     onClick = onSave
                 )

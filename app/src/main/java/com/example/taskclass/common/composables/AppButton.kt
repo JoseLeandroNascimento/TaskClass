@@ -1,12 +1,15 @@
 package com.example.taskclass.common.composables
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -14,22 +17,35 @@ import com.example.taskclass.ui.theme.White
 fun AppButton(
     modifier: Modifier = Modifier,
     label: String,
+    isLoading: Boolean = false,
     enabled: Boolean = true,
-    onClick:()-> Unit
+    onClick: () -> Unit
 ) {
     Button(
         modifier = modifier,
         shape = MaterialTheme.shapes.small,
-        enabled = enabled,
+        enabled = enabled || isLoading,
         onClick = onClick
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = White
-        )
+        when {
+            isLoading -> {
+                CircularProgressIndicator(
+                    color = White,
+                    strokeWidth = 4.dp,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            else -> {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = White
+                )
+            }
+        }
     }
 }
 
@@ -40,7 +56,7 @@ private fun AppButtonLightPreview() {
         dynamicColor = false,
         darkTheme = false
     ) {
-        AppButton(label = "Botão"){}
+        AppButton(label = "Botão") {}
     }
 }
 
@@ -51,6 +67,6 @@ private fun AppButtonDarkPreview() {
         dynamicColor = false,
         darkTheme = true
     ) {
-        AppButton(label = "Botão"){}
+        AppButton(label = "Botão") {}
     }
 }

@@ -10,8 +10,17 @@ class DisciplineRepositoryImpl @Inject constructor(
     private val dao: DisciplineDao
 ) : DisciplineRepository {
 
-    override suspend fun save(data: Discipline) {
-        dao.save(data)
+    override suspend fun save(data: Discipline): Flow<Resource<Discipline>> {
+
+        return flow {
+            try {
+                emit(Resource.Loading())
+                dao.save(data)
+                emit(Resource.Success(data))
+            } catch (e: Exception) {
+                emit(Resource.Error("Error desconhecido"))
+            }
+        }
     }
 
     override suspend fun update(data: Discipline) {

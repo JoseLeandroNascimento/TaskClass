@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.FieldState
 import com.example.taskclass.core.data.Discipline
-import com.example.taskclass.discipline.domain.CreateDisciplineUseCase
+import com.example.taskclass.discipline.domain.DisciplineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class DisciplineCreateViewModel @Inject constructor(
-    private val createDisciplineUseCase: CreateDisciplineUseCase
+    private val repo: DisciplineRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DisciplineCreateUiState())
@@ -72,9 +72,10 @@ class DisciplineCreateViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            createDisciplineUseCase.save(data)
-            _uiState.update {
-                it.copy(saveSuccess = true)
+            repo.save(data).collect { response ->
+                _uiState.update {
+                    it.copy(disciplineResponse = response)
+                }
             }
         }
 

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DisciplineRepository {
 
-    suspend fun save(data: Discipline)
+    suspend fun save(data: Discipline): Flow<Resource<Discipline>>
 
     suspend fun update(data: Discipline)
 
