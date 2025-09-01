@@ -11,8 +11,9 @@ import com.example.taskclass.discipline.presentation.disciplineCreateScreen.Disc
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineScreen
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineViewModel
 import com.example.taskclass.events.EventCreateScreen
-import com.example.taskclass.schedules.NewScheduleScreen
-import com.example.taskclass.schedules.SchedulesScreen
+import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleScreen
+import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleViewModel
+import com.example.taskclass.schedules.presentation.schedules.SchedulesScreen
 import com.example.taskclass.typeEvents.TypeEventsScreen
 
 @Composable
@@ -78,10 +79,15 @@ fun App(modifier: Modifier = Modifier) {
             }
         }
 
-        composable(Screen.NEW_SCHEDULES.route) {
-            NewScheduleScreen {
-                appNavController.navigateUp()
-            }
+        composable(Screen.NEW_SCHEDULES.route) { backStackEntry ->
+
+            val viewModel = hiltViewModel<NewScheduleViewModel>(backStackEntry)
+            NewScheduleScreen(
+                viewModel = viewModel,
+                onBack = {
+                    appNavController.navigateUp()
+                }
+            )
         }
 
         composable(Screen.NEW_EVENT.route) {

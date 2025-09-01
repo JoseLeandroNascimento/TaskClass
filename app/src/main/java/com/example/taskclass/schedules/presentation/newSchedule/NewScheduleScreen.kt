@@ -1,4 +1,4 @@
-package com.example.taskclass.schedules
+package com.example.taskclass.schedules.presentation.newSchedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,17 +34,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.theme.TaskClassTheme
 
+@Composable
+fun NewScheduleScreen(
+    onBack: () -> Unit,
+    viewModel: NewScheduleViewModel
+) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    NewScheduleScreen(
+        onBack = onBack,
+        uiState = uiState
+    )
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewScheduleScreen(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    uiState: NewScheduleUiState
 ) {
     var weekDay by remember { mutableStateOf("") }
     var disciplineSelect by remember { mutableStateOf("") }
@@ -104,22 +118,42 @@ fun NewScheduleScreen(
                     value = disciplineSelect,
                     label = "Disciplina *"
                 ) {
-//                    listDiscipline.forEach { discipline ->
-//                        DropdownMenuItem(
-//                            text = { Text(discipline.title) },
-//                            leadingIcon = {
-//                                Box(
-//                                    modifier = Modifier
-//                                        .size(26.dp)
-//                                        .background(discipline.color, CircleShape)
-//                                        .border(1.dp, Color.Black.copy(alpha = 0.08f), CircleShape)
-//                                        .shadow(3.dp, CircleShape, clip = false)
-//                                )
-//                            },
-//                            onClick = { disciplineSelect = discipline.title },
-//                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-//                        )
-//                    }
+
+                    when (uiState.disciplines) {
+                        is Resource.Loading -> {
+
+                        }
+
+                        is Resource.Success -> {
+
+                            uiState.disciplines.data.forEach { discipline ->
+                                DropdownMenuItem(
+                                    text = { Text(discipline.title) },
+                                    leadingIcon = {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(26.dp)
+                                                .background(discipline.color, CircleShape)
+                                                .border(
+                                                    1.dp,
+                                                    Color.Black.copy(alpha = 0.08f),
+                                                    CircleShape
+                                                )
+                                                .shadow(3.dp, CircleShape, clip = false)
+                                        )
+                                    },
+                                    onClick = { disciplineSelect = discipline.title },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+
+                        }
+
+                        is Resource.Error -> {
+
+                        }
+                    }
+
                 }
 
                 Row(
@@ -164,7 +198,8 @@ private fun NewScheduleLightPreview() {
         NewScheduleScreen(
             onBack = {
 
-            }
+            },
+            uiState = NewScheduleUiState()
         )
     }
 }
@@ -180,7 +215,8 @@ private fun NewScheduleDarkPreview() {
         NewScheduleScreen(
             onBack = {
 
-            }
+            },
+            uiState = NewScheduleUiState()
         )
     }
 }

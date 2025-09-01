@@ -1,4 +1,4 @@
-package com.example.taskclass.schedules
+package com.example.taskclass.schedules.presentation.schedules
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
