@@ -48,10 +48,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.Discipline
+import com.example.taskclass.ui.theme.White
 
 
 @Composable
@@ -107,7 +110,8 @@ fun DisciplineScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Adicionar"
+                    contentDescription = "Adicionar",
+                    tint = White
                 )
             }
         }
@@ -132,49 +136,55 @@ fun DisciplineContent(
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-        when {
-            uiState.loading -> {
+        when (uiState.disciplines) {
+            is Resource.Loading -> {
                 CircularProgressIndicator(
                     strokeWidth = 4.dp
                 )
             }
 
-            uiState.disciplines.isNotEmpty() -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+            is Resource.Success -> {
 
-                    items(uiState.disciplines, key = { it.id!! }) { discipline ->
-                        DisciplineItem(
-                            discipline = discipline,
-                            onDeleteDiscipline = onDeleteDiscipline
+                if (uiState.disciplines.data.isNotEmpty()) {
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        items(uiState.disciplines.data, key = { it.id!! }) { discipline ->
+                            DisciplineItem(
+                                discipline = discipline,
+                                onDeleteDiscipline = onDeleteDiscipline
+                            )
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp))
+                        }
+
+                    }
+                } else {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.List,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Nenhuma disciplina",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(80.dp))
-                    }
-
                 }
             }
 
-            else -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.List,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Nenhuma disciplina",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+            is Resource.Error -> {
+
             }
 
         }
@@ -206,6 +216,7 @@ fun DisciplineItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -218,6 +229,8 @@ fun DisciplineItem(
                 )
                 Text(
                     text = discipline.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp

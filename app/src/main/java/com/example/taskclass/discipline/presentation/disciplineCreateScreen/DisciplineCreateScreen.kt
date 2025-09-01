@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,10 +56,18 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 @Composable
 fun DisciplineCreateScreen(
     onBack: () -> Unit,
+    onSaveSuccess: () -> Unit,
     viewModel: DisciplineCreateViewModel
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(uiState.saveSuccess) {
+
+        if (uiState.saveSuccess) {
+            onSaveSuccess()
+        }
+    }
 
     DisciplineCreateScreen(
         onBack = onBack,

@@ -73,6 +73,9 @@ class DisciplineCreateViewModel @Inject constructor(
 
         viewModelScope.launch {
             createDisciplineUseCase.save(data)
+            _uiState.update {
+                it.copy(saveSuccess = true)
+            }
         }
 
     }

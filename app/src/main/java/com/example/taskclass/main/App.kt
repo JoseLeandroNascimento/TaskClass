@@ -65,6 +65,9 @@ fun App(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
+                },
+                onSaveSuccess = {
+                    appNavController.navigateUp()
                 }
             )
         }

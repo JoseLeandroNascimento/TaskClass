@@ -8,5 +8,6 @@ data class DisciplineCreateUiState(
     val title: FieldState = FieldState(),
     val teacherName: FieldState = FieldState(),
     val colorSelect: Color = Color(0xFF9C27B0),
-    val showPickerColor: Boolean = false
+    val showPickerColor: Boolean = false,
+    val saveSuccess: Boolean = false
 )
