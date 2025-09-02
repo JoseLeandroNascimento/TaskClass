@@ -22,7 +22,7 @@ data class Schedule(
     val id: Int = 0,
 
     @ColumnInfo(name = "day_week")
-    val dayWeek: String,
+    val dayWeek: Int,
 
     @ColumnInfo(name = "discipline_id", index = true)
     val disciplineId: Int,

@@ -48,15 +48,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.taskclass.R
-import com.example.taskclass.agenda.AgendaScreen
+import com.example.taskclass.agenda.presentation.AgendaScreen
+import com.example.taskclass.agenda.presentation.AgendaViewModel
 import com.example.taskclass.events.EventsScreen
 import com.example.taskclass.notes.NotesScreen
+import com.example.taskclass.ui.theme.White
 import kotlinx.coroutines.launch
 
 
@@ -228,7 +231,7 @@ fun MainContent(
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "Adicionar evento",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = White
                     )
                 }
             }
@@ -243,7 +246,7 @@ fun MainContent(
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "Adicionar evento",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = White
                     )
                 }
             }
@@ -258,7 +261,7 @@ fun MainContent(
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "Adicionar evento",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = White
                     )
                 }
             }
@@ -273,8 +276,11 @@ fun MainContent(
                 navController = navController,
                 startDestination = startDestination.route,
             ) {
-                composable(Screen.AGENDA.route) {
-                    AgendaScreen()
+                composable(Screen.AGENDA.route) { backStackEntry ->
+                    val viewModel = hiltViewModel<AgendaViewModel>(backStackEntry)
+                    AgendaScreen(
+                        viewModel = viewModel
+                    )
                 }
                 composable(Screen.EVENTS.route) {
                     EventsScreen()

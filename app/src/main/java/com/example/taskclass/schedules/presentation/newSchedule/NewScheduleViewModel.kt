@@ -36,7 +36,7 @@ class NewScheduleViewModel @Inject constructor(
         }
     }
 
-    fun updateDayWeek(dayWeek: String) {
+    fun updateDayWeek(dayWeek: Int) {
 
         _uiState.update {
             it.copy(dayWeek = it.dayWeek.updateValue(dayWeek))

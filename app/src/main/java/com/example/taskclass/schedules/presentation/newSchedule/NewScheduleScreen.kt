@@ -1,5 +1,6 @@
 package com.example.taskclass.schedules.presentation.newSchedule
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
@@ -47,7 +50,7 @@ fun NewScheduleScreen(
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
-    if(uiState.scheduleResponse is Resource.Success){
+    if (uiState.scheduleResponse is Resource.Success) {
         onBack()
     }
 
@@ -73,21 +76,22 @@ fun NewScheduleScreen(
 
 }
 
+
+@SuppressLint("LocalContextResourcesRead")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewScheduleScreen(
     onBack: () -> Unit,
     uiState: NewScheduleUiState,
-    updateDayWeek: ((String) -> Unit)? = null,
+    updateDayWeek: ((Int) -> Unit)? = null,
     updateDiscipline: ((Discipline) -> Unit)? = null,
     updateStartTime: ((String) -> Unit)? = null,
     updateEndTime: ((String) -> Unit)? = null,
-    onSave:()-> Unit
+    onSave: () -> Unit
 ) {
 
-    val daysOfWeek = listOf(
-        "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"
-    )
+    val context = LocalContext.current
+    val daysOfWeek = context.resources.getStringArray(R.array.dias_da_semana_completo)
 
     Scaffold(
         topBar = {
@@ -122,14 +126,14 @@ fun NewScheduleScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AppDropdown(
-                    value = uiState.dayWeek.value,
+                    value = daysOfWeek[uiState.dayWeek.value],
                     label = "Dia da Semana *"
                 ) { closeMenu ->
-                    daysOfWeek.forEach { day ->
+                    daysOfWeek.forEachIndexed { index, day ->
                         DropdownMenuItem(
                             text = { Text(day) },
                             onClick = {
-                                updateDayWeek?.invoke(day)
+                                updateDayWeek?.invoke(index)
                                 closeMenu()
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding

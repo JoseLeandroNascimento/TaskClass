@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">Task Class</string>
+
+    <string-array name="dias_da_semana_completo">
+        <item>Domingo</item>
+        <item>Segunda-feira</item>
+        <item>Terça-feira</item>
+        <item>Quarta-feira</item>
+        <item>Quinta-feira</item>
+        <item>Sexta-feira</item>
+        <item>Sábado</item>
+    </string-array>
+
+    <string-array name="dias_da_semana_abreviado">
+        <item>Dom</item>
+        <item>Seg</item>
+        <item>Ter</item>
+        <item>Qua</item>
+        <item>Qui</item>
+        <item>Sex</item>
+        <item>Sáb</item>
+    </string-array>
+
 </resources>
