@@ -1,8 +1,11 @@
 package com.example.taskclass.main
 
-import com.example.taskclass.core.data.DisciplineDao
-import com.example.taskclass.core.data.DisciplineRepositoryImpl
+import com.example.taskclass.core.data.dao.DisciplineDao
+import com.example.taskclass.core.data.dao.ScheduleDao
+import com.example.taskclass.core.data.repository.DisciplineRepositoryImpl
+import com.example.taskclass.core.data.repository.ScheduleRepositoryImpl
 import com.example.taskclass.discipline.domain.DisciplineRepository
+import com.example.taskclass.schedules.domain.ScheduleRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,5 +20,11 @@ object MainModule {
     @Singleton
     fun provideDisciplineRepository(dao: DisciplineDao): DisciplineRepository {
         return DisciplineRepositoryImpl(dao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideScheduleRepository(dao: ScheduleDao): ScheduleRepository {
+        return ScheduleRepositoryImpl(dao)
     }
 }

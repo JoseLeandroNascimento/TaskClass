@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.Discipline
+import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.White
 
 
@@ -185,6 +185,7 @@ fun DisciplineContent(
 
             is Resource.Error -> {
 
+                Text(text = uiState.disciplines.message)
             }
 
         }

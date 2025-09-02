@@ -1,4 +1,5 @@
 package com.example.taskclass.common.data
 
-interface Validator {
+fun interface Validator<T> {
+    fun execute(value: T): String?
 }

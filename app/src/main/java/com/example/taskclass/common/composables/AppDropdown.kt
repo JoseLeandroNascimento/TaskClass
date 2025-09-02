@@ -28,7 +28,7 @@ fun AppDropdown(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    content: @Composable ColumnScope.()-> Unit
+    content: @Composable ColumnScope.(closeMenu: () -> Unit) -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
@@ -69,7 +69,7 @@ fun AppDropdown(
                 expanded = false
             }
         ) {
-            content()
+            content{ expanded = false}
         }
     }
 

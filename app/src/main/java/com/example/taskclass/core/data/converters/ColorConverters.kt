@@ -1,9 +1,9 @@
-package com.example.taskclass.core.data
+package com.example.taskclass.core.data.converters
 
 import androidx.compose.ui.graphics.Color
 import androidx.room.TypeConverter
 
-class Converters {
+class ColorConverters {
 
     @TypeConverter
     fun fromColor(color: Color): Long {

@@ -1,6 +1,6 @@
 package com.example.taskclass.discipline.domain
 
-import com.example.taskclass.core.data.Discipline
+import com.example.taskclass.core.data.model.Discipline
 import jakarta.inject.Inject
 
 class CreateDisciplineUseCase @Inject constructor(

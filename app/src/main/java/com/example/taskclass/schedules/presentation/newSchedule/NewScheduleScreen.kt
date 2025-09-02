@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -23,10 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,6 +37,7 @@ import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.data.Resource
+import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.TaskClassTheme
 
 @Composable
@@ -47,9 +46,29 @@ fun NewScheduleScreen(
     viewModel: NewScheduleViewModel
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    if(uiState.scheduleResponse is Resource.Success){
+        onBack()
+    }
+
     NewScheduleScreen(
         onBack = onBack,
-        uiState = uiState
+        uiState = uiState,
+        updateDayWeek = {
+            viewModel.updateDayWeek(it)
+        },
+        updateDiscipline = {
+            viewModel.updateDiscipline(it)
+        },
+        updateEndTime = {
+            viewModel.updateEndTime(it)
+        },
+        updateStartTime = {
+            viewModel.updateStartTime(it)
+        },
+        onSave = {
+            viewModel.save()
+        }
     )
 
 }
@@ -58,12 +77,13 @@ fun NewScheduleScreen(
 @Composable
 fun NewScheduleScreen(
     onBack: () -> Unit,
-    uiState: NewScheduleUiState
+    uiState: NewScheduleUiState,
+    updateDayWeek: ((String) -> Unit)? = null,
+    updateDiscipline: ((Discipline) -> Unit)? = null,
+    updateStartTime: ((String) -> Unit)? = null,
+    updateEndTime: ((String) -> Unit)? = null,
+    onSave:()-> Unit
 ) {
-    var weekDay by remember { mutableStateOf("") }
-    var disciplineSelect by remember { mutableStateOf("") }
-    var timeFirst by remember { mutableStateOf("") }
-    var lastTime by remember { mutableStateOf("") }
 
     val daysOfWeek = listOf(
         "Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"
@@ -102,22 +122,25 @@ fun NewScheduleScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AppDropdown(
-                    value = weekDay,
+                    value = uiState.dayWeek.value,
                     label = "Dia da Semana *"
-                ) {
+                ) { closeMenu ->
                     daysOfWeek.forEach { day ->
                         DropdownMenuItem(
                             text = { Text(day) },
-                            onClick = { weekDay = day },
+                            onClick = {
+                                updateDayWeek?.invoke(day)
+                                closeMenu()
+                            },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                         )
                     }
                 }
 
                 AppDropdown(
-                    value = disciplineSelect,
+                    value = uiState.discipline.value?.title ?: "",
                     label = "Disciplina *"
-                ) {
+                ) { closeMenu ->
 
                     when (uiState.disciplines) {
                         is Resource.Loading -> {
@@ -142,7 +165,10 @@ fun NewScheduleScreen(
                                                 .shadow(3.dp, CircleShape, clip = false)
                                         )
                                     },
-                                    onClick = { disciplineSelect = discipline.title },
+                                    onClick = {
+                                        updateDiscipline?.invoke(discipline)
+                                        closeMenu()
+                                    },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                 )
                             }
@@ -163,14 +189,20 @@ fun NewScheduleScreen(
                 ) {
                     AppInputTime(
                         modifier = Modifier.weight(1f),
-                        value = timeFirst,
-                        onValueChange = { timeFirst = it },
+                        value = uiState.startTime.value,
+                        trailingIcon = Icons.Default.Schedule,
+                        onValueChange = {
+                            updateStartTime?.invoke(it)
+                        },
                         label = "Início"
                     )
                     AppInputTime(
                         modifier = Modifier.weight(1f),
-                        value = lastTime,
-                        onValueChange = { lastTime = it },
+                        trailingIcon = Icons.Default.Timer,
+                        value = uiState.endTime.value,
+                        onValueChange = {
+                            updateEndTime?.invoke(it)
+                        },
                         label = "Fim"
                     )
                 }
@@ -180,7 +212,7 @@ fun NewScheduleScreen(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     label = "Cadastrar Horário",
-                    onClick = { /* salvar */ }
+                    onClick = onSave
                 )
             }
         }
@@ -199,6 +231,7 @@ private fun NewScheduleLightPreview() {
             onBack = {
 
             },
+            onSave = {},
             uiState = NewScheduleUiState()
         )
     }
@@ -216,6 +249,7 @@ private fun NewScheduleDarkPreview() {
             onBack = {
 
             },
+            onSave = {},
             uiState = NewScheduleUiState()
         )
     }

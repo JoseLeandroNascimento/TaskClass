@@ -3,8 +3,7 @@ package com.example.taskclass.discipline.presentation.disciplineCreateScreen
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.taskclass.common.data.FieldState
-import com.example.taskclass.core.data.Discipline
+import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.discipline.domain.DisciplineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -24,18 +23,9 @@ class DisciplineCreateViewModel @Inject constructor(
 
     fun updateTitle(title: String) {
 
-        var messageError: String? = null
-
-        if (title.length < 3) {
-            messageError = "Nome da disciplina deve ter no mínimo 3 carecteres"
-        }
-        if (title.isBlank()) {
-            messageError = "Nome da disciplina não pode ser vazio"
-        }
-
         _uiState.update {
             it.copy(
-                title = FieldState(value = title, error = messageError)
+                title = it.title.updateValue(title)
             )
         }
     }
@@ -43,7 +33,7 @@ class DisciplineCreateViewModel @Inject constructor(
     fun updateTeacherName(teacherName: String) {
         _uiState.update {
             it.copy(
-                teacherName = FieldState(value = teacherName)
+                teacherName = it.teacherName.updateValue(teacherName)
             )
         }
     }
@@ -64,17 +54,25 @@ class DisciplineCreateViewModel @Inject constructor(
 
     fun save() {
 
-        val data = Discipline(
-            id = null,
-            color = _uiState.value.colorSelect,
-            title = _uiState.value.title.value,
-            teacherName = _uiState.value.teacherName.value
-        )
+        _uiState.update {
+            it.copy(
+                title = it.title.validate()
+            )
+        }
 
-        viewModelScope.launch {
-            repo.save(data).collect { response ->
-                _uiState.update {
-                    it.copy(disciplineResponse = response)
+        if (_uiState.value.title.isValid) {
+
+            val data = Discipline(
+                color = _uiState.value.colorSelect,
+                title = _uiState.value.title.value,
+                teacherName = _uiState.value.teacherName.value
+            )
+
+            viewModelScope.launch {
+                repo.save(data).collect { response ->
+                    _uiState.update {
+                        it.copy(disciplineResponse = response)
+                    }
                 }
             }
         }

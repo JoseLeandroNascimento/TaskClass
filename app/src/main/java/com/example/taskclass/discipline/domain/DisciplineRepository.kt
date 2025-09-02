@@ -1,7 +1,7 @@
 package com.example.taskclass.discipline.domain
 
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.Discipline
+import com.example.taskclass.core.data.model.Discipline
 import kotlinx.coroutines.flow.Flow
 
 interface DisciplineRepository {
