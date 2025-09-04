@@ -51,6 +51,7 @@ fun AppInputTime(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
+    error: String? = null,
     trailingIcon: ImageVector = Icons.Default.AccessTime,
     onValueChange: (String) -> Unit
 ) {
@@ -83,6 +84,18 @@ fun AppInputTime(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+            },
+            isError = error != null,
+            supportingText = if (error != null) {
+                {
+                    Text(
+                        text = error,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                null
             },
             value = value,
             readOnly = true,

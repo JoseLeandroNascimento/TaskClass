@@ -8,6 +8,7 @@ import com.example.taskclass.core.data.model.dto.ScheduleDTO
 import com.example.taskclass.schedules.domain.ScheduleRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 class ScheduleRepositoryImpl @Inject constructor(
@@ -19,10 +20,19 @@ class ScheduleRepositoryImpl @Inject constructor(
         return flow {
             try {
                 emit(Resource.Loading())
-                dao.save(data)
-                emit(Resource.Success(data))
+
+                val conflicts = dao.findAllByRangeTime(data.startTime, data.endTime).first()
+
+                Log.d("teste save",conflicts.toString())
+                if (conflicts.isEmpty()) {
+                    dao.save(data)
+                    emit(Resource.Success(data))
+                } else {
+                    emit(Resource.Error("Ocorreu um conflito de horários."))
+                }
+
             } catch (e: Exception) {
-                emit(Resource.Error("Erro ao salvar o hórario"))
+                emit(Resource.Error("Erro ao salvar o horário"))
             }
         }
 
@@ -34,7 +44,6 @@ class ScheduleRepositoryImpl @Inject constructor(
             try {
                 emit(Resource.Loading())
                 dao.findAll().collect { response ->
-                    Log.d("teste",response.toString())
                     emit(Resource.Success(response))
                 }
             } catch (e: Exception) {
@@ -43,4 +52,6 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
 
     }
+
+
 }

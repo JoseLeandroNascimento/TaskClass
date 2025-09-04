@@ -28,6 +28,7 @@ fun AppDropdown(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
+    error: String? = null,
     content: @Composable ColumnScope.(closeMenu: () -> Unit) -> Unit
 ) {
 
@@ -45,6 +46,18 @@ fun AppDropdown(
                 .fillMaxWidth()
                 .menuAnchor(type = MenuAnchorType.PrimaryEditable),
             value = value,
+            isError = error != null,
+            supportingText = if (error != null) {
+                {
+                    Text(
+                        text = error,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                null
+            },
             onValueChange = { },
             label = {
                 Text(
@@ -69,7 +82,7 @@ fun AppDropdown(
                 expanded = false
             }
         ) {
-            content{ expanded = false}
+            content { expanded = false }
         }
     }
 
@@ -87,7 +100,7 @@ private fun AppDropdownPreview() {
         AppDropdown(
             label = "Label de teste",
             value = "Teste",
-        ){
+        ) {
             DropdownMenuItem(
                 text = {
                     Text(text = "Domingo")

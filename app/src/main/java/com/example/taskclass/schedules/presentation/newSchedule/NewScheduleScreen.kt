@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppDialog
 import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.data.Resource
@@ -52,6 +53,17 @@ fun NewScheduleScreen(
 
     if (uiState.scheduleResponse is Resource.Success) {
         onBack()
+    }
+
+    if (uiState.scheduleResponse is Resource.Error) {
+        AppDialog(
+            title = "Erro ao salvar",
+            onDismissRequest = {
+                viewModel.closeModalErrorResponse()
+            }
+        ) {
+            Text(text = uiState.scheduleResponse.message)
+        }
     }
 
     NewScheduleScreen(
@@ -126,7 +138,8 @@ fun NewScheduleScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AppDropdown(
-                    value = daysOfWeek[uiState.dayWeek.value],
+                    value = uiState.dayWeek.value?.let { daysOfWeek[it] } ?: "",
+                    error = uiState.dayWeek.error,
                     label = "Dia da Semana *"
                 ) { closeMenu ->
                     daysOfWeek.forEachIndexed { index, day ->
@@ -143,7 +156,8 @@ fun NewScheduleScreen(
 
                 AppDropdown(
                     value = uiState.discipline.value?.title ?: "",
-                    label = "Disciplina *"
+                    label = "Disciplina *",
+                    error = uiState.discipline.error
                 ) { closeMenu ->
 
                     when (uiState.disciplines) {
@@ -189,11 +203,11 @@ fun NewScheduleScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     AppInputTime(
                         modifier = Modifier.weight(1f),
-                        value = uiState.startTime.value,
+                        value = uiState.startTime.value ?: "",
+                        error = uiState.startTime.error,
                         trailingIcon = Icons.Default.Schedule,
                         onValueChange = {
                             updateStartTime?.invoke(it)
@@ -203,7 +217,8 @@ fun NewScheduleScreen(
                     AppInputTime(
                         modifier = Modifier.weight(1f),
                         trailingIcon = Icons.Default.Timer,
-                        value = uiState.endTime.value,
+                        value = uiState.endTime.value ?: "",
+                        error = uiState.endTime.error,
                         onValueChange = {
                             updateEndTime?.invoke(it)
                         },
@@ -223,7 +238,7 @@ fun NewScheduleScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview()
 @Composable
 private fun NewScheduleLightPreview() {
 

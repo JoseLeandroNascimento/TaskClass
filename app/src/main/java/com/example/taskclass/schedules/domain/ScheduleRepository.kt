@@ -10,4 +10,5 @@ interface ScheduleRepository {
     suspend fun save(data: Schedule): Flow<Resource<Schedule>>
 
     suspend fun findAll(): Flow<Resource<List<ScheduleDTO>>>
+
 }

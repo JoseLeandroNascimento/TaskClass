@@ -6,8 +6,13 @@ data class FieldState<T>(
     val validators: List<Validator<T>> = emptyList()
 ) {
 
-    fun updateValue(newValue: T): FieldState<T> =
-        copy(value = newValue).validate()
+    fun updateValue(newValue: T, validate: Boolean = true): FieldState<T> {
+        val fieldUpdate = copy(value = newValue)
+        if (validate) {
+            return fieldUpdate.validate()
+        }
+        return fieldUpdate
+    }
 
     fun validate(): FieldState<T> {
         val messageError = validators
