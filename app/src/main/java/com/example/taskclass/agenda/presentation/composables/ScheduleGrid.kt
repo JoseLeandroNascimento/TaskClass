@@ -1,6 +1,7 @@
 package com.example.taskclass.agenda.presentation.composables
 
 import android.annotation.SuppressLint
+import android.widget.Space
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,91 +42,9 @@ import com.example.taskclass.R
 import com.example.taskclass.agenda.presentation.AgendaUiState
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.common.utils.parseHors
-import com.example.taskclass.core.data.converters.ColorConverters
 import com.example.taskclass.ui.theme.TaskClassTheme
-import kotlinx.coroutines.currentCoroutineContext
 import java.util.Calendar
 
-data class ScheduleEvent(
-    val dayOfWeek: Int,
-    val startMinutes: Int, // ex: 6*60 + 30 = 390
-    val durationMinutes: Int,
-    val title: String,
-    val color: Color = Color(0xFF90CAF9)
-)
-
-val sampleEvents = listOf(
-    ScheduleEvent(
-        dayOfWeek = 1,
-        startMinutes = 7 * 60 + 30,    // 07:30
-        durationMinutes = 90,
-        title = "Matemática",
-        color = Color(0xFF2979FF) // Azul vivo
-    ),
-    ScheduleEvent(
-        dayOfWeek = 1,
-        startMinutes = 10 * 60,         // 10:00
-        durationMinutes = 60,
-        title = "História",
-        color = Color(0xFF9C27B0) // Roxo vibrante
-    ),
-    ScheduleEvent(
-        dayOfWeek = 1,
-        startMinutes = 14 * 60 + 30,    // 14:30
-        durationMinutes = 45,
-        title = "Inglês",
-        color = Color(0xFF4CAF50) // Verde vivo
-    ),
-    ScheduleEvent(
-        dayOfWeek = 2,
-        startMinutes = 8 * 60,          // 08:00
-        durationMinutes = 90,
-        title = "Química",
-        color = Color(0xFFFFC107) // Amarelo forte
-    ),
-    ScheduleEvent(
-        dayOfWeek = 2,
-        startMinutes = 13 * 60 + 15,    // 13:15
-        durationMinutes = 75,
-        title = "Educação Física",
-        color = Color(0xFFFF5722) // Laranja vibrante
-    ),
-    ScheduleEvent(
-        dayOfWeek = 3,
-        startMinutes = 9 * 60 + 45,     // 09:45
-        durationMinutes = 60,
-        title = "Geografia",
-        color = Color(0xFF673AB7) // Índigo intenso
-    ),
-    ScheduleEvent(
-        dayOfWeek = 3,
-        startMinutes = 16 * 60,         // 16:00
-        durationMinutes = 30,
-        title = "Redação",
-        color = Color(0xFFFFEB3B) // Amarelo vibrante
-    ),
-    ScheduleEvent(
-        dayOfWeek = 4,
-        startMinutes = 11 * 60,         // 11:00
-        durationMinutes = 60,
-        title = "Biologia",
-        color = Color(0xFF009688) // Verde água forte
-    ),
-    ScheduleEvent(
-        dayOfWeek = 5,
-        startMinutes = 7 * 60 + 15,          // 07:00
-        durationMinutes = 60,
-        title = "Sociologia",
-        color = Color(0xFFF44336) // Vermelho vivo
-    ),
-    ScheduleEvent(
-        dayOfWeek = 6,
-        startMinutes = 10 * 60 + 30,    // 10:30
-        durationMinutes = 90,
-        title = "Filosofia",
-        color = Color(0xFF607D8B) // Azul acinzentado forte
-    )
-)
 
 val dayHeaderHeight = 64.dp
 val timelineWidth = 40.dp
@@ -141,7 +61,9 @@ fun ScheduleGrid(
 
     when (uiState.schedules) {
         is Resource.Loading -> {
-
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
 
         is Resource.Success -> {
@@ -218,6 +140,8 @@ fun ScheduleGrid(
                                         }
                                     }
                                 }
+
+                                Spacer(modifier = Modifier.height(80.dp))
                             }
 
                             BoxWithConstraints {
@@ -238,15 +162,16 @@ fun ScheduleGrid(
                                             .offset(x = xPositionWeek, y = yPositionWeek)
                                             .width(boxEventWidth)
                                             .height(heightBox)
-                                            .padding(horizontal = 2.dp)
+                                            .padding(horizontal = 2.dp, vertical = 2.dp)
                                             .background(
                                                 color =event.color,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
+                                            .padding(2.dp)
                                     ) {
                                         Text(
                                             text = event.disciplineTitle,
-                                            fontSize = 10.sp,
+                                            style = MaterialTheme.typography.labelSmall,
                                             fontWeight = FontWeight.SemiBold,
                                             color = Color.White,
                                             textAlign = TextAlign.Center,
@@ -256,6 +181,7 @@ fun ScheduleGrid(
                                 }
                             }
                         }
+
                     }
                 }
             }
