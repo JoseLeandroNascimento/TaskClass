@@ -1,7 +1,6 @@
 package com.example.taskclass.agenda.presentation.composables
 
 import android.annotation.SuppressLint
-import android.widget.Space
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +47,7 @@ import java.util.Calendar
 
 
 val dayHeaderHeight = 64.dp
-val timelineWidth = 40.dp
+val timelineWidth = 30.dp
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -123,6 +123,7 @@ fun ScheduleGrid(
                                             Text(
                                                 text = hour.parseHors(),
                                                 style = MaterialTheme.typography.labelSmall,
+                                                fontSize = 8.sp,
                                                 modifier = Modifier.padding(top = 4.dp)
                                             )
                                         }
@@ -153,15 +154,17 @@ fun ScheduleGrid(
                                     val xPositionWeek = timelineWidth + event.dayWeek * boxEventWidth
                                     val yPositionWeek =
                                         rowHeight * ((event.startTime / 60f) - startHors)
-                                    val heightBox =
-                                        boxEventWidth * (((event.startTime / 60f) + ((event.endTime - event.startTime) / 60f)) - (event.startTime / 60f))
+
+                                    val eventDurationMinutes = event.endTime - event.startTime
+                                    val heightBox = eventDurationMinutes * dpPerMinute
+
 
                                     Box(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier
                                             .offset(x = xPositionWeek, y = yPositionWeek)
                                             .width(boxEventWidth)
-                                            .height(heightBox)
+                                            .height(heightBox.coerceAtLeast(40.dp))
                                             .padding(horizontal = 2.dp, vertical = 2.dp)
                                             .background(
                                                 color =event.color,
@@ -172,6 +175,7 @@ fun ScheduleGrid(
                                         Text(
                                             text = event.disciplineTitle,
                                             style = MaterialTheme.typography.labelSmall,
+                                            overflow = TextOverflow.Ellipsis,
                                             fontWeight = FontWeight.SemiBold,
                                             color = Color.White,
                                             textAlign = TextAlign.Center,

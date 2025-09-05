@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -169,7 +170,7 @@ fun NewScheduleScreen(
 
                             uiState.disciplines.data.forEach { discipline ->
                                 DropdownMenuItem(
-                                    text = { Text(discipline.title) },
+                                    text = { Text(discipline.title, overflow = TextOverflow.Ellipsis, maxLines = 1) },
                                     leadingIcon = {
                                         Box(
                                             modifier = Modifier
@@ -230,6 +231,7 @@ fun NewScheduleScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
+                    isLoading = uiState.scheduleResponse is Resource.Loading,
                     label = "Cadastrar Horário",
                     onClick = onSave
                 )

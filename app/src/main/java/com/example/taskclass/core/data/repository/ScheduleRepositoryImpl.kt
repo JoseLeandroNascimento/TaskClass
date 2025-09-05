@@ -23,7 +23,6 @@ class ScheduleRepositoryImpl @Inject constructor(
 
                 val conflicts = dao.findAllByRangeTime(data.startTime, data.endTime, data.dayWeek).first()
 
-                Log.d("teste save",conflicts.toString())
                 if (conflicts.isEmpty()) {
                     dao.save(data)
                     emit(Resource.Success(data))

@@ -31,8 +31,8 @@ interface ScheduleDao {
             FROM schedule_table AS s
             INNER JOIN discipline_table AS d
               ON s.discipline_id = d.discipline_id
-            WHERE s.start_time < :timeEnd
-              AND s.end_time > :timeStart AND s.day_week = :weekDay
+            WHERE s.start_time <= :timeEnd
+              AND s.end_time >= :timeStart AND s.day_week = :weekDay
         """
     )
     fun findAllByRangeTime(timeStart: Int, timeEnd: Int, weekDay: Int): Flow<List<ScheduleDTO>>

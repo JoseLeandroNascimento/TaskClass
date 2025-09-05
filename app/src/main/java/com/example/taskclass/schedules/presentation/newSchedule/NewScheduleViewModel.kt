@@ -1,5 +1,6 @@
 package com.example.taskclass.schedules.presentation.newSchedule
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.validators.TimeValidator
@@ -27,6 +28,7 @@ class NewScheduleViewModel @Inject constructor(
 
     init {
 
+        Log.d(LOG_TAG, "Carregando disciplinas")
         viewModelScope.launch {
             repo.findAll().collect { response ->
                 _uiState.update {
@@ -79,7 +81,7 @@ class NewScheduleViewModel @Inject constructor(
 
     }
 
-    fun closeModalErrorResponse(){
+    fun closeModalErrorResponse() {
         _uiState.update {
             it.copy(scheduleResponse = null)
         }
@@ -102,6 +104,7 @@ class NewScheduleViewModel @Inject constructor(
 
     fun save() {
 
+        Log.d(LOG_TAG, "Validando dados do horário")
         if (!isValid()) {
             return
         }
@@ -115,13 +118,24 @@ class NewScheduleViewModel @Inject constructor(
             disciplineId = value.discipline.value?.id!!
         )
 
+        Log.d(LOG_TAG, "Dados do horário: $data")
+
         viewModelScope.launch {
             scheduleRepo.save(data).collect { response ->
+
+                Log.d(LOG_TAG, "Retorno: $response")
+
                 _uiState.update {
                     it.copy(scheduleResponse = response)
                 }
             }
         }
+    }
+
+    companion object {
+
+        val LOG_TAG = "NEW_SCHEDULE_VIEWMODEL"
+
     }
 
 }
