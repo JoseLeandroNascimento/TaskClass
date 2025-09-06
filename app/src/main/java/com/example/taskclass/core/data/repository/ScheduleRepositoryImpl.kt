@@ -1,6 +1,5 @@
 package com.example.taskclass.core.data.repository
 
-import android.util.Log
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.model.Schedule

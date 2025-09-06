@@ -13,8 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -24,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
@@ -51,21 +57,6 @@ fun NewScheduleScreen(
     viewModel: NewScheduleViewModel
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-
-    if (uiState.scheduleResponse is Resource.Success) {
-        onBack()
-    }
-
-    if (uiState.scheduleResponse is Resource.Error) {
-        AppDialog(
-            title = "Erro ao salvar",
-            onDismissRequest = {
-                viewModel.closeModalErrorResponse()
-            }
-        ) {
-            Text(text = uiState.scheduleResponse.message)
-        }
-    }
 
     NewScheduleScreen(
         onBack = onBack,
@@ -84,6 +75,9 @@ fun NewScheduleScreen(
         },
         onSave = {
             viewModel.save()
+        },
+        onCloseModalErrorResponse = {
+            viewModel.closeModalErrorResponse()
         }
     )
 
@@ -100,11 +94,25 @@ fun NewScheduleScreen(
     updateDiscipline: ((Discipline) -> Unit)? = null,
     updateStartTime: ((String) -> Unit)? = null,
     updateEndTime: ((String) -> Unit)? = null,
+    onCloseModalErrorResponse: (() -> Unit)? = null,
     onSave: () -> Unit
 ) {
 
     val context = LocalContext.current
     val daysOfWeek = context.resources.getStringArray(R.array.dias_da_semana_completo)
+
+    if (uiState.scheduleResponse is Resource.Success) {
+        onBack()
+    }
+
+    uiState.scheduleResponse.let { response ->
+        if (response is Resource.Error) {
+            ErrorDialog(
+                message = response.message,
+                onDismiss = { onCloseModalErrorResponse?.invoke() }
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -170,7 +178,13 @@ fun NewScheduleScreen(
 
                             uiState.disciplines.data.forEach { discipline ->
                                 DropdownMenuItem(
-                                    text = { Text(discipline.title, overflow = TextOverflow.Ellipsis, maxLines = 1) },
+                                    text = {
+                                        Text(
+                                            discipline.title,
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1
+                                        )
+                                    },
                                     leadingIcon = {
                                         Box(
                                             modifier = Modifier
@@ -240,6 +254,55 @@ fun NewScheduleScreen(
     }
 }
 
+
+@Composable
+fun ErrorDialog(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.ErrorOutline,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
+                modifier = Modifier.size(28.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "Algo deu errado",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "Fechar",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp
+    )
+}
+
+
 @Preview()
 @Composable
 private fun NewScheduleLightPreview() {
@@ -249,11 +312,12 @@ private fun NewScheduleLightPreview() {
         darkTheme = false
     ) {
         NewScheduleScreen(
-            onBack = {
-
-            },
+            onBack = {},
             onSave = {},
-            uiState = NewScheduleUiState()
+            uiState = NewScheduleUiState(
+                scheduleResponse = Resource.Error(message = "Conflito de horário")
+            ),
+            onCloseModalErrorResponse = {}
         )
     }
 }
