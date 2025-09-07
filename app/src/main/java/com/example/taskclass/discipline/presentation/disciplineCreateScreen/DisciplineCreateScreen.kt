@@ -117,7 +117,8 @@ fun DisciplineCreateScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Nova Disciplina",
+                        text = uiState.idDiscipline?.let { "Atualizar disciplina" }
+                            ?: "Nova Disciplina",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 },
@@ -259,7 +260,8 @@ fun DisciplineCreateScreen(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     isLoading = uiState.disciplineResponse is Resource.Loading,
-                    label = "Cadastrar Disciplina",
+                    label = uiState.idDiscipline?.let { "Salvar disciplina" }
+                        ?: "Cadastrar Disciplina",
                     onClick = onSave
                 )
             }

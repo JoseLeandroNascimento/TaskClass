@@ -28,14 +28,18 @@ class DisciplineCreateViewModel @Inject constructor(
 
     init {
 
-        disciplineId?.let {
+        disciplineId?.let { idDiscipline ->
 
+            _uiState.update {
+                it.copy(idDiscipline = idDiscipline.toInt())
+            }
             viewModelScope.launch {
-                repo.findById(it.toInt()).collect { response ->
+                repo.findById(idDiscipline.toInt()).collect { response ->
                     when (response) {
                         is Resource.Loading -> {
 
                         }
+
                         is Resource.Success -> {
                             updateTitle(response.data.title)
                             updateTeacherName(response.data.teacherName)
