@@ -65,7 +65,8 @@ val timelineWidth = 30.dp
 @Composable
 fun AgendaScreen(
     modifier: Modifier = Modifier,
-    viewModel: AgendaViewModel
+    viewModel: AgendaViewModel,
+    onEditSchedule: (Int) -> Unit
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
@@ -76,7 +77,11 @@ fun AgendaScreen(
         ScheduleDetailsDialog(
             schedule = itemSelected,
             onDismiss = { viewModel.resetItemSelected() },
-            onEdit = { },
+            onEdit = {
+                val id = uiState.selectItem.scheduleId
+                viewModel.resetItemSelected()
+                onEditSchedule(id)
+            },
             onDelete = {
                 viewModel.deleteSchedule()
             }

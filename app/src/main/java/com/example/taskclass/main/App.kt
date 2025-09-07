@@ -41,6 +41,9 @@ fun App(modifier: Modifier = Modifier) {
                             restoreState = true
                         }
                     }
+                },
+                onEditSchedule = { scheduleId ->
+                    appNavController.navigate(Screen.EDIT_SCHEDULES.withArgs(scheduleId.toString()))
                 }
             )
         }
@@ -82,7 +85,6 @@ fun App(modifier: Modifier = Modifier) {
             route = Screen.DISCIPLINE_EDIT.route,
             arguments = listOf(navArgument("disciplineId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val disciplineId = backStackEntry.arguments?.getString("disciplineId")
 
             val viewModel = hiltViewModel<DisciplineCreateViewModel>(backStackEntry)
             DisciplineCreateScreen(
@@ -103,6 +105,23 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.NEW_SCHEDULES.route) { backStackEntry ->
+
+            val viewModel = hiltViewModel<NewScheduleViewModel>(backStackEntry)
+            NewScheduleScreen(
+                viewModel = viewModel,
+                onBack = {
+                    appNavController.navigateUp()
+                }
+            )
+        }
+
+        composable(
+            route = Screen.EDIT_SCHEDULES.route,
+            arguments = listOf(navArgument("scheduleId") {
+                type = NavType.StringType
+            })
+
+        ) { backStackEntry ->
 
             val viewModel = hiltViewModel<NewScheduleViewModel>(backStackEntry)
             NewScheduleScreen(

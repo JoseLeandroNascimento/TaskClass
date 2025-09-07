@@ -67,7 +67,8 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     onNavigationDrawer: (Screen) -> Unit,
     onNavigationNewSchedule: () -> Unit,
-    onNavigationNewEvent: () -> Unit
+    onNavigationNewEvent: () -> Unit,
+    onEditSchedule: (Int)-> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -104,7 +105,8 @@ fun MainScreen(
                     if (drawerState.isOpen) drawerState.close() else drawerState.open()
                 }
             },
-            onNavigationNewEvent = onNavigationNewEvent
+            onNavigationNewEvent = onNavigationNewEvent,
+            onEditSchedule = onEditSchedule
         )
     }
 }
@@ -198,7 +200,9 @@ fun MainContent(
     currentScreen: Screen,
     navController: NavHostController,
     onNavigationNewSchedule: () -> Unit,
-    onNavigationNewEvent: () -> Unit
+    onNavigationNewEvent: () -> Unit,
+    onEditSchedule:(Int)-> Unit
+
 ) {
 
     Scaffold(
@@ -279,7 +283,8 @@ fun MainContent(
                 composable(Screen.AGENDA.route) { backStackEntry ->
                     val viewModel = hiltViewModel<AgendaViewModel>(backStackEntry)
                     AgendaScreen(
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        onEditSchedule = onEditSchedule
                     )
                 }
                 composable(Screen.EVENTS.route) {

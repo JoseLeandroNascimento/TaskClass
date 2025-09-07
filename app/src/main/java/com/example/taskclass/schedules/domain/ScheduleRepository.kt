@@ -11,6 +11,10 @@ interface ScheduleRepository {
 
     suspend fun findAll(): Flow<Resource<List<ScheduleDTO>>>
 
-    suspend fun deleteById(id:Int): Flow<Resource<Schedule>>
+    suspend fun findById(id: Int): Flow<Resource<Schedule>>
+
+    suspend fun deleteById(id: Int): Flow<Resource<Schedule>>
+
+    suspend fun update(data: Schedule): Flow<Resource<Schedule>>
 
 }

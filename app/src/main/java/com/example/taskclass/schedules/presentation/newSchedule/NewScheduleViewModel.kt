@@ -1,8 +1,10 @@
 package com.example.taskclass.schedules.presentation.newSchedule
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.common.validators.TimeValidator
 import com.example.taskclass.core.data.converters.TimeConverters
 import com.example.taskclass.core.data.model.Discipline
@@ -20,19 +22,37 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class NewScheduleViewModel @Inject constructor(
     private val repo: DisciplineRepository,
-    private val scheduleRepo: ScheduleRepository
+    private val scheduleRepo: ScheduleRepository,
+    private val saveStateHandler: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewScheduleUiState())
     val uiState: StateFlow<NewScheduleUiState> = _uiState.asStateFlow()
+    val idSchedule: String? = saveStateHandler["scheduleId"]
 
     init {
 
         Log.d(LOG_TAG, "Carregando disciplinas")
         viewModelScope.launch {
-            repo.findAll().collect { response ->
+            repo.findAll().collect { responseDisciplines ->
                 _uiState.update {
-                    it.copy(disciplines = response)
+                    it.copy(disciplines = responseDisciplines)
+                }
+
+                if (responseDisciplines is Resource.Success) {
+                    idSchedule?.let { idSchedule ->
+                        scheduleRepo.findById(idSchedule.toInt()).collect { scheduleResponse ->
+
+                            if (scheduleResponse is Resource.Success) {
+                                scheduleResponse.data.apply {
+                                    updateDayWeek(dayWeek)
+                                    updateDiscipline(responseDisciplines.data.find { item -> item.id == disciplineId }!!)
+                                    updateStartTime(TimeConverters().toTimeString(startTime)!!)
+                                    updateEndTime(TimeConverters().toTimeString(endTime)!!)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -121,12 +141,25 @@ class NewScheduleViewModel @Inject constructor(
         Log.d(LOG_TAG, "Dados do horário: $data")
 
         viewModelScope.launch {
-            scheduleRepo.save(data).collect { response ->
 
-                Log.d(LOG_TAG, "Retorno: $response")
+            if(idSchedule == null){
+                scheduleRepo.save(data).collect { response ->
 
-                _uiState.update {
-                    it.copy(scheduleResponse = response)
+                    Log.d(LOG_TAG, "Retorno: $response")
+
+                    _uiState.update {
+                        it.copy(scheduleResponse = response)
+                    }
+                }
+            }else{
+
+                scheduleRepo.update(data.copy(id = idSchedule.toInt())).collect {   response ->
+
+                    Log.d(LOG_TAG, "Retorno: $response")
+
+                    _uiState.update {
+                        it.copy(scheduleResponse = response)
+                    }
                 }
             }
         }

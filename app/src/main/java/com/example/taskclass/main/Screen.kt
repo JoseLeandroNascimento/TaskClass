@@ -11,6 +11,7 @@ enum class Screen(val route: String) {
     DISCIPLINE_EDIT("DISCIPLINE_EDIT/{disciplineId}"),
     SCHEDULES("SCHEDULES"),
     NEW_SCHEDULES("NEW_SCHEDULES"),
+    EDIT_SCHEDULES("EDIT_SCHEDULES/{scheduleId}"),
     TYPE_EVENTS("TYPE_EVENTS");
 
     fun withArgs(vararg args: String): String {

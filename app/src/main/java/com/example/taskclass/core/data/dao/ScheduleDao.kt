@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.taskclass.core.data.model.Schedule
 import com.example.taskclass.core.data.model.dto.ScheduleDTO
 import kotlinx.coroutines.flow.Flow
@@ -49,4 +50,7 @@ interface ScheduleDao {
 
     @Delete
     suspend fun delete(data: Schedule)
+
+    @Update
+    suspend fun update(data: Schedule)
 }
