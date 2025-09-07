@@ -3,9 +3,11 @@ package com.example.taskclass.main
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.taskclass.discipline.presentation.disciplineCreateScreen.DisciplineCreateScreen
 import com.example.taskclass.discipline.presentation.disciplineCreateScreen.DisciplineCreateViewModel
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineScreen
@@ -49,6 +51,9 @@ fun App(modifier: Modifier = Modifier) {
                 onBack = {
                     appNavController.navigateUp()
                 },
+                onEditDiscipline = {
+                    appNavController.navigate(Screen.DISCIPLINE_EDIT.withArgs(it.toString()))
+                },
                 viewModel = viewModel,
                 onCreateDiscipline = {
                     appNavController.navigate(Screen.DISCIPLINE_CREATE.route) {
@@ -61,6 +66,24 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.DISCIPLINE_CREATE.route) { backStackEntry ->
+            val viewModel = hiltViewModel<DisciplineCreateViewModel>(backStackEntry)
+            DisciplineCreateScreen(
+                viewModel = viewModel,
+                onBack = {
+                    appNavController.navigateUp()
+                },
+                onSaveSuccess = {
+                    appNavController.navigateUp()
+                }
+            )
+        }
+
+        composable(
+            route = Screen.DISCIPLINE_EDIT.route,
+            arguments = listOf(navArgument("disciplineId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val disciplineId = backStackEntry.arguments?.getString("disciplineId")
+
             val viewModel = hiltViewModel<DisciplineCreateViewModel>(backStackEntry)
             DisciplineCreateScreen(
                 viewModel = viewModel,

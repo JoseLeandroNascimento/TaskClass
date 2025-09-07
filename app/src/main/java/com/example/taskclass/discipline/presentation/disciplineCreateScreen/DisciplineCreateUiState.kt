@@ -16,6 +16,7 @@ data class DisciplineCreateUiState(
             MinLengthValidator(min = 3, messageError = "Nome da disciplina deve ter no mínimo %d caracteres")
         )
     ),
+    val idDiscipline: Int? = null,
     val teacherName: FieldState<String> = FieldState(""),
     val colorSelect: Color = Color(0xFF9C27B0),
     val showPickerColor: Boolean = false,

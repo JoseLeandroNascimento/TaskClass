@@ -11,4 +11,6 @@ interface ScheduleRepository {
 
     suspend fun findAll(): Flow<Resource<List<ScheduleDTO>>>
 
+    suspend fun deleteById(id:Int): Flow<Resource<Schedule>>
+
 }

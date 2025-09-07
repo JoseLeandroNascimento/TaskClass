@@ -1,8 +1,10 @@
 package com.example.taskclass.discipline.presentation.disciplineCreateScreen
 
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.discipline.domain.DisciplineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,11 +17,40 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class DisciplineCreateViewModel @Inject constructor(
-    private val repo: DisciplineRepository
+    private val repo: DisciplineRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DisciplineCreateUiState())
     val uiState: StateFlow<DisciplineCreateUiState> = _uiState.asStateFlow()
+
+    private val disciplineId: String? = savedStateHandle["disciplineId"]
+
+    init {
+
+        disciplineId?.let {
+
+            viewModelScope.launch {
+                repo.findById(it.toInt()).collect { response ->
+                    when (response) {
+                        is Resource.Loading -> {
+
+                        }
+                        is Resource.Success -> {
+                            updateTitle(response.data.title)
+                            updateTeacherName(response.data.teacherName)
+                            updateColorSelect(response.data.color)
+                        }
+
+                        is Resource.Error -> {
+
+                        }
+                    }
+                }
+            }
+        }
+
+    }
 
     fun updateTitle(title: String) {
 
@@ -69,9 +100,25 @@ class DisciplineCreateViewModel @Inject constructor(
             )
 
             viewModelScope.launch {
-                repo.save(data).collect { response ->
-                    _uiState.update {
-                        it.copy(disciplineResponse = response)
+
+                if (disciplineId == null) {
+
+                    repo.save(data).collect { response ->
+                        _uiState.update {
+                            it.copy(disciplineResponse = response)
+                        }
+                    }
+                } else {
+
+                    repo.update(
+                        data.copy(
+                            id = disciplineId.toInt()
+                        )
+                    ).collect { response ->
+
+                        _uiState.update {
+                            it.copy(disciplineResponse = response)
+                        }
                     }
                 }
             }

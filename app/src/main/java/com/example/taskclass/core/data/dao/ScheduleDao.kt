@@ -1,6 +1,7 @@
 package com.example.taskclass.core.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.taskclass.core.data.model.Schedule
@@ -12,6 +13,15 @@ interface ScheduleDao {
 
     @Insert
     suspend fun save(data: Schedule)
+
+    @Query(
+        """
+        SELECT *  
+            FROM schedule_table 
+            WHERE schedule_id = :id
+        """
+    )
+    fun findById(id: Int): Flow<Schedule>
 
     @Query(
         """
@@ -36,4 +46,7 @@ interface ScheduleDao {
         """
     )
     fun findAllByRangeTime(timeStart: Int, timeEnd: Int, weekDay: Int): Flow<List<ScheduleDTO>>
+
+    @Delete
+    suspend fun delete(data: Schedule)
 }

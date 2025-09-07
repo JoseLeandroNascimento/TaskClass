@@ -8,7 +8,9 @@ interface DisciplineRepository {
 
     suspend fun save(data: Discipline): Flow<Resource<Discipline>>
 
-    suspend fun update(data: Discipline)
+    suspend fun update(data: Discipline): Flow<Resource<Discipline>>
+
+    suspend fun findById(id: Int): Flow<Resource<Discipline>>
 
     suspend fun findAll(): Flow<Resource<List<Discipline>>>
 

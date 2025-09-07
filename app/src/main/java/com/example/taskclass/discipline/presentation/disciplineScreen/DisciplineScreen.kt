@@ -61,6 +61,7 @@ import com.example.taskclass.ui.theme.White
 fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit,
+    onEditDiscipline: (Int) -> Unit,
     viewModel: DisciplineViewModel
 ) {
 
@@ -70,6 +71,7 @@ fun DisciplineScreen(
         onBack = onBack,
         uiState = uiState,
         onCreateDiscipline = onCreateDiscipline,
+        onEditDiscipline = onEditDiscipline,
         onDeleteDiscipline = {
             viewModel.deleteDiscipline(it)
         }
@@ -82,7 +84,8 @@ fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit,
     onDeleteDiscipline: (Int) -> Unit,
-    uiState: DisciplineUiState
+    uiState: DisciplineUiState,
+    onEditDiscipline: (Int) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -121,7 +124,8 @@ fun DisciplineScreen(
             DisciplineContent(
                 modifier = Modifier.padding(innerPadding),
                 uiState = uiState,
-                onDeleteDiscipline = onDeleteDiscipline
+                onDeleteDiscipline = onDeleteDiscipline,
+                onEditDiscipline = onEditDiscipline
             )
         }
     }
@@ -131,7 +135,8 @@ fun DisciplineScreen(
 fun DisciplineContent(
     modifier: Modifier = Modifier,
     uiState: DisciplineUiState,
-    onDeleteDiscipline: (Int) -> Unit
+    onDeleteDiscipline: (Int) -> Unit,
+    onEditDiscipline: (Int) -> Unit,
 ) {
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -156,7 +161,8 @@ fun DisciplineContent(
                         items(uiState.disciplines.data, key = { it.id!! }) { discipline ->
                             DisciplineItem(
                                 discipline = discipline,
-                                onDeleteDiscipline = onDeleteDiscipline
+                                onDeleteDiscipline = onDeleteDiscipline,
+                                onEditDiscipline = onEditDiscipline
                             )
                         }
                         item {
@@ -198,6 +204,7 @@ fun DisciplineContent(
 fun DisciplineItem(
     modifier: Modifier = Modifier,
     onDeleteDiscipline: (Int) -> Unit,
+    onEditDiscipline: (Int) -> Unit,
     discipline: Discipline
 ) {
     var openDropdown by rememberSaveable { mutableStateOf(false) }
@@ -253,7 +260,10 @@ fun DisciplineItem(
                 ) {
                     DropdownMenuItem(
                         text = { Text("Editar") },
-                        onClick = { openDropdown = false },
+                        onClick = {
+                            openDropdown = false
+                            onEditDiscipline(discipline.id)
+                        },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -265,7 +275,7 @@ fun DisciplineItem(
                     DropdownMenuItem(
                         text = { Text("Excluir") },
                         onClick = {
-                            onDeleteDiscipline(discipline.id!!)
+                            onDeleteDiscipline(discipline.id)
                             openDropdown = false
                         },
                         leadingIcon = {

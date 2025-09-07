@@ -25,7 +25,37 @@ class DisciplineRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun update(data: Discipline) {
+    override suspend fun update(data: Discipline): Flow<Resource<Discipline>> {
+
+        return flow {
+
+            try {
+                emit(Resource.Loading())
+                dao.update(data)
+                emit(Resource.Success(data))
+
+            } catch (e: Exception) {
+                emit(Resource.Error("Erro ao atualizar"))
+            }
+        }
+    }
+
+    override suspend fun findById(id: Int): Flow<Resource<Discipline>> {
+
+        return flow {
+
+            try {
+                emit(Resource.Loading())
+
+                dao.findById(id).collect { response ->
+                    emit(Resource.Success(response))
+                }
+
+            } catch (e: Exception) {
+                emit(Resource.Error(message = "Disciplina não encontrada"))
+            }
+        }
+
     }
 
     override suspend fun findAll(): Flow<Resource<List<Discipline>>> {
