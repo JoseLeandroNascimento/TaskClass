@@ -1,4 +1,4 @@
-package com.example.taskclass.events
+package com.example.taskclass.events.presentation.eventsScreen
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing

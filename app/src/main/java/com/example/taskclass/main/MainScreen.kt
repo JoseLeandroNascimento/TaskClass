@@ -57,7 +57,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.taskclass.R
 import com.example.taskclass.agenda.presentation.AgendaScreen
 import com.example.taskclass.agenda.presentation.AgendaViewModel
-import com.example.taskclass.events.EventsScreen
+import com.example.taskclass.events.presentation.eventsScreen.EventsScreen
 import com.example.taskclass.notes.NotesScreen
 import com.example.taskclass.ui.theme.White
 import kotlinx.coroutines.launch
@@ -146,6 +146,7 @@ private fun DrawerContent(
             onNavigationDrawer(Screen.DISCIPLINE)
             onCloseDrawer()
         }
+
         DrawerItem(Icons.Default.AccessTime, "Horários de aula") {
             onNavigationDrawer(Screen.SCHEDULES)
             onCloseDrawer()

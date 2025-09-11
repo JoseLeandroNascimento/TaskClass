@@ -56,12 +56,22 @@ fun AppInputTime(
     onValueChange: (String) -> Unit
 ) {
     val currentTime = Calendar.getInstance()
+    val regex = Regex("^([01]\\d|2[0-3]):([0-5]\\d)$")
+
     var showTimePicker by remember { mutableStateOf(false) }
     val timeState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true
     )
+
+    LaunchedEffect(value) {
+        if (regex.matches(value)) {
+            val (h, m) = value.split(":").map { it.toInt() }
+            timeState.hour = h
+            timeState.minute = m
+        }
+    }
 
     val interactionSource = remember { MutableInteractionSource() }
 

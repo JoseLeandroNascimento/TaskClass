@@ -1,4 +1,4 @@
-package com.example.taskclass.events
+package com.example.taskclass.events.presentation.eventCreateScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,14 +22,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.ui.theme.TaskClassTheme
 
+@Composable
+fun EventCreateScreen(
+    viewModel: EventCreateViewModel,
+    onBack: ()-> Unit
+) {
+
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    EventCreateScreen(
+        uiState = uiState,
+        onBack = onBack,
+        updateTitle = {
+            viewModel.updateTitle(it)
+        },
+        updateDate = {
+            viewModel.updateDate(it)
+        },
+        updateTime = {
+            viewModel.updateTime(it)
+        },
+        updateDescription = {
+            viewModel.updateDescription(it)
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventCreateScreen(
-    onBack: ()-> Unit
+    uiState: EventCreateUiState,
+    updateTitle:((String)-> Unit)? = null,
+    updateDate:((String)-> Unit)? = null,
+    updateTime:((String)-> Unit)? = null,
+    updateDescription:((String)-> Unit)? = null,
+    onBack: ()-> Unit,
 ) {
 
     Scaffold(
@@ -68,8 +100,10 @@ fun EventCreateScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 1,
-                    value = "",
-                    onValueChange = {}
+                    value = uiState.title.value,
+                    onValueChange = {
+                        updateTitle?.invoke(it)
+                    }
                 )
 
                 Row(
@@ -87,15 +121,19 @@ fun EventCreateScreen(
                                 contentDescription = null
                             )
                         },
-                        value = "",
-                        onValueChange = {}
+                        value = uiState.date.value,
+                        onValueChange = {
+                            updateDate?.invoke(it)
+                        }
                     )
 
                     AppInputTime(
                         modifier = Modifier.weight(1f),
                         label = "Hora",
-                        value = ""
-                    ) { }
+                        value = uiState.time.value
+                    ) {
+                        updateTime?.invoke(it)
+                    }
                 }
 
                 OutlinedTextField(
@@ -105,8 +143,10 @@ fun EventCreateScreen(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
                     maxLines = 4,
-                    value = "",
-                    onValueChange = {}
+                    value = uiState.description.value,
+                    onValueChange = {
+                        updateDescription?.invoke(it)
+                    }
                 )
 
                 AppButton(
@@ -130,6 +170,7 @@ private fun EventCreateScreenLightPreview() {
         darkTheme = false
     ) {
         EventCreateScreen(
+            uiState = EventCreateUiState(),
             onBack = {}
         )
     }
@@ -145,6 +186,7 @@ private fun EventCreateScreenDarkPreview() {
         darkTheme = true
     ) {
         EventCreateScreen(
+            uiState = EventCreateUiState(),
             onBack = {}
         )
     }

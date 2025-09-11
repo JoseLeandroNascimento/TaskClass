@@ -87,7 +87,6 @@ class NewScheduleViewModel @Inject constructor(
                         )
                     )
                 ).updateValue(startTime)
-
             )
         }
 
@@ -142,7 +141,7 @@ class NewScheduleViewModel @Inject constructor(
 
         viewModelScope.launch {
 
-            if(idSchedule == null){
+            if (idSchedule == null) {
                 scheduleRepo.save(data).collect { response ->
 
                     Log.d(LOG_TAG, "Retorno: $response")
@@ -151,9 +150,9 @@ class NewScheduleViewModel @Inject constructor(
                         it.copy(scheduleResponse = response)
                     }
                 }
-            }else{
+            } else {
 
-                scheduleRepo.update(data.copy(id = idSchedule.toInt())).collect {   response ->
+                scheduleRepo.update(data.copy(id = idSchedule.toInt())).collect { response ->
 
                     Log.d(LOG_TAG, "Retorno: $response")
 
@@ -167,7 +166,7 @@ class NewScheduleViewModel @Inject constructor(
 
     companion object {
 
-        val LOG_TAG = "NEW_SCHEDULE_VIEWMODEL"
+        const val LOG_TAG = "NEW_SCHEDULE_VIEWMODEL"
 
     }
 
