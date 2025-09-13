@@ -7,13 +7,16 @@ import com.example.taskclass.core.data.converters.ColorConverters
 import com.example.taskclass.core.data.converters.TimeConverters
 import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.dao.ScheduleDao
+import com.example.taskclass.core.data.dao.TypeEventDao
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.core.data.model.Schedule
+import com.example.taskclass.core.data.model.TypeEvent
 
 @Database(
     entities = [
         Discipline::class,
-        Schedule::class
+        Schedule::class,
+        TypeEvent::class
     ],
     version = 1
 )
@@ -21,4 +24,5 @@ import com.example.taskclass.core.data.model.Schedule
 abstract class TaskClassDatabase : RoomDatabase() {
     abstract fun disciplineDao(): DisciplineDao
     abstract fun scheduleDao(): ScheduleDao
+    abstract fun typeEventDao(): TypeEventDao
 }
