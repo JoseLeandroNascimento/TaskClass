@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,6 +15,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -27,8 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.taskclass.ui.theme.TaskClassTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,3 +108,60 @@ fun TypeEventsScreen(
         }
     }
 }
+
+@Composable
+fun TypeEventForm(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth()
+    ) {
+
+    }
+}
+
+@Preview
+@Composable
+private fun TypeEventFormLightPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        TypeEventForm()
+    }
+}
+
+@Preview
+@Composable
+private fun TypeEventFormDarkPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        TypeEventForm()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TypeEventsScreenLightPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        TypeEventsScreen { }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TypeEventsScreenDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        TypeEventsScreen { }
+    }
+}
+
+

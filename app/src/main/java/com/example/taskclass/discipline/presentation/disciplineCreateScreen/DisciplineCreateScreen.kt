@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDialog
+import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
@@ -141,49 +142,21 @@ fun DisciplineCreateScreen(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
+                AppInputText(
                     modifier = Modifier.fillMaxWidth(),
                     value = uiState.title.value,
                     isError = uiState.title.error != null,
-                    supportingText = if (uiState.title.error != null) {
-                        {
-                            Text(
-                                text = uiState.title.error,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    } else {
-                        null
-                    },
+                    supportingText = uiState.title.error,
                     onValueChange = { updateTitle?.invoke(it) },
-                    label = {
-                        Text(
-                            "Nome da Disciplina *",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    singleLine = true
+                    label = "Nome da Disciplina *",
                 )
 
-                OutlinedTextField(
+                AppInputText(
                     modifier = Modifier.fillMaxWidth(),
-
                     value = uiState.teacherName.value,
                     onValueChange = { updateTeacherName?.invoke(it) },
-                    label = {
-                        Text(
-                            "Nome do Professor",
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    placeholder = {
-                        Text(
-                            "Opcional",
-                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                        )
-                    },
-                    singleLine = true
+                    label = "Nome do Professor",
+                    placeholder = "Opcional",
                 )
 
                 Text(
