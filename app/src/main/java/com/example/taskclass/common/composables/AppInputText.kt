@@ -36,11 +36,13 @@ fun AppInputText(
         } else {
             null
         },
-        placeholder = {
-            Text(
-                placeholder ?: "",
-                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-            )
+        placeholder = placeholder?.let { placeholderText ->
+            {
+                Text(
+                    placeholderText,
+                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                )
+            }
         },
         onValueChange = onValueChange,
         label = {
