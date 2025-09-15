@@ -42,6 +42,7 @@ fun AppSelectColor(
     modifier: Modifier = Modifier,
     value: Color,
     label: String,
+    onValueChange: (Color) -> Unit
 ) {
 
     var showDialogSelectColor by remember { mutableStateOf(false) }
@@ -67,10 +68,10 @@ fun AppSelectColor(
     if (showDialogSelectColor) {
         SelectColorDialog(
             colorSelect = value,
-            changeColorSelect = {},
+            changeColorSelect = onValueChange,
             changeShowPickerColor = {
                 showDialogSelectColor = it
-            }
+            },
         )
     }
 }
@@ -167,7 +168,8 @@ private fun AppSelectColorLightPreview() {
     ) {
         AppSelectColor(
             value = Color.Blue,
-            label = "Selecione a cor"
+            label = "Selecione a cor",
+            onValueChange = {}
         )
     }
 }
@@ -183,7 +185,8 @@ private fun AppSelectColorDarkPreview() {
     ) {
         AppSelectColor(
             value = Color.Blue,
-            label = "Selecione a cor"
+            label = "Selecione a cor",
+            onValueChange = {}
         )
     }
 }

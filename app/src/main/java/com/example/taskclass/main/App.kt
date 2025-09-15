@@ -17,7 +17,8 @@ import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateVi
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleViewModel
 import com.example.taskclass.schedules.presentation.schedules.SchedulesScreen
-import com.example.taskclass.typeEvents.TypeEventsScreen
+import com.example.taskclass.typeEvents.apresentation.typeEvent.TypeEventsScreen
+import com.example.taskclass.typeEvents.apresentation.typeEvent.TypeEventsViewModel
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
@@ -143,10 +144,14 @@ fun App(modifier: Modifier = Modifier) {
             }
         }
 
-        composable(Screen.TYPE_EVENTS.route) {
-            TypeEventsScreen {
-                appNavController.popBackStack()
-            }
+        composable(Screen.TYPE_EVENTS.route) {backStackEntry->
+            val viewModel = hiltViewModel<TypeEventsViewModel>(backStackEntry)
+            TypeEventsScreen(
+                viewModel = viewModel,
+                onBack =  {
+                    appNavController.popBackStack()
+                }
+            )
         }
     }
 }

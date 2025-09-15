@@ -1,17 +1,10 @@
-package com.example.taskclass.typeEvents
+package com.example.taskclass.typeEvents.apresentation.typeEvent
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -22,9 +15,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -39,16 +30,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.taskclass.common.composables.AppButton
-import com.example.taskclass.common.composables.AppInputText
-import com.example.taskclass.common.composables.AppSelectColor
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.ui.theme.TaskClassTheme
-import com.example.taskclass.ui.theme.White
+
+@Composable
+fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
+    val formState = viewModel.formState.collectAsStateWithLifecycle().value
+    TypeEventsScreen(
+        onBack = onBack,
+        formState = formState,
+        updateNameTypeEvent = viewModel::updateTitle,
+        updateColorTypeEvent = viewModel::updateColor,
+        resetForm = viewModel::resetForm
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypeEventsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    formState: TypeEventFormState,
+    updateNameTypeEvent: ((String) -> Unit)? = null,
+    updateColorTypeEvent: ((Color) -> Unit)? = null,
+    resetForm: (() -> Unit)? = null
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -76,7 +80,7 @@ fun TypeEventsScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            showBottomSheet = true // Mostra o BottomSheet
+                            showBottomSheet = true
                         },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1f),
@@ -106,13 +110,26 @@ fun TypeEventsScreen(
                 ModalBottomSheet(
                     onDismissRequest = {
                         showBottomSheet = false
+                        resetForm?.invoke()
                     },
                     sheetState = sheetState
                 ) {
                     TypeEventForm(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(16.dp),
+
+                        formState = formState,
+                        updateNameTypeEvent = updateNameTypeEvent,
+                        updateColorTypeEvent = updateColorTypeEvent,
+                        onCancel = {
+                            showBottomSheet = false
+                            resetForm?.invoke()
+                        },
+                        onSave = {
+                            showBottomSheet = false
+                            resetForm?.invoke()
+                        }
                     )
                 }
             }
@@ -121,69 +138,6 @@ fun TypeEventsScreen(
 
 }
 
-@Composable
-fun TypeEventForm(modifier: Modifier = Modifier) {
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        AppInputText(
-            value = "",
-            onValueChange = {},
-            label = "Nome do evento"
-        )
-
-        AppSelectColor(
-            value = Color.Blue,
-            label = "Cor do evento"
-        )
-
-        Row (
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ){
-            TextButton(
-                modifier = Modifier.weight(1f),
-                onClick = {}
-            ) {
-                Text(
-                    text = "Cancelar",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            AppButton(
-                modifier = Modifier.weight(1f),
-                label = "Salvar"
-            ) { }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun TypeEventFormLightPreview() {
-    TaskClassTheme(
-        dynamicColor = false,
-        darkTheme = false
-    ) {
-        TypeEventForm()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun TypeEventFormDarkPreview() {
-    TaskClassTheme(
-        dynamicColor = false,
-        darkTheme = true
-    ) {
-        TypeEventForm()
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -193,7 +147,10 @@ private fun TypeEventsScreenLightPreview() {
         dynamicColor = false,
         darkTheme = false
     ) {
-        TypeEventsScreen { }
+        TypeEventsScreen(
+            onBack = {},
+            formState = TypeEventFormState()
+        )
     }
 }
 
@@ -205,7 +162,10 @@ private fun TypeEventsScreenDarkPreview() {
         dynamicColor = false,
         darkTheme = true
     ) {
-        TypeEventsScreen { }
+        TypeEventsScreen(
+            onBack = {},
+            formState = TypeEventFormState()
+        )
     }
 }
 
