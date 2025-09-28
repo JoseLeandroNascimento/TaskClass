@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.TaskClassDatabase
 import com.example.taskclass.core.data.dao.ScheduleDao
+import com.example.taskclass.core.data.dao.TypeEventDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +34,7 @@ object DatabaseModule {
 
     @Provides
     fun provideScheduleDao(db: TaskClassDatabase): ScheduleDao = db.scheduleDao()
+
+    @Provides
+    fun provideTypeEventDao(db: TaskClassDatabase): TypeEventDao = db.typeEventDao()
 }

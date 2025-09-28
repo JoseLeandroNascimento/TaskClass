@@ -9,5 +9,5 @@ data class TypeEvent(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val color: Color,
-    val icon: Int
+    val icon: Int? = null
 )
