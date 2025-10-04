@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,11 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
@@ -64,7 +68,8 @@ fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
         resetForm = viewModel::resetForm,
         onSave = {
             viewModel.save()
-        }
+        },
+        onDelete = viewModel::delete
     )
 }
 
@@ -77,7 +82,8 @@ fun TypeEventsScreen(
     updateNameTypeEvent: ((String) -> Unit)? = null,
     updateColorTypeEvent: ((Color) -> Unit)? = null,
     resetForm: (() -> Unit)? = null,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onDelete: (Int) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -87,7 +93,7 @@ fun TypeEventsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Tipos de eventos",
+                        text = stringResource(R.string.tipos_de_eventos),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -129,35 +135,42 @@ fun TypeEventsScreen(
 
         ) {
 
-            uiState.typeEvents?.let { typesEvents ->
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
 
-                when (typesEvents) {
+                uiState.typeEvents?.let { typesEvents ->
 
-                    is Resource.Loading -> {
+                    when (typesEvents) {
 
-                    }
+                        is Resource.Loading -> {
+                            CircularProgressIndicator()
+                        }
 
-                    is Resource.Success -> {
+                        is Resource.Success -> {
 
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
-                                TypeEventCardItem(
-                                    typeEventItem = typeEventItem
-                                )
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(alignment = Alignment.TopCenter),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
+                                    TypeEventCardItem(
+                                        typeEventItem = typeEventItem,
+                                        onDelete = onDelete
+                                    )
+                                }
                             }
                         }
+
+                        is Resource.Error -> {
+
+                        }
                     }
-
-                    is Resource.Error -> {
-
-                    }
-
                 }
-
             }
 
             if (showBottomSheet) {
@@ -195,7 +208,8 @@ fun TypeEventsScreen(
 @Composable
 fun TypeEventCardItem(
     modifier: Modifier = Modifier,
-    typeEventItem: TypeEvent
+    typeEventItem: TypeEvent,
+    onDelete: (Int) -> Unit
 ) {
 
     var openDropdown by remember { mutableStateOf(false) }
@@ -226,6 +240,8 @@ fun TypeEventCardItem(
                 Text(
                     text = typeEventItem.name,
                     style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -259,6 +275,7 @@ fun TypeEventCardItem(
                         text = { Text("Excluir") },
                         onClick = {
                             openDropdown = false
+                            onDelete(typeEventItem.id)
                         },
                         leadingIcon = {
                             Icon(
@@ -287,9 +304,12 @@ private fun TypeEventsScreenLightPreview() {
     ) {
         TypeEventsScreen(
             onBack = {},
-            uiState = TypeEventsUiState(),
+            uiState = TypeEventsUiState(
+                typeEvents = Resource.Loading()
+            ),
             formState = TypeEventFormState(),
-            onSave = {}
+            onSave = {},
+            onDelete = {}
         )
     }
 }
@@ -306,7 +326,8 @@ private fun TypeEventsScreenDarkPreview() {
             onBack = {},
             uiState = TypeEventsUiState(),
             formState = TypeEventFormState(),
-            onSave = {}
+            onSave = {},
+            onDelete = {}
         )
     }
 }

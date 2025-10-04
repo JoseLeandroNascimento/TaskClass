@@ -6,6 +6,8 @@ import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.typeEvents.domain.TypeEventRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 
 class TypeEventRepositoryImpl @Inject constructor(
@@ -36,6 +38,43 @@ class TypeEventRepositoryImpl @Inject constructor(
                 emit(Resource.Error(e.message.toString()))
             }
 
+        }
+    }
+
+    override fun delete(id: Int): Flow<Resource<TypeEvent>> {
+
+        return flow {
+
+            emit(Resource.Loading())
+
+            try {
+                with(dao) {
+                    findById(id)
+                        .catch {
+                            emit(Resource.Error(it.message.toString()))
+                        }
+                        .collect { response ->
+                            delete(response.id)
+                            emit(Resource.Success(response))
+                        }
+                }
+
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message.toString()))
+            }
+        }
+    }
+
+    override fun update(data: TypeEvent): Flow<Resource<TypeEvent>> {
+
+        return flow {
+            emit(Resource.Loading())
+            try {
+                dao.update(data)
+                emit(Resource.Success(data))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message.toString()))
+            }
         }
     }
 }

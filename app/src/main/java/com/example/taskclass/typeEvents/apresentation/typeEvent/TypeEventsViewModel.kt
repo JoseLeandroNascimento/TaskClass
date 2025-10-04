@@ -62,20 +62,24 @@ class TypeEventsViewModel @Inject constructor(
     fun save() {
 
         if (isValid()) {
-
-            val data: TypeEvent = TypeEvent(
+            val data = TypeEvent(
                 name = _formState.value.nameTypeEvent.value,
                 color = _formState.value.colorTypeEvent.value
             )
-
             viewModelScope.launch {
                 repo.save(data).collect {
 
                 }
             }
-
         }
+    }
 
+    fun delete(id: Int) {
+        viewModelScope.launch {
+            repo.delete(id).collect {response ->
+
+            }
+        }
     }
 
 }

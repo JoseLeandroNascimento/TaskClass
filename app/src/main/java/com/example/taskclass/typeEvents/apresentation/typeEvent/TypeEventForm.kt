@@ -44,7 +44,7 @@ fun TypeEventForm(
 
         AppSelectColor(
             value = formState.colorTypeEvent.value,
-            label = "Cor do evento",
+            label = "Cor",
             onValueChange = { color ->
                 updateColorTypeEvent?.invoke(color)
             }
