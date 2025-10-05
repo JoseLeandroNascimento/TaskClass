@@ -149,7 +149,7 @@ fun App(modifier: Modifier = Modifier) {
             TypeEventsScreen(
                 viewModel = viewModel,
                 onBack =  {
-                    appNavController.popBackStack()
+                    appNavController.navigateUp()
                 }
             )
         }

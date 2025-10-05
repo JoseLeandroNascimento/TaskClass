@@ -1,6 +1,22 @@
 <resources>
     <string name="app_name">Task Class</string>
     <string name="tipos_de_eventos">Tipos de eventos</string>
+    <string name="label_nome_do_evento">Nome do evento</string>
+    <string name="label_cor_select">Cor</string>
+    <string name="btn_cancelar">Cancelar</string>
+    <string name="btn_salvar">Salvar</string>
+    <string name="selecionar_cor">Selecionar Cor</string>
+    <string name="descricao_escolha_uma_cor_ou_personalize_a_sua">Escolha uma cor ou personalize a sua</string>
+    <string name="btn_escolher_cor_personalizada">Escolher cor personalizada</string>
+    <string name="description_icon_color">Icon color</string>
+    <string name="atualizar_disciplina">Atualizar disciplina</string>
+    <string name="nova_disciplina">Nova Disciplina</string>
+    <string name="descricao_voltar">Voltar</string>
+    <string name="label_nome_da_disciplina">Nome da Disciplina *</string>
+    <string name="label_nome_do_professor">Nome do Professor</string>
+    <string name="placeholder_opcional">Opcional</string>
+    <string name="btn_salvar_disciplina">Salvar disciplina</string>
+    <string name="btn_cadastrar_disciplina">Cadastrar Disciplina</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>
