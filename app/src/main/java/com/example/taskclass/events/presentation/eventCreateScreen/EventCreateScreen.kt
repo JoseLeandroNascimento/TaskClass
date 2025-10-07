@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppInputDate
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.ui.theme.TaskClassTheme
 
@@ -109,22 +110,14 @@ fun EventCreateScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedTextField(
-                        label = {
-                            Text(text = "Data", style = MaterialTheme.typography.labelMedium)
-                        },
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.CalendarToday,
-                                contentDescription = null
-                            )
-                        },
+
+                    AppInputDate(
+                        label = "Data",
                         value = uiState.date.value,
                         onValueChange = {
                             updateDate?.invoke(it)
-                        }
+                        },
+                        modifier = Modifier.weight(1f),
                     )
 
                     AppInputTime(
