@@ -41,17 +41,21 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.R
+import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.White
@@ -139,6 +143,7 @@ fun DisciplineContent(
     onEditDiscipline: (Int) -> Unit,
 ) {
 
+
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
         when (uiState.disciplines) {
@@ -158,7 +163,7 @@ fun DisciplineContent(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
 
-                        items(uiState.disciplines.data, key = { it.id!! }) { discipline ->
+                        items(uiState.disciplines.data, key = { it.id }) { discipline ->
                             DisciplineItem(
                                 discipline = discipline,
                                 onDeleteDiscipline = onDeleteDiscipline,
@@ -193,11 +198,8 @@ fun DisciplineContent(
 
                 Text(text = uiState.disciplines.message)
             }
-
         }
     }
-
-
 }
 
 @Composable
@@ -208,6 +210,26 @@ fun DisciplineItem(
     discipline: Discipline
 ) {
     var openDropdown by rememberSaveable { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
+
+    if (confirmDelete) {
+        AppConfirmDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = stringResource(R.string.title_dialog_excluir_disciplina),
+            description = stringResource(
+                R.string.tem_certeza_que_deseja_excluir_a_disciplina,
+                discipline.title
+            ),
+            onConfirm = {
+                confirmDelete = false
+                onDeleteDiscipline(discipline.id)
+            },
+            onCancel = {
+                confirmDelete = false
+            }
+
+        )
+    }
 
     Card(
         modifier = modifier
@@ -275,7 +297,7 @@ fun DisciplineItem(
                     DropdownMenuItem(
                         text = { Text("Excluir") },
                         onClick = {
-                            onDeleteDiscipline(discipline.id)
+                            confirmDelete = true
                             openDropdown = false
                         },
                         leadingIcon = {

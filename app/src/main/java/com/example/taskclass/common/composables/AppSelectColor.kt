@@ -154,7 +154,6 @@ private fun SelectColorOptionsDialog(
                 textAlign = TextAlign.Center
             )
 
-            // Lista com rolagem e espaçamento entre cores
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

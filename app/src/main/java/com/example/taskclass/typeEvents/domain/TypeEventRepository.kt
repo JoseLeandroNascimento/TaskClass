@@ -10,6 +10,8 @@ interface TypeEventRepository {
 
     fun findAll(): Flow<Resource<List<TypeEvent>>>
 
+    fun findById(id: Int): Flow<Resource<TypeEvent>>
+
     fun delete(id: Int): Flow<Resource<TypeEvent>>
 
     fun update(data: TypeEvent): Flow<Resource<TypeEvent>>

@@ -29,6 +29,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -36,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,15 +51,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
+import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
 
     val formState = viewModel.formState.collectAsStateWithLifecycle().value
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     TypeEventsScreen(
         onBack = onBack,
@@ -65,11 +71,11 @@ fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
         uiState = uiState,
         updateNameTypeEvent = viewModel::updateTitle,
         updateColorTypeEvent = viewModel::updateColor,
-        resetForm = viewModel::resetForm,
-        onSave = {
-            viewModel.save()
-        },
-        onDelete = viewModel::delete
+        onSave = viewModel::save,
+        onDelete = viewModel::delete,
+        changeBottomSheetState = viewModel::changeBottomSheetState,
+        onSelectedItemEdit = viewModel::onSelectedItemEdit,
+        sheetState = sheetState
     )
 }
 
@@ -81,12 +87,14 @@ fun TypeEventsScreen(
     uiState: TypeEventsUiState,
     updateNameTypeEvent: ((String) -> Unit)? = null,
     updateColorTypeEvent: ((Color) -> Unit)? = null,
-    resetForm: (() -> Unit)? = null,
+    changeBottomSheetState: ((Boolean) -> Unit)? = null,
+    onSelectedItemEdit: ((Int) -> Unit)? = null,
     onSave: () -> Unit,
-    onDelete: (Int) -> Unit
+    onDelete: (Int) -> Unit,
+    sheetState: SheetState
+
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
@@ -111,7 +119,7 @@ fun TypeEventsScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            showBottomSheet = true
+                            changeBottomSheetState?.invoke(true)
                         },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1f),
@@ -160,7 +168,8 @@ fun TypeEventsScreen(
                                 items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
                                     TypeEventCardItem(
                                         typeEventItem = typeEventItem,
-                                        onDelete = onDelete
+                                        onDelete = onDelete,
+                                        onSelectedItemEdit = onSelectedItemEdit
                                     )
                                 }
                             }
@@ -173,14 +182,14 @@ fun TypeEventsScreen(
                 }
             }
 
-            if (showBottomSheet) {
+            if (uiState.showBottomSheet) {
                 ModalBottomSheet(
                     onDismissRequest = {
-                        showBottomSheet = false
-                        resetForm?.invoke()
+                        changeBottomSheetState?.invoke(false)
                     },
-                    sheetState = sheetState
-                ) {
+                    sheetState = sheetState,
+
+                    ) {
                     TypeEventForm(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -190,11 +199,9 @@ fun TypeEventsScreen(
                         updateNameTypeEvent = updateNameTypeEvent,
                         updateColorTypeEvent = updateColorTypeEvent,
                         onCancel = {
-                            showBottomSheet = false
-                            resetForm?.invoke()
+                            changeBottomSheetState?.invoke(false)
                         },
                         onSave = {
-                            showBottomSheet = false
                             onSave()
                         }
                     )
@@ -209,10 +216,30 @@ fun TypeEventsScreen(
 fun TypeEventCardItem(
     modifier: Modifier = Modifier,
     typeEventItem: TypeEvent,
+    onSelectedItemEdit: ((Int) -> Unit)? = null,
     onDelete: (Int) -> Unit
 ) {
 
     var openDropdown by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
+
+    if (confirmDelete) {
+        AppConfirmDialog(
+            onDismissRequest = { confirmDelete = false },
+            onConfirm = {
+                onDelete(typeEventItem.id)
+                confirmDelete = false
+            },
+            onCancel = {
+                confirmDelete = false
+            },
+            title = stringResource(R.string.title_dialog_excluir_tipo_de_evento),
+            description = stringResource(
+                R.string.description_dialog_tem_certeza_que_deseja_excluir_o_tipo_de_evento,
+                typeEventItem.name
+            )
+        )
+    }
 
     AppCardDefault(
         modifier = modifier.fillMaxWidth(),
@@ -261,6 +288,7 @@ fun TypeEventCardItem(
                     DropdownMenuItem(
                         text = { Text("Editar") },
                         onClick = {
+                            onSelectedItemEdit?.invoke(typeEventItem.id)
                             openDropdown = false
                         },
                         leadingIcon = {
@@ -275,7 +303,7 @@ fun TypeEventCardItem(
                         text = { Text("Excluir") },
                         onClick = {
                             openDropdown = false
-                            onDelete(typeEventItem.id)
+                            confirmDelete = true
                         },
                         leadingIcon = {
                             Icon(
@@ -294,6 +322,7 @@ fun TypeEventCardItem(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 private fun TypeEventsScreenLightPreview() {
@@ -309,11 +338,13 @@ private fun TypeEventsScreenLightPreview() {
             ),
             formState = TypeEventFormState(),
             onSave = {},
-            onDelete = {}
+            onDelete = {},
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 private fun TypeEventsScreenDarkPreview() {
@@ -327,7 +358,8 @@ private fun TypeEventsScreenDarkPreview() {
             uiState = TypeEventsUiState(),
             formState = TypeEventFormState(),
             onSave = {},
-            onDelete = {}
+            onDelete = {},
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }

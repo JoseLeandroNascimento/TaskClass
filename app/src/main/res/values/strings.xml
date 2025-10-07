@@ -17,6 +17,11 @@
     <string name="placeholder_opcional">Opcional</string>
     <string name="btn_salvar_disciplina">Salvar disciplina</string>
     <string name="btn_cadastrar_disciplina">Cadastrar Disciplina</string>
+    <string name="btn_confirm">Confirmar</string>
+    <string name="title_dialog_excluir_disciplina">Excluir disciplina</string>
+    <string name="tem_certeza_que_deseja_excluir_a_disciplina">Tem certeza que deseja excluir a disciplina %1$s?</string>
+    <string name="title_dialog_excluir_tipo_de_evento">Excluir tipo de evento</string>
+    <string name="description_dialog_tem_certeza_que_deseja_excluir_o_tipo_de_evento">Tem certeza que deseja excluir o tipo de evento %1$s?</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

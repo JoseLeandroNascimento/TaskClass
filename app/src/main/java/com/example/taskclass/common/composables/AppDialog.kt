@@ -37,7 +37,6 @@ fun AppDialog(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Título
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium.copy(
@@ -45,8 +44,6 @@ fun AppDialog(
                     ),
                     color = MaterialTheme.colorScheme.onSurface
                 )
-
-                // Conteúdo
                 content()
             }
         }
