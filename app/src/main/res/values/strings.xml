@@ -22,6 +22,12 @@
     <string name="tem_certeza_que_deseja_excluir_a_disciplina">Tem certeza que deseja excluir a disciplina %1$s?</string>
     <string name="title_dialog_excluir_tipo_de_evento">Excluir tipo de evento</string>
     <string name="description_dialog_tem_certeza_que_deseja_excluir_o_tipo_de_evento">Tem certeza que deseja excluir o tipo de evento %1$s?</string>
+    <string name="tela_titulo_novo_evento">Novo evento</string>
+    <string name="label_titulo">Título</string>
+    <string name="label_tipo_de_evento">Tipo de evento</string>
+    <string name="label_data">Data</string>
+    <string name="label_hora">Hora</string>
+    <string name="btn_cadastrar_evento">Cadastrar evento</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

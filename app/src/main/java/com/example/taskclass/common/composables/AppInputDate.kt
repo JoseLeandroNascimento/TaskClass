@@ -8,6 +8,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -98,8 +99,9 @@ fun AppInputDate(
             onValueChange(formatted)
         },
         label = { Text(label) },
-        placeholder = { Text("dd/mm/aaaa") },
+        placeholder = { Text("dd/mm/aaaa", style = MaterialTheme.typography.labelSmall) },
         singleLine = true,
+        maxLines = 1,
         modifier = modifier,
         trailingIcon = {
             Icon(

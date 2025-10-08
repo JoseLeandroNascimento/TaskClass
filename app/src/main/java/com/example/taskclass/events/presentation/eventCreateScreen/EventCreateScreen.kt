@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,18 +20,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputDate
+import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppInputTime
+import com.example.taskclass.common.data.Resource
+import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
 
 @Composable
 fun EventCreateScreen(
     viewModel: EventCreateViewModel,
-    onBack: ()-> Unit
+    onBack: () -> Unit
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
@@ -50,6 +56,9 @@ fun EventCreateScreen(
         },
         updateDescription = {
             viewModel.updateDescription(it)
+        },
+        updateTypeEvent = {
+            viewModel.updateTypeEvent(it)
         }
     )
 }
@@ -58,11 +67,12 @@ fun EventCreateScreen(
 @Composable
 fun EventCreateScreen(
     uiState: EventCreateUiState,
-    updateTitle:((String)-> Unit)? = null,
-    updateDate:((String)-> Unit)? = null,
-    updateTime:((String)-> Unit)? = null,
-    updateDescription:((String)-> Unit)? = null,
-    onBack: ()-> Unit,
+    updateTitle: ((String) -> Unit)? = null,
+    updateDate: ((String) -> Unit)? = null,
+    updateTime: ((String) -> Unit)? = null,
+    updateDescription: ((String) -> Unit)? = null,
+    updateTypeEvent: ((TypeEvent) -> Unit)? = null,
+    onBack: () -> Unit,
 ) {
 
     Scaffold(
@@ -79,7 +89,7 @@ fun EventCreateScreen(
                     }
                 },
                 title = {
-                    Text(text = "Novo evento", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(R.string.tela_titulo_novo_evento), style = MaterialTheme.typography.titleMedium)
                 }
             )
         }
@@ -95,24 +105,57 @@ fun EventCreateScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
-                    label = {
-                        Text(text = "Título", style = MaterialTheme.typography.labelMedium)
-                    },
+                AppInputText(
+                    label = stringResource(R.string.label_titulo),
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
                     value = uiState.title.value,
                     onValueChange = {
                         updateTitle?.invoke(it)
                     }
                 )
 
+                AppDropdown(
+                    label = stringResource(R.string.label_tipo_de_evento),
+                    value = uiState.typeEventSelected.value?.name ?: "",
+                ) { closeDropdown ->
+                    uiState.typeEvents?.let { response ->
+                        when (response) {
+                            is Resource.Loading -> {
+
+                            }
+
+                            is Resource.Success -> {
+
+                                response.data.forEachIndexed { index, typeEvent ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = typeEvent.name,
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        },
+                                        onClick = {
+                                            updateTypeEvent?.invoke(typeEvent)
+                                            closeDropdown()
+                                        }
+                                    )
+                                }
+                            }
+
+                            is Resource.Error -> {
+
+                            }
+                        }
+                    }
+                }
+
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
                     AppInputDate(
-                        label = "Data",
+                        label = stringResource(R.string.label_data),
                         value = uiState.date.value,
                         onValueChange = {
                             updateDate?.invoke(it)
@@ -122,7 +165,7 @@ fun EventCreateScreen(
 
                     AppInputTime(
                         modifier = Modifier.weight(1f),
-                        label = "Hora",
+                        label = stringResource(R.string.label_hora),
                         value = uiState.time.value
                     ) {
                         updateTime?.invoke(it)
@@ -146,7 +189,7 @@ fun EventCreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    label = "Cadastrar evento",
+                    label = stringResource(R.string.btn_cadastrar_evento),
                     onClick = { /* salvar */ }
                 )
             }

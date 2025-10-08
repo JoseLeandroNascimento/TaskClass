@@ -15,4 +15,5 @@ interface TypeEventRepository {
     fun delete(id: Int): Flow<Resource<TypeEvent>>
 
     fun update(data: TypeEvent): Flow<Resource<TypeEvent>>
+
 }

@@ -405,13 +405,19 @@ fun ScheduleGridHeader(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val colorText =  if(index == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 Text(
                     text = daysWeek[index].toString(),
                     textAlign = TextAlign.Center,
                     fontSize = 12.sp,
+                    color = colorText,
                     lineHeight = 12.sp
                 )
-                Text(text = day, style = MaterialTheme.typography.labelMedium)
+                Text(
+                    text = day,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colorText
+                )
             }
         }
     }
