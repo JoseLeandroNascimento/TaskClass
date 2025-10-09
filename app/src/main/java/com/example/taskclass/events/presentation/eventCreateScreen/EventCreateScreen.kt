@@ -1,13 +1,17 @@
 package com.example.taskclass.events.presentation.eventCreateScreen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,8 +23,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -59,6 +65,9 @@ fun EventCreateScreen(
         },
         updateTypeEvent = {
             viewModel.updateTypeEvent(it)
+        },
+        onSave = {
+            viewModel.saveEvent()
         }
     )
 }
@@ -72,6 +81,7 @@ fun EventCreateScreen(
     updateTime: ((String) -> Unit)? = null,
     updateDescription: ((String) -> Unit)? = null,
     updateTypeEvent: ((TypeEvent) -> Unit)? = null,
+    onSave: ()-> Unit,
     onBack: () -> Unit,
 ) {
 
@@ -89,7 +99,10 @@ fun EventCreateScreen(
                     }
                 },
                 title = {
-                    Text(text = stringResource(R.string.tela_titulo_novo_evento), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(R.string.tela_titulo_novo_evento),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
             )
         }
@@ -99,9 +112,11 @@ fun EventCreateScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -121,7 +136,12 @@ fun EventCreateScreen(
                     uiState.typeEvents?.let { response ->
                         when (response) {
                             is Resource.Loading -> {
-
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
 
                             is Resource.Success -> {
@@ -131,7 +151,9 @@ fun EventCreateScreen(
                                         text = {
                                             Text(
                                                 text = typeEvent.name,
-                                                style = MaterialTheme.typography.labelMedium
+                                                style = MaterialTheme.typography.labelMedium,
+                                                overflow = TextOverflow.Ellipsis,
+                                                maxLines = 1
                                             )
                                         },
                                         onClick = {
@@ -190,7 +212,7 @@ fun EventCreateScreen(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     label = stringResource(R.string.btn_cadastrar_evento),
-                    onClick = { /* salvar */ }
+                    onClick = onSave
                 )
             }
         }
@@ -207,7 +229,8 @@ private fun EventCreateScreenLightPreview() {
     ) {
         EventCreateScreen(
             uiState = EventCreateUiState(),
-            onBack = {}
+            onBack = {},
+            onSave = {}
         )
     }
 
@@ -223,7 +246,8 @@ private fun EventCreateScreenDarkPreview() {
     ) {
         EventCreateScreen(
             uiState = EventCreateUiState(),
-            onBack = {}
+            onBack = {},
+            onSave = {}
         )
     }
 

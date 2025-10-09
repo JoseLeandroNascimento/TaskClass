@@ -2,8 +2,9 @@ package com.example.taskclass.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.TaskClassDatabase
+import com.example.taskclass.core.data.dao.DisciplineDao
+import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
 import dagger.Module
@@ -37,4 +38,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTypeEventDao(db: TaskClassDatabase): TypeEventDao = db.typeEventDao()
+
+    @Provides
+    fun provideEventDao(db: TaskClassDatabase): EventDao = db.eventDao()
 }

@@ -2,7 +2,12 @@ package com.example.taskclass.events.presentation.eventCreateScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.core.data.converters.Converters
+import com.example.taskclass.core.data.model.DateInt
+import com.example.taskclass.core.data.model.EventEntity
+import com.example.taskclass.core.data.model.Time
 import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.events.domain.EventRepository
 import com.example.taskclass.typeEvents.domain.TypeEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -15,11 +20,14 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EventCreateViewModel @Inject constructor(
-    private val typeEventRepository: TypeEventRepository
+    private val typeEventRepository: TypeEventRepository,
+    private val eventRepository: EventRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventCreateUiState())
     val uiState: StateFlow<EventCreateUiState> = _uiState.asStateFlow()
+
+    private val converters = Converters()
 
     init {
         loadTypesEvents()
@@ -63,6 +71,23 @@ class EventCreateViewModel @Inject constructor(
     fun updateTypeEvent(typeEvent: TypeEvent) {
         _uiState.update {
             it.copy(typeEventSelected = it.typeEventSelected.updateValue(typeEvent))
+        }
+    }
+
+    fun saveEvent() {
+        viewModelScope.launch {
+            val ui = _uiState.value
+
+            val event = EventEntity(
+                title = ui.title.value,
+                description = ui.description.value,
+                date = converters.toDate(ui.date.value)?.let { DateInt(it.value) } ?: DateInt(0),
+                time = converters.fromTimeString(ui.time.value) ?: Time(0),
+                typeEventId = ui.typeEventSelected.value?.id,
+                typeEventName = ui.typeEventSelected.value?.name
+            )
+
+            eventRepository.saveEvent(event)
         }
     }
 
