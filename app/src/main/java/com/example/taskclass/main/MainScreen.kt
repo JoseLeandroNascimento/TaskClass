@@ -57,7 +57,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.taskclass.R
 import com.example.taskclass.agenda.presentation.AgendaScreen
 import com.example.taskclass.agenda.presentation.AgendaViewModel
-import com.example.taskclass.events.presentation.eventsScreen.EventsScreen
+import com.example.taskclass.events.presentation.eventsScreen.EventScreen
 import com.example.taskclass.notes.NotesScreen
 import com.example.taskclass.ui.theme.White
 import kotlinx.coroutines.launch
@@ -289,7 +289,7 @@ fun MainContent(
                     )
                 }
                 composable(Screen.EVENTS.route) {
-                    EventsScreen()
+                    EventScreen()
                 }
                 composable(Screen.NOTES.route) {
                     NotesScreen()

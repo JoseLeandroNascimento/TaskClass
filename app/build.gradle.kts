@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.taskclass"
-        minSdk = 24
+        minSdk = 21
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -32,6 +32,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // ✅ Permite usar java.time.* em API < 26
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -43,6 +45,8 @@ android {
 
 dependencies {
 
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    implementation("com.kizitonwose.calendar:compose:2.6.0")
     implementation(libs.androidx.room.runtime)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
