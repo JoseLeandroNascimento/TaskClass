@@ -34,6 +34,7 @@ class Converters {
     @TypeConverter
     fun fromDate(date: DateInt?): String? = date?.value?.toString()
 
+
     fun toDate(dateString: String?): DateInt? {
         return dateString?.let { str ->
             val parts = str.split("/")

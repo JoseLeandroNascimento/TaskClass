@@ -2,6 +2,7 @@ package com.example.taskclass.core.data.repository
 
 import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.model.EventEntity
+import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.events.domain.EventRepository
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -12,7 +13,7 @@ class EventRepositoryImpl @Inject constructor(
     private val eventDao: EventDao
 ) : EventRepository {
 
-    override fun getAllEvents(): Flow<List<EventEntity>> = eventDao.findAll()
+    override fun getAllEvents(): Flow<List<EventWithType>> = eventDao.findAll()
 
     override fun getEventsByDate(date: String): Flow<List<EventEntity>> = eventDao.findByDate(date)
 

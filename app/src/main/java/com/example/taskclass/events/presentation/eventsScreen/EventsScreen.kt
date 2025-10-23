@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,14 +17,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -41,29 +49,24 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
-data class Event(
-    val id: Int,
-    val title: String,
-    val description: String,
-    val date: LocalDate,
-    val color: Color
-)
 
 @Composable
 fun EventScreen(
     modifier: Modifier = Modifier,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     EventScreen(
         modifier = modifier,
-        uiState = uiState
+        uiState = uiState,
+        onDateSelected = viewModel::onDateSelected
     )
 }
 
@@ -72,6 +75,7 @@ fun EventScreen(
 fun EventScreen(
     modifier: Modifier = Modifier,
     uiState: EventsUiState,
+    onDateSelected: (LocalDate) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -79,20 +83,28 @@ fun EventScreen(
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
     val endMonth = remember { currentMonth.plusMonths(6) }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val daysOfWeek = remember { daysOfWeek() }
+    val scope = rememberCoroutineScope()
 
-    val events = listOf(
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(1, "Reunião", "Equipe de design", LocalDate.now(), Color(0xFF4CAF50)),
-        Event(2, "Entrega do projeto", "Sprint 12", LocalDate.now().plusDays(1), Color(0xFFFF9800)),
-        Event(3, "Dentista", "Consulta", LocalDate.now().plusDays(3), Color(0xFFF44336))
+    val calendarState = rememberCalendarState(
+        startMonth = startMonth,
+        endMonth = endMonth,
+        firstVisibleMonth = currentMonth,
+        firstDayOfWeek = daysOfWeek.first()
     )
+
+    val dayEvents by remember(uiState.dateSelected, uiState.events) {
+        derivedStateOf {
+            uiState.events.filter {
+                val eventDate = LocalDate.of(
+                    it.date.value / 10000,
+                    (it.date.value % 10000) / 100,
+                    it.date.value % 100
+                )
+                eventDate == uiState.dateSelected
+            }
+        }
+    }
 
     Column(
         modifier = modifier
@@ -100,49 +112,95 @@ fun EventScreen(
             .background(colorScheme.background)
             .padding(horizontal = 8.dp)
     ) {
-        val daysOfWeek = remember { daysOfWeek() }
-
-        HorizontalCalendar(
-            state = rememberCalendarState(
-                startMonth = startMonth,
-                endMonth = endMonth,
-                firstVisibleMonth = currentMonth,
-                firstDayOfWeek = daysOfWeek.first()
-            ),
-            dayContent = { day ->
-                DayCell(
-                    day = day,
-                    events = events.filter { it.date == day.date },
-                    selectedDate = selectedDate,
-                    onClick = { selectedDate = day.date }
-                )
-            },
-            monthHeader = { month ->
-                MonthHeader(month)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        )
-
-        val dayEvents = remember(selectedDate, events) {
-            events.filter { it.date == selectedDate }
-        }
-
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            items(dayEvents.size) { index ->
-                EventCard(dayEvents[index], {})
+            stickyHeader {
+
+                Column(
+                    modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+                ) {
+                    CalendarSection(
+                        modifier = Modifier
+                            .background(colorScheme.background),
+                        calendarState = calendarState,
+                        events = uiState.events,
+                        selectedDate = uiState.dateSelected,
+                        onDateSelected = onDateSelected,
+                        onNextMonth = { scope.launch { calendarState.scrollToMonth(it.plusMonths(1)) } },
+                        onPreviousMonth = { scope.launch { calendarState.scrollToMonth(it.minusMonths(1)) } }
+                    )
+
+                    HorizontalDivider()
+
+                    Text(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
+                            uiState.dateSelected.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                        }",
+                        style = typography.titleSmall
+                    )
+                }
             }
+
+            items(dayEvents.size) { index ->
+                EventCard(event = dayEvents[index])
+            }
+
+            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }
 
 @Composable
-fun DayCell(
+private fun CalendarSection(
+    modifier: Modifier = Modifier,
+    calendarState: com.kizitonwose.calendar.compose.CalendarState,
+    events: List<EventWithType>,
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onNextMonth: (YearMonth) -> Unit,
+    onPreviousMonth: (YearMonth) -> Unit
+) {
+
+    Column(modifier = modifier.padding(bottom = 16.dp)) {
+        HorizontalCalendar(
+            state = calendarState,
+            dayContent = { day ->
+                val dayEvents = remember(events) {
+                    events.filter {
+                        val date = LocalDate.of(
+                            it.date.value / 10000,
+                            (it.date.value % 10000) / 100,
+                            it.date.value % 100
+                        )
+                        date == day.date
+                    }
+                }
+                DayCell(
+                    day = day,
+                    events = dayEvents,
+                    selectedDate = selectedDate,
+                    onClick = { onDateSelected(day.date) }
+                )
+            },
+            monthHeader = { month ->
+                MonthHeader(
+                    month = month,
+                    onPreviousMonth = { onPreviousMonth(month.yearMonth) },
+                    onNextMonth = { onNextMonth(month.yearMonth) }
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun DayCell(
     day: CalendarDay,
-    events: List<Event>,
+    events: List<EventWithType>,
     selectedDate: LocalDate,
     onClick: () -> Unit
 ) {
@@ -150,10 +208,8 @@ fun DayCell(
     val typography = MaterialTheme.typography
 
     val isSelected = day.date == selectedDate
-    val bgColor = if (isSelected)
-        colorScheme.primary.copy(alpha = 0.4f)
-    else
-        colorScheme.surfaceVariant
+    val bgColor = if (isSelected) colorScheme.primary.copy(alpha = 0.2f)
+    else colorScheme.surfaceVariant.copy(alpha = 0.2f)
 
     val textColor = when {
         isSelected -> colorScheme.onPrimaryContainer
@@ -163,10 +219,11 @@ fun DayCell(
 
     Box(
         modifier = Modifier
-            .aspectRatio(1f)
-            .clickable { onClick() }
             .padding(2.dp)
-            .background(bgColor, RoundedCornerShape(6.dp)),
+            .clip(RoundedCornerShape(6.dp))
+            .background(bgColor)
+            .aspectRatio(1f)
+            .clickable { onClick() },
         contentAlignment = Alignment.TopCenter
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -189,7 +246,11 @@ fun DayCell(
 }
 
 @Composable
-fun MonthHeader(month: CalendarMonth) {
+private fun MonthHeader(
+    month: CalendarMonth,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
+) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
@@ -197,29 +258,42 @@ fun MonthHeader(month: CalendarMonth) {
         .getDisplayName(TextStyle.FULL, Locale.getDefault())
         .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 
-    Text(
-        text = "$monthTitle ${month.yearMonth.year}",
-        color = colorScheme.onBackground,
-        style = typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        textAlign = TextAlign.Center
-    )
+            .padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(onClick = onPreviousMonth) {
+            Icon(imageVector = Icons.Default.ChevronLeft, contentDescription = "Mês anterior")
+        }
+
+        Text(
+            text = "$monthTitle ${month.yearMonth.year}",
+            color = colorScheme.onBackground,
+            style = typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            textAlign = TextAlign.Center
+        )
+
+        IconButton(onClick = onNextMonth) {
+            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Próximo mês")
+        }
+    }
 }
 
 @Composable
-fun EventCard(event: Event, onClick: (Event) -> Unit) {
+private fun EventCard(event: EventWithType) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(colorScheme.surfaceVariant)
-            .clickable { onClick(event) }
-            .padding(vertical = 8.dp, horizontal = 12.dp),
+            .clickable { /* TODO: navegação */ }
+            .padding(vertical = 16.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -234,14 +308,17 @@ fun EventCard(event: Event, onClick: (Event) -> Unit) {
                 color = colorScheme.onSurface,
                 style = typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
             )
-            Text(
-                text = event.description,
-                color = colorScheme.onSurfaceVariant,
-                style = typography.bodySmall
-            )
+            if (event.description.isNotEmpty()) {
+                Text(
+                    text = event.description,
+                    color = colorScheme.onSurfaceVariant,
+                    style = typography.bodySmall
+                )
+            }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -251,7 +328,8 @@ private fun EventScreenLightPreview() {
         darkTheme = false
     ) {
         EventScreen(
-            uiState = EventsUiState()
+            uiState = EventsUiState(),
+            onDateSelected = {}
         )
     }
 }
@@ -264,7 +342,8 @@ private fun EventScreenDarkPreview() {
         darkTheme = true
     ) {
         EventScreen(
-            uiState = EventsUiState()
+            uiState = EventsUiState(),
+            onDateSelected = {}
         )
     }
 }

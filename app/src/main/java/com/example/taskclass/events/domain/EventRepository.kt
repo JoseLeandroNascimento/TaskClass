@@ -1,11 +1,12 @@
 package com.example.taskclass.events.domain
 
 import com.example.taskclass.core.data.model.EventEntity
+import com.example.taskclass.core.data.model.dto.EventWithType
 import kotlinx.coroutines.flow.Flow
 
 interface EventRepository {
 
-    fun getAllEvents(): Flow<List<EventEntity>>
+    fun getAllEvents(): Flow<List<EventWithType>>
 
     fun getEventsByDate(date: String): Flow<List<EventEntity>>
 
