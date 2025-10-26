@@ -14,6 +14,7 @@ import com.example.taskclass.discipline.presentation.disciplineScreen.Discipline
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineViewModel
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateScreen
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateViewModel
+import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleViewModel
 import com.example.taskclass.schedules.presentation.schedules.SchedulesScreen
@@ -46,9 +47,23 @@ fun App(modifier: Modifier = Modifier) {
                 },
                 onEditSchedule = { scheduleId ->
                     appNavController.navigate(Screen.EDIT_SCHEDULES.withArgs(scheduleId.toString()))
+                },
+                onSelectedEvent = { eventId ->
+                    appNavController.navigate(Screen.EVENT_DETAIL.withArgs(eventId.toString()))
                 }
             )
         }
+
+        composable(
+            route = Screen.EVENT_DETAIL.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.IntType })
+        ) {
+            EventDetailScreen(
+                eventId = it.arguments?.getInt("eventId") ?: 0,
+                onBack = { appNavController.navigateUp() }
+            )
+        }
+
 
         composable(Screen.DISCIPLINE.route) { backStackEntry ->
             val viewModel = hiltViewModel<DisciplineViewModel>(backStackEntry)
@@ -153,6 +168,7 @@ fun App(modifier: Modifier = Modifier) {
                 }
             )
         }
+
     }
 }
 

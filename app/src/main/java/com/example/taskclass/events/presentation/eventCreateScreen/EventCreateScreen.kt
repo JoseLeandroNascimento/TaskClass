@@ -48,6 +48,7 @@ fun EventCreateScreen(
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
+
     EventCreateScreen(
         uiState = uiState,
         onBack = onBack,

@@ -5,10 +5,10 @@ import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
 import com.example.taskclass.core.data.repository.DisciplineRepositoryImpl
-import com.example.taskclass.core.data.repository.EventRepositoryImpl
 import com.example.taskclass.core.data.repository.ScheduleRepositoryImpl
 import com.example.taskclass.core.data.repository.TypeEventRepositoryImpl
 import com.example.taskclass.discipline.domain.DisciplineRepository
+import com.example.taskclass.core.data.repository.EventRepositoryImpl
 import com.example.taskclass.events.domain.EventRepository
 import com.example.taskclass.schedules.domain.ScheduleRepository
 import com.example.taskclass.typeEvents.domain.TypeEventRepository

@@ -1,35 +1,69 @@
 package com.example.taskclass.core.data.repository
 
+import android.util.Log
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.model.EventEntity
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.events.domain.EventRepository
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-@Singleton
 class EventRepositoryImpl @Inject constructor(
-    private val eventDao: EventDao
+    private val dao: EventDao
 ) : EventRepository {
 
-    override fun getAllEvents(): Flow<List<EventWithType>> = eventDao.findAll()
-
-    override fun getEventsByDate(date: String): Flow<List<EventEntity>> = eventDao.findByDate(date)
-
-    override suspend fun saveEvent(event: EventEntity) {
-        eventDao.insert(event)
+    companion object {
+        private const val LOG_TAG = "EVENT_REPOSITORY"
     }
 
-    override suspend fun updateEvent(event: EventEntity) {
-        eventDao.update(event)
+    override fun findById(id: Int): Flow<Resource<EventWithType>> =
+        dao.findByIdWithType(id)
+            .map { event -> // ← aqui o compilador não consegue inferir o tipo
+                if (event != null) Resource.Success(event)
+                else Resource.Error("Evento não encontrado.")
+            }
+
+
+    override fun findAll(): Flow<Resource<List<EventWithType>>> =
+        dao.findAllWithType()
+            .map { events -> // ✅ tipo explícito
+                Resource.Success(events)
+            }
+
+
+    override fun save(event: EventEntity): Flow<Resource<Unit>> = flow {
+        try {
+            emit(Resource.Loading())
+            dao.insert(event)
+            emit(Resource.Success(Unit))
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Erro ao salvar evento", e)
+            emit(Resource.Error("Erro ao salvar evento."))
+        }
     }
 
-    override suspend fun deleteEvent(event: EventEntity) {
-        eventDao.delete(event)
+    override fun update(event: EventEntity): Flow<Resource<Unit>> = flow {
+        try {
+            emit(Resource.Loading())
+            dao.update(event)
+            emit(Resource.Success(Unit))
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Erro ao atualizar evento", e)
+            emit(Resource.Error("Erro ao atualizar evento."))
+        }
     }
 
-    override suspend fun clearAll() {
-        eventDao.clearAll()
+    override fun delete(id: Int): Flow<Resource<Unit>> = flow {
+        try {
+            emit(Resource.Loading())
+            dao.deleteById(id)
+            emit(Resource.Success(Unit))
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Erro ao deletar evento", e)
+            emit(Resource.Error("Erro ao deletar evento."))
+        }
     }
 }

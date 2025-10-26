@@ -1,6 +1,7 @@
 package com.example.taskclass.core.data.model.dto
 
 import androidx.compose.ui.graphics.Color
+import com.example.taskclass.core.data.model.EventEntity
 import com.example.taskclass.core.data.model.DateInt
 import com.example.taskclass.core.data.model.Time
 
@@ -10,7 +11,24 @@ data class EventWithType(
     val description: String,
     val date: DateInt,
     val time: Time,
-    val color: Color,
-    val typeEventName: String,
-    val typeEventId: Int
-)
+    val typeEventId: Int?,
+    val typeEventName: String?,
+    val typeEventColor: Color?, // agora é Color, não String
+    val isDone: Boolean = false
+) {
+    val color: Color
+        get() = typeEventColor ?: Color.Gray
+
+    fun toEntity(): EventEntity {
+        return EventEntity(
+            id = id,
+            title = title,
+            description = description,
+            date = date,
+            time = time,
+            typeEventId = typeEventId,
+            typeEventName = typeEventName,
+            isDone = isDone
+        )
+    }
+}

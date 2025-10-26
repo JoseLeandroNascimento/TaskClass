@@ -50,13 +50,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.taskclass.R
 import com.example.taskclass.agenda.presentation.AgendaScreen
 import com.example.taskclass.agenda.presentation.AgendaViewModel
+import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
 import com.example.taskclass.events.presentation.eventsScreen.EventScreen
 import com.example.taskclass.notes.NotesScreen
 import com.example.taskclass.ui.theme.White
@@ -68,7 +71,8 @@ fun MainScreen(
     onNavigationDrawer: (Screen) -> Unit,
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
-    onEditSchedule: (Int)-> Unit
+    onSelectedEvent: (Int) -> Unit,
+    onEditSchedule: (Int)-> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -106,7 +110,8 @@ fun MainScreen(
                 }
             },
             onNavigationNewEvent = onNavigationNewEvent,
-            onEditSchedule = onEditSchedule
+            onEditSchedule = onEditSchedule,
+            onSelectedEvent = onSelectedEvent
         )
     }
 }
@@ -202,6 +207,7 @@ fun MainContent(
     navController: NavHostController,
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
+    onSelectedEvent: (Int) -> Unit,
     onEditSchedule:(Int)-> Unit
 
 ) {
@@ -289,8 +295,11 @@ fun MainContent(
                     )
                 }
                 composable(Screen.EVENTS.route) {
-                    EventScreen()
+                    EventScreen(
+                        onSelectedEvent = { onSelectedEvent(it) }
+                    )
                 }
+
                 composable(Screen.NOTES.route) {
                     NotesScreen()
                 }
@@ -328,7 +337,6 @@ fun MainTopBar(currentScreen: Screen, openNavigationDrawer: () -> Unit) {
 
 @Composable
 fun MainNavigationBar(
-    modifier: Modifier = Modifier,
     currentRouter: Screen,
     onChangeNavigation: (Screen) -> Unit
 ) {

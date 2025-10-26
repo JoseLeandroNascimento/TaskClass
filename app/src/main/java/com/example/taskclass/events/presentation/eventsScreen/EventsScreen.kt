@@ -2,39 +2,20 @@ package com.example.taskclass.events.presentation.eventsScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.core.data.model.dto.EventWithType
+import com.example.taskclass.core.data.model.formatted
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
@@ -55,10 +37,10 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
-
 @Composable
 fun EventScreen(
     modifier: Modifier = Modifier,
+    onSelectedEvent: (Int) -> Unit,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -66,6 +48,7 @@ fun EventScreen(
     EventScreen(
         modifier = modifier,
         uiState = uiState,
+        onSelectedEvent = {onSelectedEvent(it)},
         onDateSelected = viewModel::onDateSelected
     )
 }
@@ -75,7 +58,8 @@ fun EventScreen(
 fun EventScreen(
     modifier: Modifier = Modifier,
     uiState: EventsUiState,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    onSelectedEvent: (Int) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -95,60 +79,111 @@ fun EventScreen(
 
     val dayEvents by remember(uiState.dateSelected, uiState.events) {
         derivedStateOf {
-            uiState.events.filter {
-                val eventDate = LocalDate.of(
-                    it.date.value / 10000,
-                    (it.date.value % 10000) / 100,
-                    it.date.value % 100
-                )
-                eventDate == uiState.dateSelected
-            }
+            uiState.events.filter { it.toLocalDate() == uiState.dateSelected }
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colorScheme.background)
-            .padding(horizontal = 8.dp)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            stickyHeader {
-
-                Column(
-                    modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+        if (uiState.loadingEvents) {
+            CircularProgressIndicator()
+        } else {
+            Column(
+                modifier = modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxSize()
+                    .background(colorScheme.background)
+                    .padding(horizontal = 8.dp)
+            ) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    CalendarSection(
-                        modifier = Modifier
-                            .background(colorScheme.background),
-                        calendarState = calendarState,
-                        events = uiState.events,
-                        selectedDate = uiState.dateSelected,
-                        onDateSelected = onDateSelected,
-                        onNextMonth = { scope.launch { calendarState.scrollToMonth(it.plusMonths(1)) } },
-                        onPreviousMonth = { scope.launch { calendarState.scrollToMonth(it.minusMonths(1)) } }
-                    )
+                    stickyHeader {
+                        Column(
+                            modifier = Modifier.background(colorScheme.background)
+                        ) {
+                            CalendarSection(
+                                modifier = Modifier
+                                    .background(colorScheme.background),
+                                calendarState = calendarState,
+                                events = uiState.events,
+                                selectedDate = uiState.dateSelected,
+                                onDateSelected = onDateSelected,
+                                onNextMonth = {
+                                    scope.launch {
+                                        calendarState.animateScrollToMonth(it.plusMonths(1))
+                                    }
+                                },
+                                onPreviousMonth = {
+                                    scope.launch {
+                                        calendarState.animateScrollToMonth(it.minusMonths(1))
+                                    }
+                                }
+                            )
 
-                    HorizontalDivider()
+                            HorizontalDivider()
 
-                    Text(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
-                            uiState.dateSelected.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-                        }",
-                        style = typography.titleSmall
-                    )
+                            Text(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
+                                    uiState.dateSelected.month.getDisplayName(
+                                        TextStyle.FULL,
+                                        Locale.getDefault()
+                                    )
+                                }",
+                                style = typography.titleSmall
+                            )
+                        }
+                    }
+
+                    if (dayEvents.isEmpty()) {
+                        // Layout amigável para "nenhum evento"
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 60.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.EventBusy,
+                                    contentDescription = null,
+                                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .padding(bottom = 8.dp)
+                                )
+
+                                Text(
+                                    text = "Nenhum evento neste dia",
+                                    style = typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                    color = colorScheme.onSurface
+                                )
+
+                                Text(
+                                    text = "Selecione outra data no calendário para visualizar os eventos.",
+                                    style = typography.bodySmall,
+                                    color = colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        items(dayEvents) { event ->
+                            EventCard(event = event, onSelectedEvent = {
+                                onSelectedEvent(it)
+                            })
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(120.dp)) }
                 }
             }
-
-            items(dayEvents.size) { index ->
-                EventCard(event = dayEvents[index])
-            }
-
-            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }
@@ -163,21 +198,14 @@ private fun CalendarSection(
     onNextMonth: (YearMonth) -> Unit,
     onPreviousMonth: (YearMonth) -> Unit
 ) {
-
     Column(modifier = modifier.padding(bottom = 16.dp)) {
         HorizontalCalendar(
             state = calendarState,
             dayContent = { day ->
-                val dayEvents = remember(events) {
-                    events.filter {
-                        val date = LocalDate.of(
-                            it.date.value / 10000,
-                            (it.date.value % 10000) / 100,
-                            it.date.value % 100
-                        )
-                        date == day.date
-                    }
+                val dayEvents by remember(day.date, events) {
+                    mutableStateOf(events.filter { it.toLocalDate() == day.date })
                 }
+
                 DayCell(
                     day = day,
                     events = dayEvents,
@@ -208,8 +236,11 @@ private fun DayCell(
     val typography = MaterialTheme.typography
 
     val isSelected = day.date == selectedDate
-    val bgColor = if (isSelected) colorScheme.primary.copy(alpha = 0.2f)
-    else colorScheme.surfaceVariant.copy(alpha = 0.2f)
+    val bgColor = when {
+        isSelected -> colorScheme.primary.copy(alpha = 0.3f)
+        day.position != DayPosition.MonthDate -> colorScheme.surfaceVariant.copy(alpha = 0.1f)
+        else -> colorScheme.surface
+    }
 
     val textColor = when {
         isSelected -> colorScheme.onPrimaryContainer
@@ -232,13 +263,27 @@ private fun DayCell(
                 color = textColor,
                 style = typography.bodyMedium
             )
-            events.take(3).forEach {
+
+            val maxDots = 3
+            val visibleEvents = events.take(maxDots)
+            val remaining = events.size - maxDots
+
+            visibleEvents.forEach {
                 Box(
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .height(3.dp)
                         .width(16.dp)
                         .background(it.color, RoundedCornerShape(2.dp))
+                )
+            }
+
+            if (remaining > 0) {
+                Text(
+                    text = "+$remaining",
+                    style = typography.labelSmall,
+                    color = colorScheme.primary,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -283,53 +328,97 @@ private fun MonthHeader(
 }
 
 @Composable
-private fun EventCard(event: EventWithType) {
+private fun EventCard(
+    event: EventWithType,
+    onSelectedEvent: (Int) -> Unit,
+) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(colorScheme.surfaceVariant)
-            .clickable { /* TODO: navegação */ }
-            .padding(vertical = 16.dp, horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onSelectedEvent(event.id) },
+        color = colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(10.dp)
-                .background(event.color, RoundedCornerShape(2.dp))
-        )
-        Spacer(Modifier.width(8.dp))
-        Column {
-            Text(
-                text = event.title,
-                color = colorScheme.onSurface,
-                style = typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Indicador de cor discreto
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(event.color, RoundedCornerShape(50))
             )
-            if (event.description.isNotEmpty()) {
+
+            Spacer(Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Título
                 Text(
-                    text = event.description,
-                    color = colorScheme.onSurfaceVariant,
-                    style = typography.bodySmall
+                    text = event.title,
+                    style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = colorScheme.onSurface
                 )
+
+                // Descrição (máximo 1 linha)
+                if (event.description.isNotBlank()) {
+                    Text(
+                        text = event.description,
+                        style = typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+
+                // Hora do evento
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Schedule,
+                        contentDescription = null,
+                        tint = colorScheme.primary,
+                        modifier = Modifier
+                            .size(14.dp)
+                            .padding(end = 4.dp)
+                    )
+                    Text(
+                        text = event.time.formatted(),
+                        style = typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                        color = colorScheme.primary
+                    )
+                }
             }
         }
     }
 }
 
+// ---------- Função utilitária de data ----------
+
+private fun EventWithType.toLocalDate(): LocalDate {
+    val y = date.value / 10000
+    val m = (date.value % 10000) / 100
+    val d = date.value % 100
+    return LocalDate.of(y, m, d)
+}
+
+// ---------- Previews ----------
 
 @Preview(showBackground = true)
 @Composable
 private fun EventScreenLightPreview() {
-    TaskClassTheme(
-        dynamicColor = false,
-        darkTheme = false
-    ) {
+    TaskClassTheme(dynamicColor = false, darkTheme = false) {
         EventScreen(
             uiState = EventsUiState(),
-            onDateSelected = {}
+            onDateSelected = {},
+            onSelectedEvent = {}
         )
     }
 }
@@ -337,13 +426,11 @@ private fun EventScreenLightPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun EventScreenDarkPreview() {
-    TaskClassTheme(
-        dynamicColor = false,
-        darkTheme = true
-    ) {
+    TaskClassTheme(dynamicColor = false, darkTheme = true) {
         EventScreen(
             uiState = EventsUiState(),
-            onDateSelected = {}
+            onDateSelected = {},
+            onSelectedEvent = {}
         )
     }
 }

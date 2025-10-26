@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 @HiltViewModel
 class EventCreateViewModel @Inject constructor(
     private val typeEventRepository: TypeEventRepository,
@@ -34,7 +33,6 @@ class EventCreateViewModel @Inject constructor(
     }
 
     private fun loadTypesEvents() {
-
         viewModelScope.launch {
             typeEventRepository.findAll().collect { response ->
                 _uiState.update {
@@ -74,21 +72,42 @@ class EventCreateViewModel @Inject constructor(
         }
     }
 
+    private fun isValid(): Boolean {
+        _uiState.update {
+            it.copy(
+                title = it.title.validate(),
+                date = it.date.validate(),
+                time = it.time.validate(),
+                description = it.description.validate()
+            )
+        }
+
+        val form = _uiState.value
+        return form.title.isValid &&
+                form.date.isValid &&
+                form.time.isValid
+    }
+
     fun saveEvent() {
         viewModelScope.launch {
+            if (!isValid()) return@launch
+
             val ui = _uiState.value
 
             val event = EventEntity(
                 title = ui.title.value,
                 description = ui.description.value,
-                date = converters.toDate(ui.date.value)?.let { DateInt(it.value) } ?: DateInt(0),
+                date = converters.toDate(ui.date.value) ?: DateInt(0),
                 time = converters.fromTimeString(ui.time.value) ?: Time(0),
                 typeEventId = ui.typeEventSelected.value?.id,
                 typeEventName = ui.typeEventSelected.value?.name
             )
 
-            eventRepository.saveEvent(event)
+            eventRepository.save(event).collect { response ->
+                _uiState.update {
+                    it.copy(typeEvents = it.typeEvents, eventResponse = response)
+                }
+            }
         }
     }
-
 }

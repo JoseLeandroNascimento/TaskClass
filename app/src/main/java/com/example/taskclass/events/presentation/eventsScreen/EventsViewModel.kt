@@ -1,8 +1,8 @@
 package com.example.taskclass.events.presentation.eventsScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.events.domain.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -23,11 +23,36 @@ class EventsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.getAllEvents().collect { response ->
-                _uiState.update {
-                    Log.d("teste", response.toString())
-                    it.copy(events = response)
+            repository.findAll().collect { response ->
+
+                when (response) {
+
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                loadingEvents = true
+                            )
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                events = response.data,
+                                loadingEvents = false
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                loadingEvents = false
+                            )
+                        }
+                    }
                 }
+
             }
         }
     }
