@@ -6,5 +6,5 @@ import com.example.taskclass.core.data.model.TypeEvent
 data class EventCreateUiState(
     val formState: FormState = FormState(),
     val typeEvents: Resource<List<TypeEvent>>? = null,
-    val eventResponse: Resource<Unit>? = null
+    val savedSuccessAndClose: Boolean = false
 )

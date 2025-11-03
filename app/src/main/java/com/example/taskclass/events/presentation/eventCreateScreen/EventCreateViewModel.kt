@@ -2,6 +2,7 @@ package com.example.taskclass.events.presentation.eventCreateScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.converters.Converters
 import com.example.taskclass.core.data.model.DateInt
 import com.example.taskclass.core.data.model.EventEntity
@@ -115,8 +116,21 @@ class EventCreateViewModel @Inject constructor(
                 )
 
                 eventRepository.save(event).collect { response ->
-                    _uiState.update {
-                        it.copy(typeEvents = it.typeEvents, eventResponse = response)
+                    when(response){
+
+                        is Resource.Loading -> {
+
+                        }
+
+                        is Resource.Success->{
+                            _uiState.update {
+                                it.copy(savedSuccessAndClose = true)
+                            }
+                        }
+
+                        is Resource.Error ->{
+
+                        }
                     }
                 }
             }

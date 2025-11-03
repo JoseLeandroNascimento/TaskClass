@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -85,6 +86,10 @@ fun EventCreateScreen(
     onSave: () -> Unit,
     onBack: () -> Unit,
 ) {
+
+    LaunchedEffect(uiState.savedSuccessAndClose) {
+        if (uiState.savedSuccessAndClose) onBack()
+    }
 
     Scaffold(
         topBar = {
@@ -193,7 +198,7 @@ fun EventCreateScreen(
                     AppInputTime(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.label_hora),
-                        error =  uiState.formState.time.error,
+                        error = uiState.formState.time.error,
                         value = uiState.formState.time.value
                     ) {
                         updateTime?.invoke(it)
