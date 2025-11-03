@@ -59,7 +59,6 @@ fun App(modifier: Modifier = Modifier) {
             arguments = listOf(navArgument("eventId") { type = NavType.IntType })
         ) {
             EventDetailScreen(
-                eventId = it.arguments?.getInt("eventId") ?: 0,
                 onBack = { appNavController.navigateUp() }
             )
         }

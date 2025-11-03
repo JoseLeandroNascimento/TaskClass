@@ -82,7 +82,7 @@ fun EventCreateScreen(
     updateTime: ((String) -> Unit)? = null,
     updateDescription: ((String) -> Unit)? = null,
     updateTypeEvent: ((TypeEvent) -> Unit)? = null,
-    onSave: ()-> Unit,
+    onSave: () -> Unit,
     onBack: () -> Unit,
 ) {
 
@@ -123,8 +123,10 @@ fun EventCreateScreen(
             ) {
                 AppInputText(
                     label = stringResource(R.string.label_titulo),
+                    isError = uiState.formState.title.error != null,
+                    supportingText = uiState.formState.title.error,
                     modifier = Modifier.fillMaxWidth(),
-                    value = uiState.title.value,
+                    value = uiState.formState.title.value,
                     onValueChange = {
                         updateTitle?.invoke(it)
                     }
@@ -132,7 +134,8 @@ fun EventCreateScreen(
 
                 AppDropdown(
                     label = stringResource(R.string.label_tipo_de_evento),
-                    value = uiState.typeEventSelected.value?.name ?: "",
+                    error = uiState.formState.typeEventSelected.error,
+                    value = uiState.formState.typeEventSelected.value?.name ?: "",
                 ) { closeDropdown ->
                     uiState.typeEvents?.let { response ->
                         when (response) {
@@ -179,17 +182,19 @@ fun EventCreateScreen(
 
                     AppInputDate(
                         label = stringResource(R.string.label_data),
-                        value = uiState.date.value,
+                        value = uiState.formState.date.value,
                         onValueChange = {
                             updateDate?.invoke(it)
                         },
+                        error = uiState.formState.date.error,
                         modifier = Modifier.weight(1f),
                     )
 
                     AppInputTime(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.label_hora),
-                        value = uiState.time.value
+                        error =  uiState.formState.time.error,
+                        value = uiState.formState.time.value
                     ) {
                         updateTime?.invoke(it)
                     }
@@ -202,7 +207,7 @@ fun EventCreateScreen(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 4,
                     maxLines = 4,
-                    value = uiState.description.value,
+                    value = uiState.formState.description.value,
                     onValueChange = {
                         updateDescription?.invoke(it)
                     }

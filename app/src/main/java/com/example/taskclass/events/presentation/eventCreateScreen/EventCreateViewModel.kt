@@ -44,70 +44,83 @@ class EventCreateViewModel @Inject constructor(
 
     fun updateTitle(title: String) {
         _uiState.update {
-            it.copy(title = it.title.updateValue(title))
+            it.copy(
+                formState = it.formState.copy(
+                    title = it.formState.title.updateValue(title)
+                )
+            )
         }
     }
 
     fun updateDate(date: String) {
         _uiState.update {
-            it.copy(date = it.date.updateValue(date))
+            it.copy(
+                formState = it.formState.copy(
+                    date = it.formState.date.updateValue(date)
+                )
+            )
         }
     }
 
     fun updateTime(time: String) {
         _uiState.update {
-            it.copy(time = it.time.updateValue(time))
+            it.copy(
+                formState = it.formState.copy(
+                    time = it.formState.time.updateValue(time)
+                )
+            )
         }
     }
 
     fun updateDescription(description: String) {
         _uiState.update {
-            it.copy(description = it.description.updateValue(description))
+            it.copy(
+                formState = it.formState.copy(
+                    description = it.formState.description.updateValue(description)
+                )
+            )
         }
     }
 
     fun updateTypeEvent(typeEvent: TypeEvent) {
         _uiState.update {
-            it.copy(typeEventSelected = it.typeEventSelected.updateValue(typeEvent))
-        }
-    }
-
-    private fun isValid(): Boolean {
-        _uiState.update {
             it.copy(
-                title = it.title.validate(),
-                date = it.date.validate(),
-                time = it.time.validate(),
-                description = it.description.validate()
+                formState = it.formState.copy(
+                    typeEventSelected = it.formState.typeEventSelected.updateValue(typeEvent)
+                )
             )
         }
-
-        val form = _uiState.value
-        return form.title.isValid &&
-                form.date.isValid &&
-                form.time.isValid
     }
+
+
 
     fun saveEvent() {
         viewModelScope.launch {
-            if (!isValid()) return@launch
 
-            val ui = _uiState.value
+            val validatedForm = _uiState.value.formState.validateAll()
 
-            val event = EventEntity(
-                title = ui.title.value,
-                description = ui.description.value,
-                date = converters.toDate(ui.date.value) ?: DateInt(0),
-                time = converters.fromTimeString(ui.time.value) ?: Time(0),
-                typeEventId = ui.typeEventSelected.value?.id,
-                typeEventName = ui.typeEventSelected.value?.name
-            )
+            _uiState.update {
+                it.copy(formState = validatedForm)
+            }
 
-            eventRepository.save(event).collect { response ->
-                _uiState.update {
-                    it.copy(typeEvents = it.typeEvents, eventResponse = response)
+
+            if (validatedForm.isValid()){
+                val event = EventEntity(
+                    title = validatedForm.title.value,
+                    description = validatedForm.description.value,
+                    date = converters.toDate(validatedForm.date.value) ?: DateInt(0),
+                    time = converters.fromTimeString(validatedForm.time.value) ?: Time(0),
+                    typeEventId = validatedForm.typeEventSelected.value?.id,
+                    typeEventName = validatedForm.typeEventSelected.value?.name
+                )
+
+                eventRepository.save(event).collect { response ->
+                    _uiState.update {
+                        it.copy(typeEvents = it.typeEvents, eventResponse = response)
+                    }
                 }
             }
+
         }
     }
 }

@@ -40,12 +40,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.taskclass.core.data.model.DateInt
+import com.example.taskclass.core.data.model.Time
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.core.data.model.formatted
+import com.example.taskclass.ui.theme.TaskClassTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailScreen(
     onBack: () -> Unit,
@@ -53,17 +56,29 @@ fun EventDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    EventDetailScreen(
+        onBack = onBack,
+        uiState = uiState
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventDetailScreen(
+    onBack: () -> Unit,
+    uiState: EventDetailUiState
+) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalhes do Evento") },
+                title = { Text("Detalhes do Evento", style = MaterialTheme.typography.titleMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ChevronLeft, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -148,12 +163,12 @@ fun EventDetailContent(event: EventWithType) {
 
         Spacer(Modifier.height(28.dp))
 
-        // Card principal de informações
         ElevatedCard(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = colorScheme.surfaceContainerLow
+                containerColor = colorScheme.surfaceVariant
             ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -237,5 +252,61 @@ private fun InfoRow(
                 color = colorScheme.onSurface
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EventDetailLightPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        EventDetailScreen(
+            onBack = {},
+            uiState = EventDetailUiState(
+                error = null,
+                isLoading = false,
+                event = EventWithType(
+                    date = DateInt(20251103),
+                    description = "Teasdasd as das",
+                    id = 1,
+                    time = Time(830),
+                    title = "Teste",
+                    typeEventColor = MaterialTheme.colorScheme.primary,
+                    typeEventId = 2,
+                    typeEventName = "Prova"
+                )
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EventDetailDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        EventDetailScreen(
+            onBack = {},
+            uiState = EventDetailUiState(
+                error = null,
+                isLoading = false,
+                event = EventWithType(
+                    date = DateInt(20251103),
+                    description = "Teasdasd as das",
+                    id = 1,
+                    time = Time(830),
+                    title = "Teste",
+                    typeEventColor = MaterialTheme.colorScheme.primary,
+                    typeEventId = 2,
+                    typeEventName = "Prova"
+                )
+            )
+        )
     }
 }

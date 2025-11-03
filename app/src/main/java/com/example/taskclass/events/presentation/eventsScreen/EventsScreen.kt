@@ -140,7 +140,7 @@ fun EventScreen(
                     }
 
                     if (dayEvents.isEmpty()) {
-                        // Layout amigável para "nenhum evento"
+
                         item {
                             Column(
                                 modifier = Modifier
@@ -152,9 +152,9 @@ fun EventScreen(
                                 Icon(
                                     imageVector = Icons.Default.EventBusy,
                                     contentDescription = null,
-                                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    tint = colorScheme.primary.copy(alpha = 0.7f),
                                     modifier = Modifier
-                                        .size(64.dp)
+                                        .size(40.dp)
                                         .padding(bottom = 8.dp)
                                 )
 

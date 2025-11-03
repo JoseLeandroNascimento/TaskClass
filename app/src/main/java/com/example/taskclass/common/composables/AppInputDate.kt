@@ -35,6 +35,7 @@ fun AppInputDate(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
+    error: String? = null,
     onValueChange: (String) -> Unit
 ) {
 
@@ -103,6 +104,16 @@ fun AppInputDate(
         singleLine = true,
         maxLines = 1,
         modifier = modifier,
+        isError = error != null,
+        supportingText = error?.let {
+            {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         trailingIcon = {
             Icon(
                 imageVector = Icons.Default.CalendarToday,
