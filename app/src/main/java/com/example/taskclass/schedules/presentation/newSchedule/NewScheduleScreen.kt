@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Timer
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +52,7 @@ import com.example.taskclass.ui.theme.TaskClassTheme
 @Composable
 fun NewScheduleScreen(
     onBack: () -> Unit,
+    addDiscipline: ()-> Unit,
     viewModel: NewScheduleViewModel
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
@@ -69,6 +72,7 @@ fun NewScheduleScreen(
         updateStartTime = {
             viewModel.updateStartTime(it)
         },
+        addDiscipline = addDiscipline,
         onSave = {
             viewModel.save()
         },
@@ -88,6 +92,7 @@ fun NewScheduleScreen(
     uiState: NewScheduleUiState,
     updateDayWeek: ((Int) -> Unit)? = null,
     updateDiscipline: ((Discipline) -> Unit)? = null,
+    addDiscipline: (()-> Unit)? = null,
     updateStartTime: ((String) -> Unit)? = null,
     updateEndTime: ((String) -> Unit)? = null,
     onCloseModalErrorResponse: (() -> Unit)? = null,
@@ -110,14 +115,12 @@ fun NewScheduleScreen(
         }
     }
 
-
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Novo Horário",
+                        text = stringResource(R.string.label_screen_novo_horario),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                 },
@@ -147,7 +150,7 @@ fun NewScheduleScreen(
                 AppDropdown(
                     value = uiState.dayWeek.value?.let { daysOfWeek[it] } ?: "",
                     error = uiState.dayWeek.error,
-                    label = "Dia da Semana *"
+                    label = stringResource(R.string.label_dia_da_semana),
                 ) { closeMenu ->
                     daysOfWeek.forEachIndexed { index, day ->
                         DropdownMenuItem(
@@ -163,7 +166,7 @@ fun NewScheduleScreen(
 
                 AppDropdown(
                     value = uiState.discipline.value?.title ?: "",
-                    label = "Disciplina *",
+                    label = stringResource(R.string.label_disciplina),
                     error = uiState.discipline.error
                 ) { closeMenu ->
 
@@ -173,6 +176,7 @@ fun NewScheduleScreen(
                         }
 
                         is Resource.Success -> {
+
 
                             uiState.disciplines.data.forEach { discipline ->
                                 DropdownMenuItem(
@@ -193,7 +197,6 @@ fun NewScheduleScreen(
                                                     Color.Black.copy(alpha = 0.08f),
                                                     CircleShape
                                                 )
-                                                .shadow(3.dp, CircleShape, clip = false)
                                         )
                                     },
                                     onClick = {
@@ -204,6 +207,21 @@ fun NewScheduleScreen(
                                 )
                             }
 
+                            DropdownMenuItem(
+                                onClick = {
+                                    addDiscipline?.invoke()
+                                    closeMenu()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    Text(text = stringResource(R.string.adicionar_disciplina))
+                                }
+                            )
                         }
 
                         is Resource.Error -> {

@@ -99,7 +99,7 @@ fun EventScreen(
             ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp)
                 ) {
                     stickyHeader {
                         Column(
@@ -340,7 +340,7 @@ private fun EventCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable { onSelectedEvent(event.id) },
-        color = colorScheme.surface,
+        color = colorScheme.surfaceVariant,
         tonalElevation = 2.dp,
         shadowElevation = 1.dp
     ) {
@@ -350,10 +350,10 @@ private fun EventCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Indicador de cor discreto
+
             Box(
                 modifier = Modifier
-                    .size(8.dp)
+                    .size(20.dp)
                     .background(event.color, RoundedCornerShape(50))
             )
 
@@ -362,14 +362,12 @@ private fun EventCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                // Título
                 Text(
                     text = event.title,
                     style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = colorScheme.onSurface
                 )
 
-                // Descrição (máximo 1 linha)
                 if (event.description.isNotBlank()) {
                     Text(
                         text = event.description,
@@ -379,7 +377,6 @@ private fun EventCard(
                     )
                 }
 
-                // Hora do evento
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Schedule,

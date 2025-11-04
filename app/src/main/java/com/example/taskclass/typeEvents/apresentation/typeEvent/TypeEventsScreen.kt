@@ -161,7 +161,7 @@ fun TypeEventsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .align(alignment = Alignment.TopCenter),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                             ) {
                                 items(items = typesEvents.data, key = { it.id }) { typeEventItem ->

@@ -127,6 +127,9 @@ fun App(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
+                },
+                addDiscipline = {
+                    appNavController.navigate(Screen.DISCIPLINE_CREATE.route)
                 }
             )
         }
@@ -144,6 +147,9 @@ fun App(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
+                },
+                addDiscipline = {
+                    appNavController.navigate(Screen.DISCIPLINE_CREATE.route)
                 }
             )
         }
@@ -152,10 +158,14 @@ fun App(modifier: Modifier = Modifier) {
 
             val viewModel = hiltViewModel<EventCreateViewModel>(backStackEntry)
             EventCreateScreen(
-                viewModel = viewModel
-            ) {
-                appNavController.navigateUp()
-            }
+                viewModel = viewModel,
+                addTypeEvent = {
+                    appNavController.navigate(Screen.TYPE_EVENTS.route)
+                },
+                onBack = {
+                    appNavController.navigateUp()
+                }
+            )
         }
 
         composable(Screen.TYPE_EVENTS.route) {backStackEntry->

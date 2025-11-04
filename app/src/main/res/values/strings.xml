@@ -28,6 +28,11 @@
     <string name="label_data">Data</string>
     <string name="label_hora">Hora</string>
     <string name="btn_cadastrar_evento">Cadastrar evento</string>
+    <string name="label_screen_novo_horario">Novo Horário</string>
+    <string name="label_dia_da_semana">Dia da Semana *</string>
+    <string name="label_disciplina">Disciplina *</string>
+    <string name="adicionar_disciplina">Adicionar disciplina</string>
+    <string name="novo_tipo_de_evento">Novo tipo de evento</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>
