@@ -12,6 +12,8 @@ import com.example.taskclass.discipline.presentation.disciplineCreateScreen.Disc
 import com.example.taskclass.discipline.presentation.disciplineCreateScreen.DisciplineCreateViewModel
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineScreen
 import com.example.taskclass.discipline.presentation.disciplineScreen.DisciplineViewModel
+import com.example.taskclass.events.presentation.eventAllScreen.EventAllScreen
+import com.example.taskclass.events.presentation.eventAllScreen.EventAllViewModel
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateScreen
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateViewModel
 import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
@@ -162,6 +164,18 @@ fun App(modifier: Modifier = Modifier) {
                 addTypeEvent = {
                     appNavController.navigate(Screen.TYPE_EVENTS.route)
                 },
+                onBack = {
+                    appNavController.navigateUp()
+                }
+            )
+        }
+
+        composable(Screen.EVENT_ALL.route) {backStackEntry->
+
+            val viewModel = hiltViewModel<EventAllViewModel>(backStackEntry)
+
+            EventAllScreen(
+                viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
                 }

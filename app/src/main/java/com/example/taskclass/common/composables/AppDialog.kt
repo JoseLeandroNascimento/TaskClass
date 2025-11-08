@@ -29,7 +29,7 @@ fun AppDialog(
         Surface (
             shape = RoundedCornerShape(16.dp),
             tonalElevation = 6.dp,
-            color = MaterialTheme.colorScheme.surface
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
@@ -56,6 +56,22 @@ fun AppDialog(
 fun DialogPreview() {
     TaskClassTheme(
         dynamicColor = false
+    ) {
+        AppDialog(
+            onDismissRequest = {},
+            title = "Titulo"
+        ) {
+            Text(text = " is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DialogDarkPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
     ) {
         AppDialog(
             onDismissRequest = {},

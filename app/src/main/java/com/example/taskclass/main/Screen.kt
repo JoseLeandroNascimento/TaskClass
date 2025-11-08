@@ -6,6 +6,8 @@ enum class Screen(val route: String) {
     EVENTS("EVENTS"),
     EVENT_DETAIL("EVENT_DETAIL/{eventId}"), // 👈 nova rota
     NEW_EVENT("NEW_EVENT"),
+    EVENT_ALL("EVENT_ALL"),
+    EVENT_CREATE("EVENT_CREATE"),
     NOTES("NOTES"),
     DISCIPLINE("DISCIPLINE"),
     DISCIPLINE_CREATE("DISCIPLINE_CREATE"),

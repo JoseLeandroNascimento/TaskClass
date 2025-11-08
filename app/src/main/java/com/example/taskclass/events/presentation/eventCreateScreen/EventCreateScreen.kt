@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.example.taskclass.ui.theme.White
 
 @Composable
 fun EventCreateScreen(
@@ -114,6 +116,11 @@ fun EventCreateScreen(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
+                ),
                 title = {
                     Text(
                         text = stringResource(R.string.tela_titulo_novo_evento),
@@ -123,9 +130,9 @@ fun EventCreateScreen(
             )
         }
     ) { innerPadding ->
-        Surface(
+        Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding).padding(top = 8.dp)
                 .fillMaxSize()
         ) {
 

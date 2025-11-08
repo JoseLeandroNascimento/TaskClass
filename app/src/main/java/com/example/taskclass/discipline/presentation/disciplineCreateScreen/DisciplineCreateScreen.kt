@@ -1,6 +1,7 @@
 package com.example.taskclass.discipline.presentation.disciplineCreateScreen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +31,7 @@ import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppSelectColor
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.example.taskclass.ui.theme.White
 
 @Composable
 fun DisciplineCreateScreen(
@@ -87,6 +90,11 @@ fun DisciplineCreateScreen(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -101,10 +109,10 @@ fun DisciplineCreateScreen(
         }
     ) { innerPadding ->
 
-        Surface(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding).padding(top = 8.dp),
         ) {
 
             Column(

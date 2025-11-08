@@ -2,26 +2,54 @@ package com.example.taskclass.events.presentation.eventsScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.common.composables.AppCardDefault
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.core.data.model.formatted
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -48,7 +76,7 @@ fun EventScreen(
     EventScreen(
         modifier = modifier,
         uiState = uiState,
-        onSelectedEvent = {onSelectedEvent(it)},
+        onSelectedEvent = { onSelectedEvent(it) },
         onDateSelected = viewModel::onDateSelected
     )
 }
@@ -63,6 +91,8 @@ fun EventScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
+
+    val stateList = rememberLazyListState()
 
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
@@ -97,17 +127,19 @@ fun EventScreen(
                     .background(colorScheme.background)
                     .padding(horizontal = 8.dp)
             ) {
+
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp)
+                    state = stateList,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    stickyHeader {
+
+                    item {
+
                         Column(
                             modifier = Modifier.background(colorScheme.background)
                         ) {
                             CalendarSection(
-                                modifier = Modifier
-                                    .background(colorScheme.background),
                                 calendarState = calendarState,
                                 events = uiState.events,
                                 selectedDate = uiState.dateSelected,
@@ -124,17 +156,16 @@ fun EventScreen(
                                 }
                             )
 
-                            HorizontalDivider()
-
                             Text(
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
                                 text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
                                     uiState.dateSelected.month.getDisplayName(
                                         TextStyle.FULL,
                                         Locale.getDefault()
                                     )
                                 }",
-                                style = typography.titleSmall
+                                style = typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -174,7 +205,8 @@ fun EventScreen(
                             }
                         }
                     } else {
-                        items(dayEvents) { event ->
+
+                        items(dayEvents, key = { it.id }) { event ->
                             EventCard(event = event, onSelectedEvent = {
                                 onSelectedEvent(it)
                             })
@@ -198,7 +230,22 @@ private fun CalendarSection(
     onNextMonth: (YearMonth) -> Unit,
     onPreviousMonth: (YearMonth) -> Unit
 ) {
-    Column(modifier = modifier.padding(bottom = 16.dp)) {
+    val shapeValue = 16.dp
+
+    Column(
+        modifier = modifier
+            .shadow(
+                elevation = .2.dp,
+                shape = RoundedCornerShape(shapeValue)
+            )
+            .background(
+                MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(shapeValue)
+            )
+            .padding(16.dp)
+
+
+    ) {
         HorizontalCalendar(
             state = calendarState,
             dayContent = { day ->
@@ -225,6 +272,7 @@ private fun CalendarSection(
     }
 }
 
+
 @Composable
 private fun DayCell(
     day: CalendarDay,
@@ -238,8 +286,8 @@ private fun DayCell(
     val isSelected = day.date == selectedDate
     val bgColor = when {
         isSelected -> colorScheme.primary.copy(alpha = 0.3f)
-        day.position != DayPosition.MonthDate -> colorScheme.surfaceVariant.copy(alpha = 0.1f)
-        else -> colorScheme.surface
+        day.position != DayPosition.MonthDate -> colorScheme.surface.copy(alpha = 0.1f)
+        else -> colorScheme.surface.copy(alpha = .6f)
     }
 
     val textColor = when {
@@ -261,7 +309,7 @@ private fun DayCell(
             Text(
                 text = day.date.dayOfMonth.toString(),
                 color = textColor,
-                style = typography.bodyMedium
+                style = typography.labelSmall
             )
 
             val maxDots = 3
@@ -310,8 +358,17 @@ private fun MonthHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = onPreviousMonth) {
-            Icon(imageVector = Icons.Default.ChevronLeft, contentDescription = "Mês anterior")
+        IconButton(
+            onClick = onPreviousMonth,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronLeft,
+                contentDescription = "Mês anterior",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         Text(
@@ -321,8 +378,17 @@ private fun MonthHeader(
             textAlign = TextAlign.Center
         )
 
-        IconButton(onClick = onNextMonth) {
-            Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Próximo mês")
+        IconButton(
+            onClick = onNextMonth,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f)
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Próximo mês",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
         }
     }
 }
@@ -335,26 +401,21 @@ private fun EventCard(
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onSelectedEvent(event.id) },
-        color = colorScheme.surfaceVariant,
-        tonalElevation = 2.dp,
-        shadowElevation = 1.dp
+    AppCardDefault(
+        onSelected = {
+            onSelectedEvent(event.id)
+        }
     ) {
+
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(event.color, RoundedCornerShape(50))
+            CircleIndicator(
+                color = event.color,
+                size = 28.dp
             )
 
             Spacer(Modifier.width(12.dp))
@@ -368,22 +429,13 @@ private fun EventCard(
                     color = colorScheme.onSurface
                 )
 
-                if (event.description.isNotBlank()) {
-                    Text(
-                        text = event.description,
-                        style = typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                }
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Schedule,
                         contentDescription = null,
                         tint = colorScheme.primary,
                         modifier = Modifier
-                            .size(14.dp)
+                            .size(16.dp)
                             .padding(end = 4.dp)
                     )
                     Text(
@@ -393,6 +445,12 @@ private fun EventCard(
                     )
                 }
             }
+
+            Checkbox(
+                checked = false,
+                onCheckedChange = {}
+            )
+
         }
     }
 }

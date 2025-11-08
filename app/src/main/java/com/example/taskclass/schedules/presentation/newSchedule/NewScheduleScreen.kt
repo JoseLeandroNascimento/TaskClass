@@ -25,14 +25,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -48,6 +47,7 @@ import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.example.taskclass.ui.theme.White
 
 @Composable
 fun NewScheduleScreen(
@@ -124,6 +124,11 @@ fun NewScheduleScreen(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -135,9 +140,9 @@ fun NewScheduleScreen(
             )
         }
     ) { innerPadding ->
-        Surface(
+        Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding).padding(top = 8.dp)
                 .fillMaxWidth()
         ) {
             Column(

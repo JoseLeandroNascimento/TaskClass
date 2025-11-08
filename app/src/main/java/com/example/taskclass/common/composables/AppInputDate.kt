@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -126,6 +127,7 @@ fun AppInputDate(
 
     if (showDialog) {
         DatePickerDialog(
+            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
             onDismissRequest = { showDialog = false },
             confirmButton = {
                 TextButton(onClick = {
@@ -147,7 +149,10 @@ fun AppInputDate(
                 }
             }
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.background),
+            )
         }
     }
 }

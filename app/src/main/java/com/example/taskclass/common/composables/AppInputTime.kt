@@ -151,7 +151,7 @@ fun TimePickerDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .clip(MaterialTheme.shapes.extraLarge)

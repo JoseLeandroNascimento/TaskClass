@@ -25,7 +25,7 @@ fun AppButton(
         modifier = modifier,
         shape = MaterialTheme.shapes.small,
         enabled = enabled || isLoading,
-        onClick = onClick
+        onClick = onClick,
     ) {
         when {
             isLoading -> {

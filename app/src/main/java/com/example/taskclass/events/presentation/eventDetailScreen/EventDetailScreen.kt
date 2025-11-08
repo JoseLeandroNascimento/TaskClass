@@ -43,11 +43,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.core.data.model.DateInt
+import com.example.taskclass.core.data.model.EEventStatus
 import com.example.taskclass.core.data.model.Time
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.core.data.model.formatted
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.example.taskclass.ui.theme.White
 
 @Composable
 fun EventDetailScreen(
@@ -78,18 +81,18 @@ fun EventDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
+                ),
             )
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding).padding(top = 8.dp)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             when {
@@ -125,25 +128,15 @@ fun EventDetailContent(event: EventWithType) {
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Ícone colorido do tipo
-        Box(
-            modifier = Modifier
-                .size(68.dp)
-                .clip(CircleShape)
-                .background(event.color.copy(alpha = 0.25f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(event.color)
-            )
-        }
+
+
+        CircleIndicator(
+            color = event.color,
+            size = 68.dp
+        )
 
         Spacer(Modifier.height(20.dp))
 
-        // Título e tipo
         Text(
             text = event.title,
             style = typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -166,7 +159,7 @@ fun EventDetailContent(event: EventWithType) {
         ElevatedCard(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = colorScheme.surfaceVariant
+                containerColor = colorScheme.surface
             ),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
             modifier = Modifier.fillMaxWidth()
@@ -200,8 +193,8 @@ fun EventDetailContent(event: EventWithType) {
         Spacer(Modifier.height(32.dp))
 
         // Chip de status
-        val statusText = if (event.isDone) "Concluído" else "Pendente"
-        val statusColor = if (event.isDone) colorScheme.tertiary else colorScheme.primary
+        val statusText =  "Pendente"
+        val statusColor = colorScheme.primary
 
         AssistChip(
             onClick = { },
@@ -211,6 +204,7 @@ fun EventDetailContent(event: EventWithType) {
                     style = typography.labelLarge.copy(fontWeight = FontWeight.Medium)
                 )
             },
+            border = null,
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = statusColor.copy(alpha = 0.1f),
                 labelColor = statusColor,
@@ -276,7 +270,9 @@ private fun EventDetailLightPreview() {
                     title = "Teste",
                     typeEventColor = MaterialTheme.colorScheme.primary,
                     typeEventId = 2,
-                    typeEventName = "Prova"
+                    typeEventName = "Prova",
+                    status = EEventStatus.PENDENTE
+
                 )
             )
         )
@@ -304,7 +300,8 @@ private fun EventDetailDarkPreview() {
                     title = "Teste",
                     typeEventColor = MaterialTheme.colorScheme.primary,
                     typeEventId = 2,
-                    typeEventName = "Prova"
+                    typeEventName = "Prova",
+                    status = EEventStatus.PENDENTE
                 )
             )
         )

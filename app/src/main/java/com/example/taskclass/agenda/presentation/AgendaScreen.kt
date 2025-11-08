@@ -127,7 +127,7 @@ fun AgendaScreen(
 
                 Surface(
                     modifier = modifier,
-                    color = MaterialTheme.colorScheme.surface
+                    color = MaterialTheme.colorScheme.background
                 ) {
 
                     Column {
@@ -389,7 +389,12 @@ fun ScheduleGridHeader(
             .fillMaxWidth()
             .height(dayHeaderHeight)
     ) {
-        Spacer(modifier = Modifier.width(timelineWidth))
+        Spacer(
+            modifier = Modifier
+                .width(timelineWidth)
+                .height(dayHeaderHeight)
+                .background(color = MaterialTheme.colorScheme.surface)
+        )
         daysOfWeek.forEachIndexed { index, day ->
 
             Column(
@@ -397,14 +402,15 @@ fun ScheduleGridHeader(
                     .background(
                         color = if (index == uiState.currentDayOfWeek) MaterialTheme.colorScheme.primary.copy(
                             alpha = 0.2f
-                        ) else MaterialTheme.colorScheme.background
+                        ) else MaterialTheme.colorScheme.surface
                     )
                     .weight(1f)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val colorText =  if(index == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                val colorText =
+                    if (index == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 Text(
                     text = daysWeek[index].toString(),
                     textAlign = TextAlign.Center,

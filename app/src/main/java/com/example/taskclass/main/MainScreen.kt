@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Draw
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -36,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,25 +47,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.example.taskclass.R
+import com.example.taskclass.R.string
 import com.example.taskclass.agenda.presentation.AgendaScreen
 import com.example.taskclass.agenda.presentation.AgendaViewModel
-import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
 import com.example.taskclass.events.presentation.eventsScreen.EventScreen
 import com.example.taskclass.notes.NotesScreen
+import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 import kotlinx.coroutines.launch
 
@@ -72,7 +76,7 @@ fun MainScreen(
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
-    onEditSchedule: (Int)-> Unit,
+    onEditSchedule: (Int) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -123,28 +127,28 @@ private fun DrawerContent(
 ) {
     ModalDrawerSheet(
         modifier = Modifier
-            .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.surface)
+            .widthIn(250.dp)
+            .fillMaxWidth(.7f)
+            .fillMaxHeight(),
+        drawerContainerColor = MaterialTheme.colorScheme.background
 
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.primary)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
             contentAlignment = Alignment.CenterStart
         ) {
+
             Text(
-                text = stringResource(id = R.string.app_name),
-                fontSize = 28.sp,
+                text = stringResource(id = string.app_name),
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = White
             )
         }
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-            thickness = 1.dp
-        )
+
         Spacer(modifier = Modifier.height(12.dp))
 
         DrawerItem(Icons.AutoMirrored.Filled.MenuBook, "Disciplinas") {
@@ -152,8 +156,8 @@ private fun DrawerContent(
             onCloseDrawer()
         }
 
-        DrawerItem(Icons.Default.AccessTime, "Horários de aula") {
-            onNavigationDrawer(Screen.SCHEDULES)
+        DrawerItem(Icons.Default.Event, "Eventos") {
+            onNavigationDrawer(Screen.EVENT_ALL)
             onCloseDrawer()
         }
         DrawerItem(Icons.Default.EventAvailable, "Tipos de eventos") {
@@ -174,17 +178,18 @@ private fun DrawerItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
         },
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
         },
+        shape = RoundedCornerShape(8.dp),
         onClick = onClick,
         colors = NavigationDrawerItemDefaults.colors(
             selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
@@ -193,7 +198,7 @@ private fun DrawerItem(
             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = Modifier.padding(horizontal = 12.dp),
         selected = false
     )
 }
@@ -208,7 +213,7 @@ fun MainContent(
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
-    onEditSchedule:(Int)-> Unit
+    onEditSchedule: (Int) -> Unit
 
 ) {
 
@@ -280,7 +285,9 @@ fun MainContent(
 
     ) { innerPadding ->
 
-        Surface {
+        Surface(
+            color = MaterialTheme.colorScheme.background
+        ) {
             NavHost(
                 modifier = Modifier
                     .padding(innerPadding),
@@ -314,6 +321,7 @@ fun MainContent(
 @Composable
 fun MainTopBar(currentScreen: Screen, openNavigationDrawer: () -> Unit) {
     TopAppBar(
+        modifier = Modifier.shadow(elevation = 1.dp),
         title = {
             Text(
                 text = when (currentScreen) {
@@ -325,6 +333,9 @@ fun MainTopBar(currentScreen: Screen, openNavigationDrawer: () -> Unit) {
                 fontWeight = FontWeight.SemiBold
             )
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         navigationIcon = {
             IconButton(
                 onClick = openNavigationDrawer
@@ -341,13 +352,13 @@ fun MainNavigationBar(
     onChangeNavigation: (Screen) -> Unit
 ) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        containerColor = MaterialTheme.colorScheme.surface,
         windowInsets = NavigationBarDefaults.windowInsets,
     ) {
         NavigationBarItem(
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                 selectedTextColor = MaterialTheme.colorScheme.primary,
             ),
             selected = Screen.AGENDA.route == currentRouter.route,
@@ -358,7 +369,7 @@ fun MainNavigationBar(
         NavigationBarItem(
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                 selectedTextColor = MaterialTheme.colorScheme.primary,
             ),
             selected = Screen.EVENTS.route == currentRouter.route,
@@ -369,7 +380,7 @@ fun MainNavigationBar(
         NavigationBarItem(
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
-                indicatorColor = MaterialTheme.colorScheme.surfaceVariant,
+                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                 selectedTextColor = MaterialTheme.colorScheme.primary,
             ),
             selected = Screen.NOTES.route == currentRouter.route,
@@ -377,5 +388,18 @@ fun MainNavigationBar(
             label = { Text("Anotações") },
             icon = { Icon(Icons.Default.Draw, contentDescription = null) }
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DrawerContentPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+
+        DrawerContent(onCloseDrawer = {}) { }
     }
 }

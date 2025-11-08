@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.White
@@ -92,6 +94,11 @@ fun DisciplineScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White
+                ),
                 title = {
                     Text(
                         text = "Disciplinas",
@@ -122,9 +129,11 @@ fun DisciplineScreen(
         }
     ) { innerPadding ->
 
-        Surface {
+        Surface(
+            color = MaterialTheme.colorScheme.background
+        ) {
             DisciplineContent(
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier.padding(innerPadding).padding(top = 8.dp),
                 uiState = uiState,
                 onDeleteDiscipline = onDeleteDiscipline,
                 onEditDiscipline = onEditDiscipline
@@ -157,8 +166,8 @@ fun DisciplineContent(
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
 
                         items(uiState.disciplines.data, key = { it.id }) { discipline ->
@@ -244,13 +253,12 @@ fun DisciplineItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(discipline.color, CircleShape)
-                        .border(1.dp, Color.Black.copy(alpha = 0.1f), CircleShape)
-                        .shadow(2.dp, CircleShape, clip = false)
+
+                CircleIndicator(
+                    size = 28.dp,
+                    color = discipline.color
                 )
+
                 Text(
                     text = discipline.title,
                     maxLines = 1,
@@ -271,7 +279,7 @@ fun DisciplineItem(
                 }
                 DropdownMenu(
                     expanded = openDropdown,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     onDismissRequest = { openDropdown = false }
                 ) {
                     DropdownMenuItem(

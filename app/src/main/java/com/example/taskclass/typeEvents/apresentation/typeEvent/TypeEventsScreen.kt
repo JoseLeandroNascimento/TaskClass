@@ -1,6 +1,5 @@
 package com.example.taskclass.typeEvents.apresentation.typeEvent
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,10 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -32,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,9 +49,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.example.taskclass.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,14 +115,20 @@ fun TypeEventsScreen(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = White,
+                    navigationIconContentColor = White,
+
+                ),
                 actions = {
                     IconButton(
                         onClick = {
                             changeBottomSheetState?.invoke(true)
                         },
                         colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .1f),
-                            contentColor = MaterialTheme.colorScheme.primary
+                            containerColor = White.copy(alpha = .1f),
+                            contentColor = White
                         )
                     ) {
                         Icon(
@@ -136,7 +142,7 @@ fun TypeEventsScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding).padding(top = 8.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
 
@@ -161,8 +167,8 @@ fun TypeEventsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .align(alignment = Alignment.TopCenter),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                             ) {
                                 items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
                                     TypeEventCardItem(
@@ -183,6 +189,7 @@ fun TypeEventsScreen(
 
             if (uiState.showBottomSheet) {
                 ModalBottomSheet(
+                    containerColor = MaterialTheme.colorScheme.surface,
                     onDismissRequest = {
                         changeBottomSheetState?.invoke(false)
                     },
@@ -255,14 +262,12 @@ fun TypeEventCardItem(
                 horizontalArrangement = Arrangement
                     .spacedBy(8.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(
-                            color = typeEventItem.color,
-                            shape = CircleShape
-                        )
+
+                CircleIndicator(
+                    color = typeEventItem.color,
+                    size = 28.dp
                 )
+
                 Text(
                     text = typeEventItem.name,
                     style = MaterialTheme.typography.bodyLarge,
@@ -281,7 +286,7 @@ fun TypeEventCardItem(
                 }
                 DropdownMenu(
                     expanded = openDropdown,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.background,
                     onDismissRequest = { openDropdown = false }
                 ) {
                     DropdownMenuItem(

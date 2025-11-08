@@ -8,21 +8,42 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Green500,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    surfaceVariant = Gray300,
+//private val DarkColorScheme = darkColorScheme(
+//    primary = Green500,
+//    secondary = PurpleGrey80,
+//    tertiary = Pink80,
+//    surfaceVariant = Gray300,
+//)
+//
+//private val LightColorScheme = lightColorScheme(
+//    primary = Green500,
+//    secondary = PurpleGrey40,
+//    tertiary = Pink40,
+//    background = Background,
+//    surfaceVariant = White,
+//)
+
+val LightColorScheme = lightColorScheme(
+    primary = PrimaryLight,
+    onPrimary = OnPrimaryLight,
+    background = BackgroundLight,
+    surface = CardLight,
+    onBackground = OnBackgroundLight,
+    onSurface = OnSurfaceLight
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Green500,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    surfaceVariant = White300,
+val DarkColorScheme = darkColorScheme(
+    primary = PrimaryDark,
+    onPrimary = OnPrimaryDark,
+    background = BackgroundDark,
+    surface = CardDark,
+    onBackground = OnBackgroundDark,
+    onSurface = OnSurfaceDark
 )
+
 
 @Composable
 fun TaskClassTheme(

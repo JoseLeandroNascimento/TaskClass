@@ -12,5 +12,5 @@ data class EventEntity(
     val time: Time,     // <-- e aqui Time
     val typeEventId: Int?,
     val typeEventName: String?,
-    val isDone: Boolean = false
+    val status: EEventStatus = EEventStatus.AGENDADO
 )

@@ -40,6 +40,7 @@ fun AppDropdown(
         onExpandedChange = {
             expanded = !expanded
         }
+
     ) {
         OutlinedTextField(
             modifier = Modifier
@@ -75,6 +76,7 @@ fun AppDropdown(
         )
 
         ExposedDropdownMenu(
+            containerColor = MaterialTheme.colorScheme.surface,
             modifier = Modifier.heightIn(max = 300.dp),
             matchTextFieldWidth = true,
             expanded = expanded,
