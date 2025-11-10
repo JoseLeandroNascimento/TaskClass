@@ -89,7 +89,7 @@ fun AppSelectColor(
 }
 
 @Composable
-private fun SelectColorOptionsDialog(
+fun SelectColorOptionsDialog(
     currentColor: Color,
     onColorSelected: (Color) -> Unit,
     onDismiss: () -> Unit
@@ -192,8 +192,14 @@ private fun SelectColorOptionsDialog(
                 onClick = { showCustomPicker = true },
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(imageVector = Icons.Default.ColorLens, contentDescription = stringResource(R.string.description_icon_color))
-                Text(stringResource(R.string.btn_escolher_cor_personalizada), style = MaterialTheme.typography.labelLarge)
+                Icon(
+                    imageVector = Icons.Default.ColorLens,
+                    contentDescription = stringResource(R.string.description_icon_color)
+                )
+                Text(
+                    stringResource(R.string.btn_escolher_cor_personalizada),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
 
             Row(
@@ -204,7 +210,10 @@ private fun SelectColorOptionsDialog(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(stringResource(R.string.btn_cancelar), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        stringResource(R.string.btn_cancelar),
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
         }

@@ -20,8 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -135,6 +137,7 @@ fun EventAllScreen(
 
 
     ) { innerPadding ->
+
         Surface(
             modifier = Modifier
                 .fillMaxSize()
@@ -219,34 +222,72 @@ fun EventAllScreen(
                     }
                 }
 
-                LazyColumn(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentAlignment = Alignment.Center
                 ) {
 
+                    when {
 
-                    items(
-                        items = uiState.events,
-                        key = { it.id }
-                    ) { event ->
+                        uiState.isLoading -> {
 
-                        EventItemCard(
-                            title = event.title,
-                            color = event.color,
-                            checked = event.status == EEventStatus.CONCLUIDA,
-                            onCheckedChange = { checked ->
-                                updateStatusChecked?.invoke(event.id, checked)
+                            CircularProgressIndicator()
+                        }
+
+                        uiState.events.isEmpty() -> {
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(40.dp),
+                                    imageVector = Icons.Default.Storage,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Nenhum evento encontrado",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
-                        )
-                    }
+
+                        }
+
+                        else -> {
+
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
 
 
-                    item {
+                                items(
+                                    items = uiState.events,
+                                    key = { it.id }
+                                ) { event ->
 
-                        Spacer(
-                            modifier = Modifier
-                                .height(80.dp)
-                        )
+                                    EventItemCard(
+                                        title = event.title,
+                                        color = event.color,
+                                        checked = event.status == EEventStatus.CONCLUIDA,
+                                        onCheckedChange = { checked ->
+                                            updateStatusChecked?.invoke(event.id, checked)
+                                        }
+                                    )
+                                }
+
+                                item {
+
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(80.dp)
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 }
             }

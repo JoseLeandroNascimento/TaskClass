@@ -33,6 +33,8 @@
     <string name="label_disciplina">Disciplina *</string>
     <string name="adicionar_disciplina">Adicionar disciplina</string>
     <string name="novo_tipo_de_evento">Novo tipo de evento</string>
+    <string name="nenhum_evento_neste_dia">Nenhum evento neste dia</string>
+    <string name="selecione_outra_data_no_calend_rio_para_visualizar_os_eventos">Selecione outra data no calendário para visualizar os eventos.</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Draw
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -75,6 +73,8 @@ fun MainScreen(
     onNavigationDrawer: (Screen) -> Unit,
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
+    onNavigationNewNote: () -> Unit,
+    onNavigateToAllEvents: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
     onEditSchedule: (Int) -> Unit,
 ) {
@@ -115,7 +115,9 @@ fun MainScreen(
             },
             onNavigationNewEvent = onNavigationNewEvent,
             onEditSchedule = onEditSchedule,
-            onSelectedEvent = onSelectedEvent
+            onNavigateToAllEvents = onNavigateToAllEvents,
+            onSelectedEvent = onSelectedEvent,
+            onNavigationNewNote = onNavigationNewNote
         )
     }
 }
@@ -213,9 +215,11 @@ fun MainContent(
     onNavigationNewSchedule: () -> Unit,
     onNavigationNewEvent: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
-    onEditSchedule: (Int) -> Unit
+    onNavigateToAllEvents: () -> Unit,
+    onEditSchedule: (Int) -> Unit,
+    onNavigationNewNote: () -> Unit,
 
-) {
+    ) {
 
     Scaffold(
         topBar = {
@@ -270,7 +274,7 @@ fun MainContent(
             if (currentScreen == Screen.NOTES) {
                 FloatingActionButton(
                     onClick = {
-
+                        onNavigationNewNote()
                     },
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
@@ -303,7 +307,11 @@ fun MainContent(
                 }
                 composable(Screen.EVENTS.route) {
                     EventScreen(
-                        onSelectedEvent = { onSelectedEvent(it) }
+                        onSelectedEvent = {
+                            onSelectedEvent(it)
+                        },
+                        onNavigateToAllEvents = onNavigateToAllEvents
+
                     )
                 }
 

@@ -22,8 +22,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -42,12 +45,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.core.data.model.dto.EventWithType
@@ -69,6 +74,7 @@ import java.util.Locale
 fun EventScreen(
     modifier: Modifier = Modifier,
     onSelectedEvent: (Int) -> Unit,
+    onNavigateToAllEvents: ()-> Unit,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,6 +82,7 @@ fun EventScreen(
     EventScreen(
         modifier = modifier,
         uiState = uiState,
+        onNavigateToAllEvents = onNavigateToAllEvents,
         onSelectedEvent = { onSelectedEvent(it) },
         onDateSelected = viewModel::onDateSelected
     )
@@ -87,6 +94,7 @@ fun EventScreen(
     modifier: Modifier = Modifier,
     uiState: EventsUiState,
     onDateSelected: (LocalDate) -> Unit,
+    onNavigateToAllEvents: ()-> Unit,
     onSelectedEvent: (Int) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -156,17 +164,44 @@ fun EventScreen(
                                 }
                             )
 
-                            Text(
-                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
-                                text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
-                                    uiState.dateSelected.month.getDisplayName(
-                                        TextStyle.FULL,
-                                        Locale.getDefault()
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Eventos para ${uiState.dateSelected.dayOfMonth} de ${
+                                        uiState.dateSelected.month.getDisplayName(
+                                            TextStyle.FULL,
+                                            Locale.getDefault()
+                                        )
+                                    }",
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+
+                                TextButton(
+                                    onClick = onNavigateToAllEvents
+                                ) {
+
+                                    Icon(
+                                        modifier = Modifier.size(20.dp).padding(end = 4.dp),
+                                        imageVector = Icons.Default.Event,
+                                        contentDescription = null
                                     )
-                                }",
-                                style = typography.titleSmall,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
+
+                                    Text(
+                                        text = "Ver todos",
+                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+
                         }
                     }
 
@@ -183,20 +218,21 @@ fun EventScreen(
                                 Icon(
                                     imageVector = Icons.Default.EventBusy,
                                     contentDescription = null,
-                                    tint = colorScheme.primary.copy(alpha = 0.7f),
+                                    tint = colorScheme.primary,
                                     modifier = Modifier
                                         .size(40.dp)
                                         .padding(bottom = 8.dp)
                                 )
 
                                 Text(
-                                    text = "Nenhum evento neste dia",
+                                    text = stringResource(R.string.nenhum_evento_neste_dia),
                                     style = typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                    fontWeight = FontWeight.Bold,
                                     color = colorScheme.onSurface
                                 )
 
                                 Text(
-                                    text = "Selecione outra data no calendário para visualizar os eventos.",
+                                    text = stringResource(R.string.selecione_outra_data_no_calend_rio_para_visualizar_os_eventos),
                                     style = typography.bodySmall,
                                     color = colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Center,
@@ -286,7 +322,7 @@ private fun DayCell(
     val isSelected = day.date == selectedDate
     val bgColor = when {
         isSelected -> colorScheme.primary.copy(alpha = 0.3f)
-        day.position != DayPosition.MonthDate -> colorScheme.surface.copy(alpha = 0.1f)
+        day.position != DayPosition.MonthDate -> colorScheme.primary.copy(alpha = .04f)
         else -> colorScheme.surface.copy(alpha = .6f)
     }
 
@@ -473,6 +509,7 @@ private fun EventScreenLightPreview() {
         EventScreen(
             uiState = EventsUiState(),
             onDateSelected = {},
+            onNavigateToAllEvents = {},
             onSelectedEvent = {}
         )
     }
@@ -485,6 +522,7 @@ private fun EventScreenDarkPreview() {
         EventScreen(
             uiState = EventsUiState(),
             onDateSelected = {},
+            onNavigateToAllEvents = {},
             onSelectedEvent = {}
         )
     }

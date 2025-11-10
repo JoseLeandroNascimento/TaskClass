@@ -17,6 +17,7 @@ import com.example.taskclass.events.presentation.eventAllScreen.EventAllViewMode
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateScreen
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateViewModel
 import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
+import com.example.taskclass.notes.NoteEditScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleViewModel
 import com.example.taskclass.schedules.presentation.schedules.SchedulesScreen
@@ -52,6 +53,12 @@ fun App(modifier: Modifier = Modifier) {
                 },
                 onSelectedEvent = { eventId ->
                     appNavController.navigate(Screen.EVENT_DETAIL.withArgs(eventId.toString()))
+                },
+                onNavigateToAllEvents = {
+                    appNavController.navigate(Screen.EVENT_ALL.route)
+                },
+                onNavigationNewNote = {
+                    appNavController.navigate(Screen.NOTE_CREATE.route)
                 }
             )
         }
@@ -187,6 +194,14 @@ fun App(modifier: Modifier = Modifier) {
             TypeEventsScreen(
                 viewModel = viewModel,
                 onBack =  {
+                    appNavController.navigateUp()
+                }
+            )
+        }
+
+        composable(Screen.NOTE_CREATE.route) {backStackEntry->
+            NoteEditScreen(
+                onBack = {
                     appNavController.navigateUp()
                 }
             )
