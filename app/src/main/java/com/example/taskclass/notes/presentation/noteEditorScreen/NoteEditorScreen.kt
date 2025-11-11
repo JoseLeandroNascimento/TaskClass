@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDialog
 import com.example.taskclass.common.composables.AppInputText
+import com.example.taskclass.common.composables.appNoteEditor.NoteEditor
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -199,6 +200,21 @@ private fun NoteEditPreview() {
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = false
+    ) {
+        NoteEditScreen(
+            uiState = NoteUiState(),
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NoteEditDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
     ) {
         NoteEditScreen(
             uiState = NoteUiState(),
