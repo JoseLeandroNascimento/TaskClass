@@ -4,12 +4,15 @@ import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
+import com.example.taskclass.core.data.dao.NoteDao
 import com.example.taskclass.core.data.repository.DisciplineRepositoryImpl
 import com.example.taskclass.core.data.repository.ScheduleRepositoryImpl
 import com.example.taskclass.core.data.repository.TypeEventRepositoryImpl
 import com.example.taskclass.discipline.domain.DisciplineRepository
 import com.example.taskclass.core.data.repository.EventRepositoryImpl
+import com.example.taskclass.core.data.repository.NoteRepositoryImpl
 import com.example.taskclass.events.domain.EventRepository
+import com.example.taskclass.notes.domain.NoteRepository
 import com.example.taskclass.schedules.domain.ScheduleRepository
 import com.example.taskclass.typeEvents.domain.TypeEventRepository
 import dagger.Module
@@ -44,5 +47,11 @@ object MainModule {
     @Singleton
     fun provideEventRepository(dao: EventDao): EventRepository {
         return EventRepositoryImpl(dao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNoteRepository(dao: NoteDao): NoteRepository {
+        return NoteRepositoryImpl(dao)
     }
 }

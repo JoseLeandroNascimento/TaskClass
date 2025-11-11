@@ -17,7 +17,8 @@ import com.example.taskclass.events.presentation.eventAllScreen.EventAllViewMode
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateScreen
 import com.example.taskclass.events.presentation.eventCreateScreen.EventCreateViewModel
 import com.example.taskclass.events.presentation.eventDetailScreen.EventDetailScreen
-import com.example.taskclass.notes.NoteEditScreen
+import com.example.taskclass.notes.presentation.noteEditorScreen.NoteEditScreen
+import com.example.taskclass.notes.presentation.noteEditorScreen.NoteEditorViewModel
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleScreen
 import com.example.taskclass.schedules.presentation.newSchedule.NewScheduleViewModel
 import com.example.taskclass.schedules.presentation.schedules.SchedulesScreen
@@ -200,7 +201,10 @@ fun App(modifier: Modifier = Modifier) {
         }
 
         composable(Screen.NOTE_CREATE.route) {backStackEntry->
+
+            val viewModel = hiltViewModel<NoteEditorViewModel>(backStackEntry)
             NoteEditScreen(
+                viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
                 }

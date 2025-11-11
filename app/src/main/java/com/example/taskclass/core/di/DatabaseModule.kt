@@ -7,6 +7,7 @@ import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
+import com.example.taskclass.core.data.dao.NoteDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,4 +42,7 @@ object DatabaseModule {
 
     @Provides
     fun provideEventDao(db: TaskClassDatabase): EventDao = db.eventDao()
+
+    @Provides
+    fun provideNoteDao(db: TaskClassDatabase): NoteDao = db.noteDao()
 }

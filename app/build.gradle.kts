@@ -48,6 +48,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("com.kizitonwose.calendar:compose:2.6.0")
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
+
     implementation(libs.androidx.room.runtime)
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

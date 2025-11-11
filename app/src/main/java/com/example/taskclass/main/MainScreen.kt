@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Mode
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -62,7 +63,8 @@ import com.example.taskclass.R.string
 import com.example.taskclass.agenda.presentation.AgendaScreen
 import com.example.taskclass.agenda.presentation.AgendaViewModel
 import com.example.taskclass.events.presentation.eventsScreen.EventScreen
-import com.example.taskclass.notes.NotesScreen
+import com.example.taskclass.notes.presentation.notesScreen.NotesScreen
+import com.example.taskclass.notes.presentation.notesScreen.NotesViewModel
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 import kotlinx.coroutines.launch
@@ -279,7 +281,7 @@ fun MainContent(
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     Icon(
-                        Icons.Default.Add,
+                        Icons.Default.Mode,
                         contentDescription = "Adicionar evento",
                         tint = White
                     )
@@ -315,8 +317,12 @@ fun MainContent(
                     )
                 }
 
-                composable(Screen.NOTES.route) {
-                    NotesScreen()
+                composable(Screen.NOTES.route) {backStackEntry ->
+
+                    val viewModel = hiltViewModel<NotesViewModel>(backStackEntry)
+                    NotesScreen(
+                        viewModel = viewModel
+                    )
                 }
             }
         }
@@ -396,6 +402,7 @@ fun MainNavigationBar(
             label = { Text("Anotações") },
             icon = { Icon(Icons.Default.Draw, contentDescription = null) }
         )
+
     }
 }
 

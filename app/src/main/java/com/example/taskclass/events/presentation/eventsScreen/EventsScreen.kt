@@ -322,8 +322,8 @@ private fun DayCell(
     val isSelected = day.date == selectedDate
     val bgColor = when {
         isSelected -> colorScheme.primary.copy(alpha = 0.3f)
-        day.position != DayPosition.MonthDate -> colorScheme.primary.copy(alpha = .04f)
-        else -> colorScheme.surface.copy(alpha = .6f)
+        day.position != DayPosition.MonthDate -> colorScheme.surface.copy(alpha = .6f)
+        else -> colorScheme.primary.copy(alpha = .04f)
     }
 
     val textColor = when {

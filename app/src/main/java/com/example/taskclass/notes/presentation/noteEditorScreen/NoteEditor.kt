@@ -1,4 +1,4 @@
-package com.example.taskclass.notes
+package com.example.taskclass.notes.presentation.noteEditorScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
 import androidx.compose.material.icons.automirrored.filled.FormatAlignRight
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.FormatAlignJustify
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatColorFill
@@ -28,12 +31,12 @@ import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.FormatUnderlined
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -52,8 +55,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -73,57 +76,95 @@ import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditor(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    stateRichText: RichTextState
 ) {
 
-    val state = rememberRichTextState()
+
+    stateRichText.config.linkColor = MaterialTheme.colorScheme.primary
+    stateRichText.config.linkTextDecoration = TextDecoration.None
 
     var showDialogAddLink by remember { mutableStateOf(false) }
 
     if (showDialogAddLink) {
 
         DialogAddLinkNoteEditorToolBar(
-            state = state,
+            state = stateRichText,
             onDismissRequest = {
                 showDialogAddLink = false
             }
         )
     }
 
+    var showEmojiPicker by remember { mutableStateOf(false) }
+
+    if (showEmojiPicker) {
+        EmojiPickerDialog(
+            onEmojiSelected = { emoji ->
+                // Adiciona o emoji no ponto atual do cursor
+                stateRichText.addTextAfterSelection(emoji)
+                showEmojiPicker = false
+            },
+            onDismissRequest = { showEmojiPicker = false }
+        )
+    }
+
+    val currentAlign: TextAlign = stateRichText.currentParagraphStyle.textAlign
+    val isOrdered = stateRichText.isOrderedList
+    val isUnordered = stateRichText.isUnorderedList
+
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
         NoteEditorToolBar(
-            isBold = state.currentSpanStyle.fontWeight == FontWeight.Bold,
+            isBold = stateRichText.currentSpanStyle.fontWeight == FontWeight.Bold,
             onBoldClick = {
-                state.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                stateRichText.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
             },
-            isItalic = state.currentSpanStyle.fontStyle == FontStyle.Italic,
+            isItalic = stateRichText.currentSpanStyle.fontStyle == FontStyle.Italic,
             onItalicClick = {
-                state.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                stateRichText.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
             },
-            isUnderline = state.currentSpanStyle.textDecoration?.contains(TextDecoration.Underline)
+            isUnderline = stateRichText.currentSpanStyle.textDecoration?.contains(TextDecoration.Underline)
                 ?: false,
             onUnderlineClick = {
-                state.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
+                stateRichText.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
             },
-            colorBackground = state.currentSpanStyle.background,
+            colorBackground = stateRichText.currentSpanStyle.background,
             onColorBackground = { color ->
-                state.toggleSpanStyle(SpanStyle(background = color))
+                stateRichText.toggleSpanStyle(SpanStyle(background = color))
             },
-            colorText = state.currentSpanStyle.color,
+            colorText = stateRichText.currentSpanStyle.color,
             onColorText = { color ->
-                state.toggleSpanStyle(SpanStyle(color = color))
+                stateRichText.toggleSpanStyle(SpanStyle(color = color))
             },
-            isLink = state.isLink,
+            isLink = stateRichText.isLink,
             onAddLink = {
                 showDialogAddLink = !showDialogAddLink
-            }
+            },
+            textAlign = currentAlign,
+            onAlignLeft = {
+                stateRichText.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.Start))
+            },
+            onAlignJustify = {
+                stateRichText.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.Justify))
+            },
+            onAlignRight = {
+                stateRichText.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.End))
+            },
+            isOrderedList = isOrdered,
+            isUnorderedList = isUnordered,
+            onToggleOrderedList = { stateRichText.toggleOrderedList() },
+            onToggleUnorderedList = { stateRichText.toggleUnorderedList() },
+            onEmojiPicker = {
 
+                showEmojiPicker = !showEmojiPicker
+
+            }
         )
         RichTextEditor(
             modifier = Modifier.fillMaxSize(),
-            state = state,
+            state = stateRichText,
             shape = RoundedCornerShape(0.dp),
             placeholder = {
                 Text(
@@ -142,6 +183,7 @@ fun NoteEditor(
 
 }
 
+
 @Composable
 fun NoteEditorToolBar(
     modifier: Modifier = Modifier,
@@ -156,11 +198,21 @@ fun NoteEditorToolBar(
     colorText: Color = Color.Unspecified,
     onColorText: (Color) -> Unit,
     isLink: Boolean,
-    onAddLink: () -> Unit
+    onAddLink: () -> Unit,
+    textAlign: TextAlign,
+    onAlignLeft: () -> Unit,
+    onAlignJustify: () -> Unit,
+    onAlignRight: () -> Unit,
+    isOrderedList: Boolean,
+    isUnorderedList: Boolean,
+    onToggleOrderedList: () -> Unit,
+    onToggleUnorderedList: () -> Unit,
+    onEmojiPicker: () -> Unit
 ) {
 
     var expandedColorBackground by remember { mutableStateOf(false) }
     var expandedColorText by remember { mutableStateOf(false) }
+
 
     if (expandedColorBackground) {
 
@@ -202,6 +254,16 @@ fun NoteEditorToolBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            IconButton(
+                onClick = onEmojiPicker,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.EmojiEmotions,
+                    contentDescription = "Inserir emoji",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
 
 
             Row() {
@@ -249,93 +311,84 @@ fun NoteEditorToolBar(
 
             VerticalDivider()
 
-            NoteEditorToolBarSelect()
-
-            VerticalDivider()
-
-            SingleChoiceSegmentedButtonRow() {
+            SingleChoiceSegmentedButtonRow {
                 SegmentedButton(
                     border = SegmentedButtonDefaults.borderStroke(
-                        color = Color.Transparent,
-                        width = 0.dp
+                        color = Color.Transparent, width = 0.dp
                     ),
                     colors = SegmentedButtonDefaults.colors(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = true,
+                    selected = textAlign == TextAlign.Start || textAlign == TextAlign.Left,
                     label = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.FormatAlignLeft,
-                            contentDescription = null
+                            contentDescription = "Alinhar à esquerda"
                         )
                     },
                     icon = {},
-                    onClick = {},
+                    onClick = onAlignLeft,
                     shape = MaterialTheme.shapes.small,
                 )
                 SegmentedButton(
                     border = SegmentedButtonDefaults.borderStroke(
-                        color = Color.Transparent,
-                        width = 0.dp
+                        color = Color.Transparent, width = 0.dp
                     ),
                     colors = SegmentedButtonDefaults.colors(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = false,
+                    selected = textAlign == TextAlign.Justify,
                     label = {
                         Icon(
                             imageVector = Icons.Default.FormatAlignJustify,
-                            contentDescription = null
+                            contentDescription = "Justificar"
                         )
                     },
-
                     icon = {},
-                    onClick = {},
+                    onClick = onAlignJustify,
                     shape = MaterialTheme.shapes.small,
                 )
                 SegmentedButton(
                     border = SegmentedButtonDefaults.borderStroke(
-                        color = Color.Transparent,
-                        width = 0.dp
+                        color = Color.Transparent, width = 0.dp
                     ),
                     colors = SegmentedButtonDefaults.colors(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = false,
+                    selected = textAlign == TextAlign.End || textAlign == TextAlign.Right,
                     label = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.FormatAlignRight,
-                            contentDescription = null
+                            contentDescription = "Alinhar à direita"
                         )
                     },
                     icon = {},
-                    onClick = {},
+                    onClick = onAlignRight,
                     shape = MaterialTheme.shapes.small,
                 )
             }
 
             VerticalDivider()
 
-            Row() {
-
-                IconButton(
-                    onClick = {}
-                ) {
+            Row {
+                IconButton(onClick = onToggleOrderedList) {
                     Icon(
                         imageVector = Icons.Default.FormatListNumbered,
-                        contentDescription = null
+                        contentDescription = "Lista ordenada",
+                        tint = if (isOrderedList) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                IconButton(
-                    onClick = {}
-                ) {
+                IconButton(onClick = onToggleUnorderedList) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
-                        contentDescription = null
+                        contentDescription = "Lista não ordenada",
+                        tint = if (isUnorderedList) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -345,6 +398,9 @@ fun NoteEditorToolBar(
             Row() {
 
                 IconButton(
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f)
+                    ),
                     onClick = { expandedColorBackground = !expandedColorBackground }
                 ) {
                     Icon(
@@ -355,6 +411,9 @@ fun NoteEditorToolBar(
                 }
 
                 IconButton(
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f)
+                    ),
                     onClick = { expandedColorText = !expandedColorText }
                 ) {
                     Icon(
@@ -375,12 +434,87 @@ fun NoteEditorToolBar(
 }
 
 @Composable
+fun EmojiPickerDialog(
+    onEmojiSelected: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val emojis = listOf(
+        // 😄 Emoções e pessoas
+        "😀", "😃", "😄", "😁", "😆", "🥹", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌",
+        "😍", "🥰", "😘", "😗", "😙", "😚", "😋", "😛", "😝", "😜", "🤪", "🤨", "🧐", "🤓", "😎", "🥸",
+        "🤩", "🥳", "😏", "😒", "😞", "😔", "😟", "😕", "🙁", "☹️", "😣", "😖", "😫", "😩", "🥺", "😢", "😭",
+        "😤", "😠", "😡", "🤬", "🤯", "😳", "🥵", "🥶", "😱", "😨", "😰", "😥", "😓", "🤗", "🤔", "🫣", "🤭",
+        "🫢", "🫡", "🤫", "🤥", "😶", "😐", "😑", "🫠", "😬", "🙄", "😯", "😦", "😧", "😮", "😲", "😴", "🤤",
+        "😪", "😵", "🫥", "🤐", "🥴", "🤢", "🤮", "🤧", "😷", "🤒", "🤕", "🤑", "🤠", "😈", "👿", "👹",
+        "👺", "💀", "☠️", "👻", "👽", "👾", "🤖",
+
+        // 🐶 Animais e natureza
+        "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐻‍❄️", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🐵",
+        "🙈", "🙉", "🙊", "🐒", "🐔", "🐧", "🐦", "🐤", "🐣", "🦆", "🦅", "🦉", "🦇", "🐺", "🐗", "🐴", "🦄",
+        "🐝", "🐛", "🦋", "🐌", "🐞", "🐜", "🕷️", "🦂", "🐢", "🐍", "🦎", "🐙", "🦑", "🦞", "🦀", "🐡", "🐠",
+        "🐟", "🐬", "🐳", "🐋", "🦈", "🐊", "🐅", "🐆", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🐫", "🦒",
+        "🦘", "🐃", "🐂", "🐄", "🐎", "🐖", "🐏", "🐑", "🦙", "🐐", "🦌", "🐕", "🐩", "🐈", "🐓", "🦃", "🦢",
+
+        // 🍔 Comidas e bebidas
+        "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝",
+        "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶️", "🫑", "🌽", "🥕", "🧄", "🧅", "🥔", "🍠", "🥐", "🍞", "🥖",
+        "🥨", "🧀", "🥚", "🍳", "🥞", "🧇", "🥓", "🥩", "🍗", "🍖", "🌭", "🍔", "🍟", "🍕", "🫓", "🥪", "🥙",
+        "🧆", "🌮", "🌯", "🫔", "🥗", "🥘", "🫕", "🍝", "🍜", "🍲", "🍛", "🍣", "🍱", "🥟", "🦪", "🍤", "🍙",
+        "🍚", "🍘", "🍥", "🥠", "🍢", "🍡", "🍧", "🍨", "🍦", "🥧", "🧁", "🍰", "🎂", "🍮", "🍭", "🍬", "🍫",
+        "🍿", "🧋", "☕", "🫖", "🍵", "🍺", "🍻", "🥂", "🍷", "🥃", "🍸", "🍹", "🧉",
+
+        // 🚗 Objetos e atividades
+        "⌚", "📱", "💻", "🖥️", "🖨️", "🕹️", "🎮", "🎧", "🎤", "📷", "📹", "🎬", "💡", "🔦", "🏮", "📔", "📒",
+        "📚", "📖", "✏️", "🖊️", "🖋️", "🖌️", "🖍️", "📎", "📐", "📏", "📅", "📆", "🗓️", "📊", "📈", "📉",
+        "💰", "💸", "💳", "💎", "🧾", "💼", "📦", "📫", "📮", "🧳", "🚪", "🪑", "🛏️", "🛋️", "🚿", "🛁",
+        "🪞", "🪟", "🕰️", "🪠", "🚽", "🧻", "🧹", "🧺", "🧼", "🧽", "🪣", "🧯", "🩹", "💉", "💊", "🩺",
+        "🔒", "🔓", "🔑", "🗝️", "🔨", "🪓", "🔧", "🔩", "⚙️", "🪤", "🧲", "🔫", "💣", "🧨", "🪄", "🪅",
+
+        // 🌍 Símbolos e diversos
+        "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖",
+        "💘", "💝", "💟", "☮️", "✝️", "☪️", "🕉️", "☯️", "☸️", "✡️", "🔯", "🕎", "☦️", "🛐", "⛎",
+        "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓",
+        "🆗", "🆕", "🆒", "🆓", "🆙", "🔝", "🔛", "🔜", "✔️", "☑️", "🔘", "🔴", "🟢", "🟡", "🟣", "⚪", "⚫"
+    )
+
+
+    AppDialog(
+        onDismissRequest = onDismissRequest,
+        title = "Escolher emoji"
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LazyVerticalGrid (
+                columns = GridCells.Fixed(6),
+                modifier = Modifier.height(220.dp)
+            ) {
+                items(emojis.size, key = {it}) { index ->
+                    TextButton(
+                        onClick = { onEmojiSelected(emojis[index]) }
+                    ) {
+                        Text(
+                            text = emojis[index],
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun DialogAddLinkNoteEditorToolBar(
     state: RichTextState,
     onDismissRequest: () -> Unit
 ) {
 
-    var text by remember { mutableStateOf("") }
+    val selection = state.selection
+    val textSelection = state.toText().substring(selection.min, selection.max)
+
+    var text by remember { mutableStateOf(textSelection) }
     var url by remember { mutableStateOf("") }
 
     AppDialog(
@@ -436,11 +570,13 @@ fun DialogAddLinkNoteEditorToolBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditorToolBarSelect(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    value: String,
+    content: @Composable (() -> Unit) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("14") } // Exemplo de valor inicial
     val interactionSource = remember { MutableInteractionSource() }
+
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -449,7 +585,7 @@ fun NoteEditorToolBarSelect(
     ) {
 
         BasicTextField(
-            value = selectedText,
+            value = value,
             onValueChange = {},
             modifier = Modifier
                 .menuAnchor(
@@ -479,7 +615,7 @@ fun NoteEditorToolBarSelect(
                 Text(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
-                    text = selectedText
+                    text = value
                 )
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             }
@@ -492,27 +628,9 @@ fun NoteEditorToolBarSelect(
             matchTextFieldWidth = true,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuItem(
-                text = { Text("12") },
-                onClick = {
-                    selectedText = "12"
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("14") },
-                onClick = {
-                    selectedText = "14"
-                    expanded = false
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("16") },
-                onClick = {
-                    selectedText = "16"
-                    expanded = false
-                }
-            )
+            content {
+                expanded = false
+            }
         }
     }
 }
@@ -522,11 +640,14 @@ fun NoteEditorToolBarSelect(
 @Composable
 private fun NoteEditorPreview() {
 
+    val state = rememberRichTextState()
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = false
     ) {
-        NoteEditor()
+        NoteEditor(
+            stateRichText = state
+        )
     }
 
 }
@@ -535,11 +656,15 @@ private fun NoteEditorPreview() {
 @Composable
 private fun NoteEditorDarkPreview() {
 
+    val state = rememberRichTextState()
+
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = true
     ) {
-        NoteEditor()
+        NoteEditor(
+            stateRichText = state
+        )
     }
 
 }

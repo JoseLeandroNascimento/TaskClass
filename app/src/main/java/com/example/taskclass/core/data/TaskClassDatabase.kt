@@ -10,15 +10,18 @@ import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.core.data.model.EventEntity
+import com.example.taskclass.core.data.model.NoteEntity
 import com.example.taskclass.core.data.model.Schedule
 import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.dao.NoteDao
 
 @Database(
     entities = [
         Discipline::class,
         Schedule::class,
         TypeEvent::class,
-        EventEntity::class
+        EventEntity::class,
+        NoteEntity::class
     ],
     version = 1
 )
@@ -30,4 +33,5 @@ abstract class TaskClassDatabase : RoomDatabase() {
     abstract fun scheduleDao(): ScheduleDao
     abstract fun typeEventDao(): TypeEventDao
     abstract fun eventDao(): EventDao
+    abstract fun noteDao(): NoteDao
 }
