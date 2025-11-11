@@ -1,9 +1,10 @@
 package com.example.taskclass.core.data.model
 
 enum class EEventStatus(
-    private val description: String
+    private val description: String,
+    val label: String
 ) {
-    AGENDADO("AGENDADO"),
-    PENDENTE("PENDENTE"),
-    CONCLUIDA("CONCLUIDA")
+    AGENDADO("AGENDADO", "Agendado"),
+    PENDENTE("PENDENTE", "Pendente"),
+    CONCLUIDA("CONCLUIDA", "Concluída"),
 }

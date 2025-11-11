@@ -7,10 +7,9 @@ import com.example.taskclass.core.data.model.EEventStatus
 import com.example.taskclass.core.data.model.EventEntity
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.core.data.model.formatted
-import com.example.taskclass.events.domain.EventFilter
-import com.example.taskclass.events.domain.EventRepository
+import com.example.taskclass.ui.events.domain.EventFilter
+import com.example.taskclass.ui.events.domain.EventRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -3,7 +3,7 @@ package com.example.taskclass.core.data.repository
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.model.Discipline
-import com.example.taskclass.discipline.domain.DisciplineRepository
+import com.example.taskclass.ui.discipline.domain.DisciplineRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

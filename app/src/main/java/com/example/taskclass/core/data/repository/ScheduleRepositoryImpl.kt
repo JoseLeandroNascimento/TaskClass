@@ -4,11 +4,9 @@ import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.model.Schedule
 import com.example.taskclass.core.data.model.dto.ScheduleDTO
-import com.example.taskclass.schedules.domain.ScheduleRepository
+import com.example.taskclass.ui.schedules.domain.ScheduleRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow

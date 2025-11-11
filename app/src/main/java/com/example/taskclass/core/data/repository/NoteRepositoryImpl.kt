@@ -3,7 +3,7 @@ package com.example.taskclass.core.data.repository
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.NoteEntity
 import com.example.taskclass.core.data.dao.NoteDao
-import com.example.taskclass.notes.domain.NoteRepository
+import com.example.taskclass.ui.notes.domain.NoteRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
