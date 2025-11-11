@@ -3,6 +3,7 @@ package com.example.taskclass.ui.events.presentation.eventsScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
+import com.example.taskclass.ui.events.domain.CheckedEventUseCase
 import com.example.taskclass.ui.events.domain.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -15,7 +16,8 @@ import java.time.LocalDate
 
 @HiltViewModel
 class EventsViewModel @Inject constructor(
-    private val repository: EventRepository
+    private val repository: EventRepository,
+    private val checkedEventUseCase: CheckedEventUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventsUiState())
@@ -55,6 +57,43 @@ class EventsViewModel @Inject constructor(
 
             }
         }
+    }
+
+    fun onCheckedStatusEvent(id: Int, isChecked: Boolean) {
+
+        viewModelScope.launch {
+            checkedEventUseCase(id, isChecked).collect { response ->
+                when (response) {
+
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                loadingEvents = true
+                            )
+                        }
+                    }
+
+                    is Resource.Success -> {
+
+                        _uiState.update {
+                            it.copy(
+                                loadingEvents = false
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+
+                        _uiState.update {
+                            it.copy(
+                                loadingEvents = false,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     fun onDateSelected(date: LocalDate) {

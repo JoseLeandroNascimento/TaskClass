@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.CircleIndicator
+import com.example.taskclass.core.data.model.EEventStatus
 import com.example.taskclass.core.data.model.dto.EventWithType
 import com.example.taskclass.core.data.model.formatted
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -74,7 +74,7 @@ import java.util.Locale
 fun EventScreen(
     modifier: Modifier = Modifier,
     onSelectedEvent: (Int) -> Unit,
-    onNavigateToAllEvents: ()-> Unit,
+    onNavigateToAllEvents: () -> Unit,
     viewModel: EventsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -84,6 +84,7 @@ fun EventScreen(
         uiState = uiState,
         onNavigateToAllEvents = onNavigateToAllEvents,
         onSelectedEvent = { onSelectedEvent(it) },
+        onCheckedStatusEvent = viewModel::onCheckedStatusEvent,
         onDateSelected = viewModel::onDateSelected
     )
 }
@@ -94,8 +95,9 @@ fun EventScreen(
     modifier: Modifier = Modifier,
     uiState: EventsUiState,
     onDateSelected: (LocalDate) -> Unit,
-    onNavigateToAllEvents: ()-> Unit,
+    onNavigateToAllEvents: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
+    onCheckedStatusEvent: (Int, Boolean) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -188,7 +190,9 @@ fun EventScreen(
                                 ) {
 
                                     Icon(
-                                        modifier = Modifier.size(20.dp).padding(end = 4.dp),
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .padding(end = 4.dp),
                                         imageVector = Icons.Default.Event,
                                         contentDescription = null
                                     )
@@ -243,9 +247,13 @@ fun EventScreen(
                     } else {
 
                         items(dayEvents, key = { it.id }) { event ->
-                            EventCard(event = event, onSelectedEvent = {
-                                onSelectedEvent(it)
-                            })
+                            EventCard(
+                                event = event,
+                                onSelectedEvent = {
+                                    onSelectedEvent(it)
+                                },
+                                onCheckedStatusEvent = onCheckedStatusEvent
+                            )
                         }
                     }
 
@@ -433,6 +441,7 @@ private fun MonthHeader(
 private fun EventCard(
     event: EventWithType,
     onSelectedEvent: (Int) -> Unit,
+    onCheckedStatusEvent: (Int, Boolean) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -483,8 +492,10 @@ private fun EventCard(
             }
 
             Checkbox(
-                checked = false,
-                onCheckedChange = {}
+                checked = event.status == EEventStatus.CONCLUIDA,
+                onCheckedChange = {
+                    onCheckedStatusEvent(event.id, it)
+                }
             )
 
         }
@@ -508,6 +519,7 @@ private fun EventScreenLightPreview() {
     TaskClassTheme(dynamicColor = false, darkTheme = false) {
         EventScreen(
             uiState = EventsUiState(),
+            onCheckedStatusEvent = {id,isChecked -> },
             onDateSelected = {},
             onNavigateToAllEvents = {},
             onSelectedEvent = {}
@@ -521,6 +533,7 @@ private fun EventScreenDarkPreview() {
     TaskClassTheme(dynamicColor = false, darkTheme = true) {
         EventScreen(
             uiState = EventsUiState(),
+            onCheckedStatusEvent = {id,isChecked -> },
             onDateSelected = {},
             onNavigateToAllEvents = {},
             onSelectedEvent = {}

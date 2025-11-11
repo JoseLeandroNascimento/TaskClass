@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.EEventStatus
+import com.example.taskclass.ui.events.domain.CheckedEventUseCase
 import com.example.taskclass.ui.events.domain.EventFilter
 import com.example.taskclass.ui.events.domain.EventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class EventAllViewModel @Inject constructor(
-    private val repo: EventRepository
+    private val repo: EventRepository,
+    private val checkedEventUseCase: CheckedEventUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventAllUiState())
@@ -42,8 +44,7 @@ class EventAllViewModel @Inject constructor(
     fun updateStatusChecked(id: Int, isChecked: Boolean) {
 
         viewModelScope.launch {
-            val status = if (isChecked) EEventStatus.CONCLUIDA else EEventStatus.AGENDADO
-            repo.updateStatus(id, status).collect { response ->
+           checkedEventUseCase(id, isChecked).collect { response ->
 
                 when (response) {
 
