@@ -1,5 +1,6 @@
 package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -37,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -145,6 +150,7 @@ fun TypeEventsScreen(
             }
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -154,57 +160,83 @@ fun TypeEventsScreen(
 
         ) {
 
-            uiState.typeEvents?.let { typesEvents ->
+            when {
 
-                when (typesEvents) {
-
-                    is Resource.Loading -> {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
+                }
 
-                    is Resource.Success -> {
+                uiState.typeEvents.isNotEmpty() -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                    ) {
 
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-                        ) {
-
-                            item {
-                                Row(
-                                    modifier = Modifier
-                                        .background(MaterialTheme.colorScheme.background)
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp),
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AppButtonOrderBy(
-                                        options = optionsOrderBy,
-                                        value = orderBy,
-                                        onValueChange = {
-                                            orderBy = it
-                                        },
-                                        sortDirection = sortDirection,
-                                        onSortDirectionChange = {
-                                            sortDirection = !sortDirection
-                                        }
-                                    )
-                                }
-                            }
-
-                            items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
-                                TypeEventCardItem(
-                                    typeEventItem = typeEventItem,
-                                    onDelete = onDelete,
-                                    onSelectedItemEdit = onSelectedItemEdit
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AppButtonOrderBy(
+                                    options = optionsOrderBy,
+                                    value = orderBy,
+                                    onValueChange = {
+                                        orderBy = it
+                                    },
+                                    sortDirection = sortDirection,
+                                    onSortDirectionChange = {
+                                        sortDirection = !sortDirection
+                                    }
                                 )
                             }
                         }
-                    }
 
-                    is Resource.Error -> {
+                        items(items = uiState.typeEvents, key = { it.id }) { typeEventItem ->
+                            TypeEventCardItem(
+                                typeEventItem = typeEventItem,
+                                onDelete = onDelete,
+                                onSelectedItemEdit = onSelectedItemEdit
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+
+                            Image(
+                                modifier = Modifier.size(60.dp),
+                                painter = painterResource(id = R.drawable.empty),
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+
+                            Text(
+                                text = "Nenhum tipo de evento cadastrado",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
 
                     }
                 }
@@ -332,7 +364,8 @@ private fun TypeEventsScreenLightPreview() {
         TypeEventsScreen(
             onBack = {},
             uiState = TypeEventsUiState(
-                typeEvents = Resource.Loading()
+                typeEvents = listOf(),
+                isLoading = true
             ),
             onCreateNavigation = {},
             onDelete = {},

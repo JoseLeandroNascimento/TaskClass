@@ -2,6 +2,7 @@ package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.typeEvents.domain.TypeEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -27,7 +28,29 @@ class TypeEventsViewModel @Inject constructor(
     fun loadAll() {
         viewModelScope.launch {
             repo.findAll().collectLatest { response ->
-                _uiState.update { it.copy(typeEvents = response) }
+               when(response){
+
+                   is Resource.Loading ->{
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                   }
+
+                   is Resource.Success ->{
+                       _uiState.update {
+                           it.copy(
+                               isLoading = false,
+                               typeEvents = response.data
+                           )
+                       }
+                   }
+
+                   is Resource.Error ->{
+
+                   }
+               }
             }
         }
     }
