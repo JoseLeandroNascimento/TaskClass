@@ -1,5 +1,6 @@
 package com.example.taskclass.ui.discipline.presentation.disciplineScreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,12 +49,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
+import com.example.taskclass.common.composables.AppButtonOrderBy
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.composables.CircleIndicator
+import com.example.taskclass.common.composables.OrderByOption
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.White
+import kotlin.reflect.KProperty1
 
 
 @Composable
@@ -71,9 +75,8 @@ fun DisciplineScreen(
         uiState = uiState,
         onCreateDiscipline = onCreateDiscipline,
         onEditDiscipline = onEditDiscipline,
-        onDeleteDiscipline = {
-            viewModel.deleteDiscipline(it)
-        }
+        onDeleteDiscipline = viewModel::deleteDiscipline,
+        updateFilterSort = viewModel::updateFilterSort
     )
 }
 
@@ -83,6 +86,7 @@ fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit,
     onDeleteDiscipline: (Int) -> Unit,
+    updateFilterSort:(KProperty1<Discipline, Comparable<*>>, Boolean )-> Unit,
     uiState: DisciplineUiState,
     onEditDiscipline: (Int) -> Unit,
 ) {
@@ -128,8 +132,11 @@ fun DisciplineScreen(
             color = MaterialTheme.colorScheme.background
         ) {
             DisciplineContent(
-                modifier = Modifier.padding(innerPadding).padding(top = 8.dp),
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(top = 8.dp),
                 uiState = uiState,
+                updateFilterSort = updateFilterSort,
                 onDeleteDiscipline = onDeleteDiscipline,
                 onEditDiscipline = onEditDiscipline
             )
@@ -141,9 +148,25 @@ fun DisciplineScreen(
 fun DisciplineContent(
     modifier: Modifier = Modifier,
     uiState: DisciplineUiState,
+    updateFilterSort:(KProperty1<Discipline, Comparable<*>>, Boolean )-> Unit,
     onDeleteDiscipline: (Int) -> Unit,
     onEditDiscipline: (Int) -> Unit,
 ) {
+
+    val optionsOrderBy = listOf(
+        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+            label = "Nome",
+            value = Discipline::title
+        ),
+        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+            label = "Data de criação",
+            value = Discipline::createdAt
+        ),
+        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+            label = "Data de atualização",
+            value = Discipline::updatedAt
+        )
+    )
 
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -164,6 +187,29 @@ fun DisciplineContent(
                         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AppButtonOrderBy(
+                                    options = optionsOrderBy,
+                                    value = uiState.orderBy,
+                                    onValueChange = {
+                                        updateFilterSort(it, uiState.sortDirection)
+                                    },
+                                    sortDirection = uiState.sortDirection,
+                                    onSortDirectionChange = {
+                                        updateFilterSort(uiState.orderBy, !uiState.sortDirection)
+                                    }
+                                )
+                            }
+                        }
 
                         items(uiState.disciplines.data, key = { it.id }) { discipline ->
                             DisciplineItem(

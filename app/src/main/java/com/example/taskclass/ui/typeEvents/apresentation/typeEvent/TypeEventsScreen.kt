@@ -1,5 +1,6 @@
 package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,17 +21,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
+import com.example.taskclass.common.composables.AppButtonOrderBy
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.composables.CircleIndicator
+import com.example.taskclass.common.composables.OrderByOption
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -57,24 +57,20 @@ import com.example.taskclass.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
+fun TypeEventsScreen(
+    viewModel: TypeEventsViewModel,
+    onCreateNavigation: () -> Unit,
+    onBack: () -> Unit
+) {
 
-    val formState = viewModel.formState.collectAsStateWithLifecycle().value
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     TypeEventsScreen(
         onBack = onBack,
-        formState = formState,
         uiState = uiState,
-        updateNameTypeEvent = viewModel::updateTitle,
-        updateColorTypeEvent = viewModel::updateColor,
-        onSave = viewModel::save,
         onDelete = viewModel::delete,
-        changeBottomSheetState = viewModel::changeBottomSheetState,
-        onSelectedItemEdit = viewModel::onSelectedItemEdit,
-        sheetState = sheetState
+        onCreateNavigation = onCreateNavigation,
+        onSelectedItemEdit = {},
     )
 }
 
@@ -82,18 +78,30 @@ fun TypeEventsScreen(viewModel: TypeEventsViewModel, onBack: () -> Unit) {
 @Composable
 fun TypeEventsScreen(
     onBack: () -> Unit,
-    formState: TypeEventFormState,
     uiState: TypeEventsUiState,
-    updateNameTypeEvent: ((String) -> Unit)? = null,
-    updateColorTypeEvent: ((Color) -> Unit)? = null,
-    changeBottomSheetState: ((Boolean) -> Unit)? = null,
+    onCreateNavigation: () -> Unit,
     onSelectedItemEdit: ((Int) -> Unit)? = null,
-    onSave: () -> Unit,
     onDelete: (Int) -> Unit,
-    sheetState: SheetState
-
 ) {
 
+    val valueDefault = "name"
+    val optionsOrderBy = listOf(
+        OrderByOption(
+            label = "Nome",
+            value = "name"
+        ),
+        OrderByOption(
+            label = "Data de criação",
+            value = "dateCreate"
+        ),
+        OrderByOption(
+            label = "Data de atalização",
+            value = "dateUpdate"
+        )
+    )
+
+    var orderBy by remember { mutableStateOf(valueDefault) }
+    var sortDirection by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
@@ -120,97 +128,85 @@ fun TypeEventsScreen(
                     titleContentColor = White,
                     navigationIconContentColor = White,
 
-                ),
-                actions = {
-                    IconButton(
-                        onClick = {
-                            changeBottomSheetState?.invoke(true)
-                        },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = White.copy(alpha = .1f),
-                            contentColor = White
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null
-                        )
-                    }
-                }
+                    )
             )
+        },
+
+        floatingActionButton = {
+            FloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.primary,
+                onClick = onCreateNavigation
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding).padding(top = 8.dp)
+                .padding(innerPadding)
+                .padding(top = 8.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            uiState.typeEvents?.let { typesEvents ->
 
-                uiState.typeEvents?.let { typesEvents ->
+                when (typesEvents) {
 
-                    when (typesEvents) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator()
+                    }
 
-                        is Resource.Loading -> {
-                            CircularProgressIndicator()
-                        }
+                    is Resource.Success -> {
 
-                        is Resource.Success -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
 
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(alignment = Alignment.TopCenter),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-                            ) {
-                                items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
-                                    TypeEventCardItem(
-                                        typeEventItem = typeEventItem,
-                                        onDelete = onDelete,
-                                        onSelectedItemEdit = onSelectedItemEdit
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.background)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    AppButtonOrderBy(
+                                        options = optionsOrderBy,
+                                        value = orderBy,
+                                        onValueChange = {
+                                            orderBy = it
+                                        },
+                                        sortDirection = sortDirection,
+                                        onSortDirectionChange = {
+                                            sortDirection = !sortDirection
+                                        }
                                     )
                                 }
                             }
-                        }
 
-                        is Resource.Error -> {
-
+                            items(items = typesEvents.data, key = { it.id }) { typeEventItem ->
+                                TypeEventCardItem(
+                                    typeEventItem = typeEventItem,
+                                    onDelete = onDelete,
+                                    onSelectedItemEdit = onSelectedItemEdit
+                                )
+                            }
                         }
                     }
-                }
-            }
 
-            if (uiState.showBottomSheet) {
-                ModalBottomSheet(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    onDismissRequest = {
-                        changeBottomSheetState?.invoke(false)
-                    },
-                    sheetState = sheetState,
+                    is Resource.Error -> {
 
-                    ) {
-                    TypeEventForm(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-
-                        formState = formState,
-                        updateNameTypeEvent = updateNameTypeEvent,
-                        updateColorTypeEvent = updateColorTypeEvent,
-                        onCancel = {
-                            changeBottomSheetState?.invoke(false)
-                        },
-                        onSave = {
-                            onSave()
-                        }
-                    )
+                    }
                 }
             }
         }
@@ -320,8 +316,6 @@ fun TypeEventCardItem(
                 }
             }
         }
-
-
     }
 }
 
@@ -340,10 +334,8 @@ private fun TypeEventsScreenLightPreview() {
             uiState = TypeEventsUiState(
                 typeEvents = Resource.Loading()
             ),
-            formState = TypeEventFormState(),
-            onSave = {},
+            onCreateNavigation = {},
             onDelete = {},
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }
@@ -360,10 +352,8 @@ private fun TypeEventsScreenDarkPreview() {
         TypeEventsScreen(
             onBack = {},
             uiState = TypeEventsUiState(),
-            formState = TypeEventFormState(),
-            onSave = {},
+            onCreateNavigation = {},
             onDelete = {},
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 }

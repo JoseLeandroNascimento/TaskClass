@@ -1,7 +1,5 @@
 package com.example.taskclass.ui.events.presentation.eventCreateScreen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +39,7 @@ import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputDate
 import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppInputTime
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.TypeEvent
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -132,7 +127,8 @@ fun EventCreateScreen(
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding).padding(top = 8.dp)
+                .padding(innerPadding)
+                .padding(top = 8.dp)
                 .fillMaxSize()
         ) {
 
@@ -158,6 +154,14 @@ fun EventCreateScreen(
                     label = stringResource(R.string.label_tipo_de_evento),
                     error = uiState.formState.typeEventSelected.error,
                     value = uiState.formState.typeEventSelected.value?.name ?: "",
+                    leadingIcon = uiState.formState.typeEventSelected.value?.let {
+                        {
+                            CircleIndicator(
+                                color = it.color,
+                                size = 20.dp
+                            )
+                        }
+                    }
                 ) { closeDropdown ->
                     uiState.typeEvents?.let { response ->
                         when (response) {
@@ -183,15 +187,10 @@ fun EventCreateScreen(
                                             )
                                         },
                                         leadingIcon = {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(26.dp)
-                                                    .background(typeEvent.color, CircleShape)
-                                                    .border(
-                                                        1.dp,
-                                                        Color.Black.copy(alpha = 0.08f),
-                                                        CircleShape
-                                                    )
+
+                                            CircleIndicator(
+                                                size = 26.dp,
+                                                color = typeEvent.color
                                             )
                                         },
                                         onClick = {

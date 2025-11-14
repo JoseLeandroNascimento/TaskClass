@@ -5,6 +5,7 @@ import com.example.taskclass.core.data.model.DateInt
 import com.example.taskclass.core.data.model.EEventStatus
 import com.example.taskclass.core.data.model.EventEntity
 import com.example.taskclass.core.data.model.Time
+import java.time.LocalDate
 
 data class EventWithType(
     val id: Int,
@@ -32,4 +33,11 @@ data class EventWithType(
             status = status
         )
     }
+}
+
+fun EventWithType.toLocalDate(): LocalDate {
+    val y = date.value / 10000
+    val m = (date.value % 10000) / 100
+    val d = date.value % 100
+    return LocalDate.of(y, m, d)
 }

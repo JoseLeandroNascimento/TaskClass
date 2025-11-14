@@ -44,6 +44,7 @@ import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
+import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -172,7 +173,15 @@ fun NewScheduleScreen(
                 AppDropdown(
                     value = uiState.discipline.value?.title ?: "",
                     label = stringResource(R.string.label_disciplina),
-                    error = uiState.discipline.error
+                    error = uiState.discipline.error,
+                    leadingIcon = uiState.discipline.value?.let {
+                        {
+                            CircleIndicator(
+                                color = it.color,
+                                size = 20.dp
+                            )
+                        }
+                    }
                 ) { closeMenu ->
 
                     when (uiState.disciplines) {
@@ -193,15 +202,10 @@ fun NewScheduleScreen(
                                         )
                                     },
                                     leadingIcon = {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(26.dp)
-                                                .background(discipline.color, CircleShape)
-                                                .border(
-                                                    1.dp,
-                                                    Color.Black.copy(alpha = 0.08f),
-                                                    CircleShape
-                                                )
+
+                                        CircleIndicator(
+                                            color = discipline.color,
+                                            size = 26.dp
                                         )
                                     },
                                     onClick = {

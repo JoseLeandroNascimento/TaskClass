@@ -29,6 +29,7 @@ fun AppDropdown(
     label: String,
     value: String,
     error: String? = null,
+    leadingIcon: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(closeMenu: () -> Unit) -> Unit
 ) {
 
@@ -67,6 +68,7 @@ fun AppDropdown(
                 )
             },
             readOnly = true,
+            leadingIcon = leadingIcon,
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded,

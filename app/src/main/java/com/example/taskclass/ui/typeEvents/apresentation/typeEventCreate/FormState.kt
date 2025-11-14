@@ -1,10 +1,10 @@
-package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
+package com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate
 
 import androidx.compose.ui.graphics.Color
 import com.example.taskclass.common.data.FieldState
 import com.example.taskclass.common.validators.NotBlankValidator
 
-data class TypeEventFormState(
+data class FormState(
     val id: FieldState<Int?> = FieldState(null),
     val nameTypeEvent: FieldState<String> = FieldState(
         "", validators = listOf(

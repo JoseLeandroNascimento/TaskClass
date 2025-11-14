@@ -1,7 +1,6 @@
 package com.example.taskclass.ui.main
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,9 +23,11 @@ import com.example.taskclass.ui.schedules.presentation.newSchedule.NewScheduleVi
 import com.example.taskclass.ui.schedules.presentation.schedules.SchedulesScreen
 import com.example.taskclass.ui.typeEvents.apresentation.typeEvent.TypeEventsScreen
 import com.example.taskclass.ui.typeEvents.apresentation.typeEvent.TypeEventsViewModel
+import com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate.TypeEventCreateScreen
+import com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate.TypeEventCreateViewModel
 
 @Composable
-fun App(modifier: Modifier = Modifier) {
+fun App() {
 
     val appNavController = rememberNavController()
 
@@ -100,9 +101,6 @@ fun App(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()
-                },
-                onSaveSuccess = {
-                    appNavController.navigateUp()
                 }
             )
         }
@@ -116,9 +114,6 @@ fun App(modifier: Modifier = Modifier) {
             DisciplineCreateScreen(
                 viewModel = viewModel,
                 onBack = {
-                    appNavController.navigateUp()
-                },
-                onSaveSuccess = {
                     appNavController.navigateUp()
                 }
             )
@@ -170,7 +165,7 @@ fun App(modifier: Modifier = Modifier) {
             EventCreateScreen(
                 viewModel = viewModel,
                 addTypeEvent = {
-                    appNavController.navigate(Screen.TYPE_EVENTS.route)
+                    appNavController.navigate(Screen.TYPE_EVENT_CREATE.route)
                 },
                 onBack = {
                     appNavController.navigateUp()
@@ -196,6 +191,19 @@ fun App(modifier: Modifier = Modifier) {
         composable(Screen.TYPE_EVENTS.route) { backStackEntry ->
             val viewModel = hiltViewModel<TypeEventsViewModel>(backStackEntry)
             TypeEventsScreen(
+                viewModel = viewModel,
+                onBack = {
+                    appNavController.navigateUp()
+                },
+                onCreateNavigation = {
+                    appNavController.navigate(Screen.TYPE_EVENT_CREATE.route)
+                }
+            )
+        }
+
+        composable(Screen.TYPE_EVENT_CREATE.route) { backStackEntry ->
+            val viewModel = hiltViewModel<TypeEventCreateViewModel>(backStackEntry)
+            TypeEventCreateScreen(
                 viewModel = viewModel,
                 onBack = {
                     appNavController.navigateUp()

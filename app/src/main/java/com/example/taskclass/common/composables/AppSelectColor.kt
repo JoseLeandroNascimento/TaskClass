@@ -55,6 +55,7 @@ fun AppSelectColor(
     onValueChange: (Color) -> Unit
 ) {
     var showDialogSelectColor by remember { mutableStateOf(false) }
+    val sizeCircleBoxColor = 48.dp
 
     Column(
         modifier = modifier.width(IntrinsicSize.Max),
@@ -66,14 +67,13 @@ fun AppSelectColor(
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center
         )
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(value)
-                .clickable { showDialogSelectColor = true }
-                .border(2.dp, value.copy(alpha = 0.5f), CircleShape)
+
+        CircleIndicator(
+            onClick = { showDialogSelectColor = true },
+            size = sizeCircleBoxColor,
+            color = value
         )
+
     }
 
     if (showDialogSelectColor) {
@@ -167,20 +167,12 @@ fun SelectColorOptionsDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     predefinedColors.forEach { color ->
-                        Box(
-                            modifier = Modifier
-                                .size(42.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .border(
-                                    width = if (color == currentColor) 3.dp else 1.dp,
-                                    color = if (color == currentColor)
-                                        MaterialTheme.colorScheme.primary
-                                    else
-                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                                    shape = CircleShape
-                                )
-                                .clickable { onColorSelected(color) }
+
+                        CircleIndicator(
+                            checked = currentColor == color,
+                            size = 42.dp,
+                            color = color,
+                            onClick = { onColorSelected(color) }
                         )
                     }
                 }
@@ -240,19 +232,10 @@ private fun SelectColorDialog(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(tempColor)
-                    .border(
-                        width = 3.dp,
-                        brush = Brush.linearGradient(
-                            listOf(Color.White, Color.Gray.copy(alpha = 0.5f))
-                        ),
-                        shape = CircleShape
-                    )
-                    .shadow(elevation = 6.dp, shape = CircleShape, clip = false)
+
+            CircleIndicator(
+                color = tempColor,
+                size = 72.dp
             )
 
             HsvColorPicker(
@@ -287,6 +270,68 @@ private fun SelectColorDialog(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SelectColorDialogPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        SelectColorDialog(
+            changeColorSelect = {},
+            changeShowPickerColor = {},
+            colorSelect = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SelectColorDialogDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        SelectColorDialog(
+            changeColorSelect = {},
+            changeShowPickerColor = {},
+            colorSelect = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SelectColorOptionsDialogPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        SelectColorOptionsDialog(
+            currentColor = MaterialTheme.colorScheme.primary,
+            onColorSelected = {},
+            onDismiss = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SelectColorOptionsDialogDarkPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        SelectColorOptionsDialog(
+            currentColor = MaterialTheme.colorScheme.primary,
+            onColorSelected = {},
+            onDismiss = {},
+        )
     }
 }
 

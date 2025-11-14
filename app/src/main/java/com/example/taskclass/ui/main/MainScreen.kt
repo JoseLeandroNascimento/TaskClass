@@ -134,7 +134,7 @@ private fun DrawerContent(
             .widthIn(250.dp)
             .fillMaxWidth(.7f)
             .fillMaxHeight(),
-        drawerContainerColor = MaterialTheme.colorScheme.background
+        drawerContainerColor = MaterialTheme.colorScheme.surface
 
     ) {
         Box(
@@ -367,6 +367,7 @@ fun MainNavigationBar(
 ) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp,
         windowInsets = NavigationBarDefaults.windowInsets,
     ) {
         NavigationBarItem(
@@ -408,11 +409,94 @@ fun MainNavigationBar(
 
 @Preview(showBackground = true)
 @Composable
+private fun MainScreenPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        MainScreen(
+            onNavigationNewNote = {},
+            onNavigateToAllEvents = {},
+            onEditSchedule = {},
+            onNavigationDrawer = {},
+            onNavigationNewEvent = {},
+            onNavigationNewSchedule = {},
+            onSelectedEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainScreenDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        MainScreen(
+            onNavigationNewNote = {},
+            onNavigateToAllEvents = {},
+            onEditSchedule = {},
+            onNavigationDrawer = {},
+            onNavigationNewEvent = {},
+            onNavigationNewSchedule = {},
+            onSelectedEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainNavigationBarPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        MainNavigationBar(
+            currentRouter = Screen.AGENDA,
+            onChangeNavigation = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainNavigationBarDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
+    ) {
+        MainNavigationBar(
+            currentRouter = Screen.AGENDA,
+            onChangeNavigation = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun DrawerContentPreview() {
 
     TaskClassTheme(
         dynamicColor = false,
         darkTheme = false
+    ) {
+
+        DrawerContent(onCloseDrawer = {}) { }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DrawerContentDarkPreview() {
+
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = true
     ) {
 
         DrawerContent(onCloseDrawer = {}) { }

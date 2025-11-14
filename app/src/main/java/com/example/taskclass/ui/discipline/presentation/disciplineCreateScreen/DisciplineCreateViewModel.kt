@@ -31,7 +31,11 @@ class DisciplineCreateViewModel @Inject constructor(
         disciplineId?.let { idDiscipline ->
 
             _uiState.update {
-                it.copy(idDiscipline = idDiscipline.toInt())
+                it.copy(
+                    form = it.form.copy(
+                        idDiscipline = idDiscipline.toInt()
+                    )
+                )
             }
             viewModelScope.launch {
                 repo.findById(idDiscipline.toInt()).collect { response ->
@@ -44,6 +48,8 @@ class DisciplineCreateViewModel @Inject constructor(
                             updateTitle(response.data.title)
                             updateTeacherName(response.data.teacherName)
                             updateColorSelect(response.data.color)
+                            updateCreatedAt(response.data.createdAt)
+                            updateUpdatedAt(response.data.updatedAt)
                         }
 
                         is Resource.Error -> {
@@ -60,7 +66,9 @@ class DisciplineCreateViewModel @Inject constructor(
 
         _uiState.update {
             it.copy(
-                title = it.title.updateValue(title)
+                form = it.form.copy(
+                    title = it.form.title.updateValue(title)
+                )
             )
         }
     }
@@ -68,7 +76,9 @@ class DisciplineCreateViewModel @Inject constructor(
     fun updateTeacherName(teacherName: String) {
         _uiState.update {
             it.copy(
-                teacherName = it.teacherName.updateValue(teacherName)
+                form = it.form.copy(
+                    teacherName = it.form.teacherName.updateValue(teacherName)
+                )
             )
         }
     }
@@ -76,52 +86,84 @@ class DisciplineCreateViewModel @Inject constructor(
     fun updateColorSelect(color: Color) {
         _uiState.update {
             it.copy(
-                colorSelect = color
+                form = it.form.copy(
+                    colorSelect = color
+                )
             )
         }
     }
 
-    fun changePickerColor(show: Boolean) {
+    private fun updateCreatedAt(time: Long){
         _uiState.update {
-            it.copy(showPickerColor = show)
+            it.copy(
+                form = it.form.copy(
+                    createdAt = time
+                )
+            )
         }
     }
+
+    private fun updateUpdatedAt(time: Long){
+        _uiState.update {
+            it.copy(
+               form = it.form.copy(
+                   updatedAt = time
+               )
+            )
+        }
+    }
+
 
     fun save() {
 
         _uiState.update {
             it.copy(
-                title = it.title.validate()
+                form = it.form.copy(
+                    title = it.form.title.validate()
+                )
             )
         }
 
-        if (_uiState.value.title.isValid) {
+        if (_uiState.value.form.title.isValid) {
 
             val data = Discipline(
-                color = _uiState.value.colorSelect,
-                title = _uiState.value.title.value,
-                teacherName = _uiState.value.teacherName.value
+                color = _uiState.value.form.colorSelect,
+                title = _uiState.value.form.title.value,
+                teacherName = _uiState.value.form.teacherName.value,
+                createdAt = _uiState.value.form.createdAt,
+                updatedAt = _uiState.value.form.updatedAt
             )
 
             viewModelScope.launch {
+
+                _uiState.update {
+                    it.copy(isLoading = true)
+                }
 
                 if (disciplineId == null) {
 
                     repo.save(data).collect { response ->
                         _uiState.update {
-                            it.copy(disciplineResponse = response)
+                            it.copy(
+                                isBackNavigation = true,
+                                isLoading = false
+                            )
                         }
                     }
                 } else {
 
                     repo.update(
                         data.copy(
-                            id = disciplineId.toInt()
+                            id = disciplineId.toInt(),
+                            updatedAt = System.currentTimeMillis()
                         )
                     ).collect { response ->
 
                         _uiState.update {
-                            it.copy(disciplineResponse = response)
+                            it.copy(
+                                isBackNavigation = true,
+                                isLoading = false
+                            )
                         }
                     }
                 }

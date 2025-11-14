@@ -10,6 +10,7 @@ import com.example.taskclass.core.data.model.formatted
 import com.example.taskclass.ui.events.domain.EventFilter
 import com.example.taskclass.ui.events.domain.EventRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -79,13 +80,12 @@ class EventRepositoryImpl @Inject constructor(
     ): Flow<Resource<Unit>> {
 
         return flow {
-            try {
-                emit(Resource.Loading())
-                dao.updateStatus(id, status)
-                emit(Resource.Success(Unit))
-            } catch (e: Exception) {
-                emit(Resource.Error(e.message!!))
-            }
+            emit(Resource.Loading())
+            dao.updateStatus(id, status)
+            emit(Resource.Success(Unit))
+
+        }.catch { e ->
+            emit(Resource.Error(e.message!!))
         }
     }
 

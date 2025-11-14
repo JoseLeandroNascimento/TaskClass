@@ -28,26 +28,17 @@ import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppSelectColor
-import com.example.taskclass.common.data.Resource
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
 @Composable
 fun DisciplineCreateScreen(
     onBack: () -> Unit,
-    onSaveSuccess: () -> Unit,
     viewModel: DisciplineCreateViewModel
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
-    when {
-
-        uiState.disciplineResponse is Resource.Success -> {
-            onSaveSuccess()
-        }
-
-    }
 
     DisciplineCreateScreen(
         onBack = onBack,
@@ -78,13 +69,16 @@ fun DisciplineCreateScreen(
     onSave: () -> Unit
 ) {
 
+    if (uiState.isBackNavigation) {
+        onBack()
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = uiState.idDiscipline?.let { stringResource(R.string.atualizar_disciplina) }
+                        text = uiState.form.idDiscipline?.let { stringResource(R.string.atualizar_disciplina) }
                             ?: stringResource(R.string.nova_disciplina),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
@@ -111,7 +105,8 @@ fun DisciplineCreateScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding).padding(top = 8.dp),
+                .padding(innerPadding)
+                .padding(top = 8.dp),
         ) {
 
             Column(
@@ -120,23 +115,23 @@ fun DisciplineCreateScreen(
             ) {
                 AppInputText(
                     modifier = Modifier.fillMaxWidth(),
-                    value = uiState.title.value,
-                    isError = uiState.title.error != null,
-                    supportingText = uiState.title.error,
+                    value = uiState.form.title.value,
+                    isError = uiState.form.title.error != null,
+                    supportingText = uiState.form.title.error,
                     onValueChange = { updateTitle?.invoke(it) },
                     label = stringResource(R.string.label_nome_da_disciplina),
                 )
 
                 AppInputText(
                     modifier = Modifier.fillMaxWidth(),
-                    value = uiState.teacherName.value,
+                    value = uiState.form.teacherName.value,
                     onValueChange = { updateTeacherName?.invoke(it) },
                     label = stringResource(R.string.label_nome_do_professor),
                     placeholder = stringResource(R.string.placeholder_opcional),
                 )
 
                 AppSelectColor(
-                    value = uiState.colorSelect,
+                    value = uiState.form.colorSelect,
                     label = stringResource(R.string.label_cor_select),
                     onValueChange = { color ->
                         updateColorSelect?.invoke(color)
@@ -147,8 +142,8 @@ fun DisciplineCreateScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    isLoading = uiState.disciplineResponse is Resource.Loading,
-                    label = uiState.idDiscipline?.let { stringResource(R.string.btn_salvar_disciplina) }
+                    isLoading = uiState.isLoading,
+                    label = uiState.form.idDiscipline?.let { stringResource(R.string.btn_salvar_disciplina) }
                         ?: stringResource(R.string.btn_cadastrar_disciplina),
                     onClick = onSave
                 )
@@ -156,8 +151,6 @@ fun DisciplineCreateScreen(
         }
     }
 }
-
-
 
 
 @Preview(showBackground = true)

@@ -32,7 +32,7 @@ class EventsViewModel @Inject constructor(
                     is Resource.Loading -> {
                         _uiState.update {
                             it.copy(
-                                loadingEvents = true
+                                isLoading = true
                             )
                         }
                     }
@@ -41,7 +41,7 @@ class EventsViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 events = response.data,
-                                loadingEvents = false
+                                isLoading = false
                             )
                         }
                     }
@@ -49,7 +49,7 @@ class EventsViewModel @Inject constructor(
                     is Resource.Error -> {
                         _uiState.update {
                             it.copy(
-                                loadingEvents = false
+                                isLoading = false
                             )
                         }
                     }
@@ -68,7 +68,7 @@ class EventsViewModel @Inject constructor(
                     is Resource.Loading -> {
                         _uiState.update {
                             it.copy(
-                                loadingEvents = true
+                                isLoading = true
                             )
                         }
                     }
@@ -77,7 +77,7 @@ class EventsViewModel @Inject constructor(
 
                         _uiState.update {
                             it.copy(
-                                loadingEvents = false
+                                isLoading = false
                             )
                         }
                     }
@@ -86,7 +86,7 @@ class EventsViewModel @Inject constructor(
 
                         _uiState.update {
                             it.copy(
-                                loadingEvents = false,
+                                isLoading = false,
                             )
                         }
                     }

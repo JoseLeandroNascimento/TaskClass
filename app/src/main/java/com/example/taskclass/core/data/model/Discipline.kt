@@ -12,5 +12,7 @@ data class Discipline(
     val id: Int = 0,
     val title: String,
     val color: Color,
-    @ColumnInfo(name = "teacher_name") val teacherName: String
+    @ColumnInfo(name = "teacher_name") val teacherName: String,
+    val createdAt: Long,
+    val updatedAt: Long
 )
