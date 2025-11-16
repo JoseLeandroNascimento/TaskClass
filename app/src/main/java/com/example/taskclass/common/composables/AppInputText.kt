@@ -1,12 +1,15 @@
 package com.example.taskclass.common.composables
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.taskclass.ui.theme.TaskClassTheme
 
@@ -19,7 +22,11 @@ fun AppInputText(
     onValueChange: (String) -> Unit,
     label: String,
     placeholder: String? = null,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        imeAction = ImeAction.None
+    ),
+    keyboardActions: KeyboardActions = KeyboardActions()
 ) {
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
@@ -44,6 +51,8 @@ fun AppInputText(
                 )
             }
         },
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         onValueChange = onValueChange,
         label = {
             Text(

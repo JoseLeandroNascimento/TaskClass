@@ -35,6 +35,9 @@
     <string name="novo_tipo_de_evento">Novo tipo de evento</string>
     <string name="nenhum_evento_neste_dia">Nenhum evento neste dia</string>
     <string name="selecione_outra_data_no_calend_rio_para_visualizar_os_eventos">Selecione outra data no calendário para visualizar os eventos.</string>
+    <string name="comece_digitando_para_buscar">Comece digitando para buscar</string>
+    <string name="nenhuma_informa_o_foi_encontrada">Nenhuma informação foi encontrada</string>
+    <string name="search_bar_pesquisar">Pesquisar</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

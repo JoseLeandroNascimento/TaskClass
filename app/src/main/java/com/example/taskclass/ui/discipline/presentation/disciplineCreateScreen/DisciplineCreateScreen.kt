@@ -1,11 +1,11 @@
 package com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,6 +29,7 @@ import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButton
 import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppSelectColor
+import com.example.taskclass.common.composables.HideKeyboardOnTap
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -69,40 +71,22 @@ fun DisciplineCreateScreen(
     onSave: () -> Unit
 ) {
 
+
     if (uiState.isBackNavigation) {
         onBack()
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = uiState.form.idDiscipline?.let { stringResource(R.string.atualizar_disciplina) }
-                            ?: stringResource(R.string.nova_disciplina),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = White,
-                    navigationIconContentColor = White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(
-                                R.string.descricao_voltar
-                            )
-                        )
-                    }
-                }
+            DisciplineCreateTopBar(
+                onBack = onBack,
+                uiState = uiState,
             )
+
         }
     ) { innerPadding ->
 
-        Box(
+        HideKeyboardOnTap(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -119,6 +103,9 @@ fun DisciplineCreateScreen(
                     isError = uiState.form.title.error != null,
                     supportingText = uiState.form.title.error,
                     onValueChange = { updateTitle?.invoke(it) },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next
+                    ),
                     label = stringResource(R.string.label_nome_da_disciplina),
                 )
 
@@ -127,6 +114,9 @@ fun DisciplineCreateScreen(
                     value = uiState.form.teacherName.value,
                     onValueChange = { updateTeacherName?.invoke(it) },
                     label = stringResource(R.string.label_nome_do_professor),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
                     placeholder = stringResource(R.string.placeholder_opcional),
                 )
 
@@ -150,6 +140,38 @@ fun DisciplineCreateScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DisciplineCreateTopBar(
+    onBack: () -> Unit,
+    uiState: DisciplineCreateUiState,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = uiState.form.idDiscipline?.let { stringResource(R.string.atualizar_disciplina) }
+                    ?: stringResource(R.string.nova_disciplina),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = White,
+            navigationIconContentColor = White,
+        ),
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(
+                        R.string.descricao_voltar
+                    )
+                )
+            }
+        }
+    )
 }
 
 
