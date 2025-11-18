@@ -17,7 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CardDefaults
@@ -42,13 +42,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.taskclass.common.composables.CircleIndicator
-import com.example.taskclass.core.data.model.DateInt
-import com.example.taskclass.core.data.model.EEventStatus
-import com.example.taskclass.core.data.model.Time
-import com.example.taskclass.core.data.model.dto.EventWithType
-import com.example.taskclass.core.data.model.formatted
+import com.example.taskclass.common.utils.toFormattedDateTime
+import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
+import com.example.taskclass.core.data.model.entity.EventEntity
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
+import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
+import java.time.Instant
 
 @Composable
 fun EventDetailScreen(
@@ -72,7 +73,12 @@ fun EventDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalhes do Evento", style = MaterialTheme.typography.titleMedium) },
+                title = {
+                    Text(
+                        "Detalhes do Evento",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ChevronLeft, contentDescription = "Voltar")
@@ -88,7 +94,8 @@ fun EventDetailScreen(
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding).padding(top = 8.dp)
+                .padding(innerPadding)
+                .padding(top = 8.dp)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
@@ -116,7 +123,7 @@ fun EventDetailScreen(
 }
 
 @Composable
-fun EventDetailContent(event: EventWithType) {
+fun EventDetailContent(event: EventEndTypeEventDto) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
@@ -129,28 +136,28 @@ fun EventDetailContent(event: EventWithType) {
 
 
         CircleIndicator(
-            color = event.color,
+            color = event.typeEvent.color,
             size = 68.dp
         )
 
         Spacer(Modifier.height(20.dp))
 
         Text(
-            text = event.title,
+            text = event.event.title,
             style = typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             color = colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
 
-        event.typeEventName?.let {
-            Text(
-                text = it,
-                style = typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                color = event.color,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+
+        Text(
+            text = event.typeEvent.name,
+            style = typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            color = event.typeEvent.color,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
 
         Spacer(Modifier.height(28.dp))
 
@@ -169,20 +176,20 @@ fun EventDetailContent(event: EventWithType) {
                 InfoRow(
                     icon = Icons.Default.CalendarMonth,
                     label = "Data",
-                    value = event.date.formatted()
+                    value = event.event.datetime.toFormattedDateTime("dd/MM/yyyy")
                 )
 
                 InfoRow(
-                    icon = Icons.Default.Schedule,
+                    icon = Icons.Default.Timer,
                     label = "Horário",
-                    value = event.time.formatted()
+                    value = event.event.datetime.toFormattedDateTime("HH:mm")
                 )
 
-                if (event.description.isNotBlank()) {
+                if (event.event.description.isNotBlank()) {
                     InfoRow(
                         icon = Icons.Default.Description,
                         label = "Descrição",
-                        value = event.description
+                        value = event.event.description
                     )
                 }
             }
@@ -191,7 +198,7 @@ fun EventDetailContent(event: EventWithType) {
         Spacer(Modifier.height(32.dp))
 
         // Chip de status
-        val statusText =  "Pendente"
+        val statusText = "Pendente"
         val statusColor = colorScheme.primary
 
         AssistChip(
@@ -260,17 +267,18 @@ private fun EventDetailLightPreview() {
             uiState = EventDetailUiState(
                 error = null,
                 isLoading = false,
-                event = EventWithType(
-                    date = DateInt(20251103),
-                    description = "Teasdasd as das",
-                    id = 1,
-                    time = Time(830),
-                    title = "Teste",
-                    typeEventColor = MaterialTheme.colorScheme.primary,
-                    typeEventId = 2,
-                    typeEventName = "Prova",
-                    status = EEventStatus.PENDENTE
-
+                event = EventEndTypeEventDto(
+                    event = EventEntity(
+                        description = "Teasdasd as das",
+                        title = "Teste",
+                        status = EEventStatus.PENDENTE,
+                        typeEventId = 1,
+                        datetime = Instant.now(),
+                    ),
+                    typeEvent = TypeEventEntity(
+                        color = MaterialTheme.colorScheme.primary,
+                        name = "Prova"
+                    )
                 )
             )
         )
@@ -290,16 +298,18 @@ private fun EventDetailDarkPreview() {
             uiState = EventDetailUiState(
                 error = null,
                 isLoading = false,
-                event = EventWithType(
-                    date = DateInt(20251103),
-                    description = "Teasdasd as das",
-                    id = 1,
-                    time = Time(830),
-                    title = "Teste",
-                    typeEventColor = MaterialTheme.colorScheme.primary,
-                    typeEventId = 2,
-                    typeEventName = "Prova",
-                    status = EEventStatus.PENDENTE
+                event = EventEndTypeEventDto(
+                    event = EventEntity(
+                        description = "Teasdasd as das",
+                        title = "Teste",
+                        status = EEventStatus.PENDENTE,
+                        typeEventId = 1,
+                        datetime = Instant.now(),
+                    ),
+                    typeEvent = TypeEventEntity(
+                        color = MaterialTheme.colorScheme.primary,
+                        name = "Prova"
+                    )
                 )
             )
         )

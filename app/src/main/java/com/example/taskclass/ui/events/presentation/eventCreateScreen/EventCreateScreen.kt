@@ -41,7 +41,7 @@ import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -88,7 +88,7 @@ fun EventCreateScreen(
     updateDate: ((String) -> Unit)? = null,
     updateTime: ((String) -> Unit)? = null,
     updateDescription: ((String) -> Unit)? = null,
-    updateTypeEvent: ((TypeEvent) -> Unit)? = null,
+    updateTypeEvent: ((TypeEventEntity) -> Unit)? = null,
     addTypeEvent: (() -> Unit)? = null,
     onSave: () -> Unit,
     onBack: () -> Unit,
@@ -162,7 +162,7 @@ fun EventCreateScreen(
                             )
                         }
                     }
-                ) { closeDropdown ->
+                ) {
                     uiState.typeEvents?.let { response ->
                         when (response) {
                             is Resource.Loading -> {
@@ -195,7 +195,7 @@ fun EventCreateScreen(
                                         },
                                         onClick = {
                                             updateTypeEvent?.invoke(typeEvent)
-                                            closeDropdown()
+                                            closeMenu()
                                         },
                                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                     )
@@ -203,7 +203,7 @@ fun EventCreateScreen(
 
                                 DropdownMenuItem(
                                     onClick = {
-                                        closeDropdown()
+                                        closeMenu()
                                         addTypeEvent?.invoke()
                                     },
                                     leadingIcon = {

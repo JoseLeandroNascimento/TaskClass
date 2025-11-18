@@ -1,8 +1,6 @@
 package com.example.taskclass.ui.schedules.presentation.newSchedule
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -32,7 +29,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +42,7 @@ import com.example.taskclass.common.composables.AppDropdown
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.Discipline
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -92,7 +88,7 @@ fun NewScheduleScreen(
     onBack: () -> Unit,
     uiState: NewScheduleUiState,
     updateDayWeek: ((Int) -> Unit)? = null,
-    updateDiscipline: ((Discipline) -> Unit)? = null,
+    updateDiscipline: ((DisciplineEntity) -> Unit)? = null,
     addDiscipline: (()-> Unit)? = null,
     updateStartTime: ((String) -> Unit)? = null,
     updateEndTime: ((String) -> Unit)? = null,
@@ -157,7 +153,7 @@ fun NewScheduleScreen(
                     value = uiState.dayWeek.value?.let { daysOfWeek[it] } ?: "",
                     error = uiState.dayWeek.error,
                     label = stringResource(R.string.label_dia_da_semana),
-                ) { closeMenu ->
+                ) {
                     daysOfWeek.forEachIndexed { index, day ->
                         DropdownMenuItem(
                             text = { Text(day) },
@@ -182,7 +178,7 @@ fun NewScheduleScreen(
                             )
                         }
                     }
-                ) { closeMenu ->
+                ) {
 
                     when (uiState.disciplines) {
                         is Resource.Loading -> {

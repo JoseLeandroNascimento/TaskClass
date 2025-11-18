@@ -38,6 +38,7 @@
     <string name="comece_digitando_para_buscar">Comece digitando para buscar</string>
     <string name="nenhuma_informa_o_foi_encontrada">Nenhuma informação foi encontrada</string>
     <string name="search_bar_pesquisar">Pesquisar</string>
+    <string name="placeholder_buscar_disciplina">Buscar disciplina</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

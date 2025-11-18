@@ -4,8 +4,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskclass.common.data.AppNotification
+import com.example.taskclass.common.data.NotificationCenter
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.Discipline
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.ui.discipline.domain.DisciplineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -42,6 +44,10 @@ class DisciplineCreateViewModel @Inject constructor(
                     when (response) {
                         is Resource.Loading -> {
 
+                            _uiState.update {
+                                it.copy(isLoading = true)
+                            }
+
                         }
 
                         is Resource.Success -> {
@@ -50,10 +56,15 @@ class DisciplineCreateViewModel @Inject constructor(
                             updateColorSelect(response.data.color)
                             updateCreatedAt(response.data.createdAt)
                             updateUpdatedAt(response.data.updatedAt)
+                            _uiState.update {
+                                it.copy(isLoading = false)
+                            }
                         }
 
                         is Resource.Error -> {
-
+                            _uiState.update {
+                                it.copy(isLoading = false)
+                            }
                         }
                     }
                 }
@@ -93,7 +104,7 @@ class DisciplineCreateViewModel @Inject constructor(
         }
     }
 
-    private fun updateCreatedAt(time: Long){
+    private fun updateCreatedAt(time: Long) {
         _uiState.update {
             it.copy(
                 form = it.form.copy(
@@ -103,12 +114,12 @@ class DisciplineCreateViewModel @Inject constructor(
         }
     }
 
-    private fun updateUpdatedAt(time: Long){
+    private fun updateUpdatedAt(time: Long) {
         _uiState.update {
             it.copy(
-               form = it.form.copy(
-                   updatedAt = time
-               )
+                form = it.form.copy(
+                    updatedAt = time
+                )
             )
         }
     }
@@ -126,50 +137,47 @@ class DisciplineCreateViewModel @Inject constructor(
 
         if (_uiState.value.form.title.isValid) {
 
-            val data = Discipline(
+            val data = DisciplineEntity(
                 color = _uiState.value.form.colorSelect,
-                title = _uiState.value.form.title.value,
-                teacherName = _uiState.value.form.teacherName.value,
+                title = _uiState.value.form.title.value.trim(),
+                teacherName = _uiState.value.form.teacherName.value.trim(),
                 createdAt = _uiState.value.form.createdAt,
                 updatedAt = _uiState.value.form.updatedAt
             )
 
             viewModelScope.launch {
 
-                _uiState.update {
-                    it.copy(isLoading = true)
-                }
+                repo.save(disciplineId?.let { id -> data.copy(id = id.toInt()) } ?: data).collect { response ->
 
-                if (disciplineId == null) {
-
-                    repo.save(data).collect { response ->
-                        _uiState.update {
-                            it.copy(
-                                isBackNavigation = true,
-                                isLoading = false
-                            )
+                    when (response) {
+                        is Resource.Loading -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoadingButton = true
+                                )
+                            }
                         }
-                    }
-                } else {
 
-                    repo.update(
-                        data.copy(
-                            id = disciplineId.toInt(),
-                            updatedAt = System.currentTimeMillis()
-                        )
-                    ).collect { response ->
+                        is Resource.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    isBackNavigation = true,
+                                    isLoadingButton = false
+                                )
+                            }
+                            NotificationCenter.push(AppNotification.Success("Disciplina salva!"))
+                        }
 
-                        _uiState.update {
-                            it.copy(
-                                isBackNavigation = true,
-                                isLoading = false
-                            )
+                        is Resource.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoadingButton = false,
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-
     }
-
 }

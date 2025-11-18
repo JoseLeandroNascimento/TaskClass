@@ -5,15 +5,15 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.taskclass.core.data.model.Schedule
-import com.example.taskclass.core.data.model.dto.ScheduleDTO
+import com.example.taskclass.core.data.model.dto.ScheduleAndDisciplineDTO
+import com.example.taskclass.core.data.model.entity.ScheduleEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ScheduleDao {
 
     @Insert
-    suspend fun save(data: Schedule)
+    suspend fun save(data: ScheduleEntity)
 
     @Query(
         """
@@ -22,35 +22,33 @@ interface ScheduleDao {
             WHERE schedule_id = :id
         """
     )
-    fun findById(id: Int): Flow<Schedule>
+    fun findById(id: Int): Flow<ScheduleEntity>
 
     @Query(
         """
-        SELECT s.schedule_id, s.day_week, s.start_time, s.end_time,
-               d.discipline_id, d.title AS disciplineTitle, d.teacher_name, d.color AS color
+        SELECT *
         FROM schedule_table AS s
-        INNER JOIN discipline_table AS d
-        ON s.discipline_id = d.discipline_id
     """
     )
-    fun findAll(): Flow<List<ScheduleDTO>>
+    fun findAll(): Flow<List<ScheduleAndDisciplineDTO>>
 
     @Query(
         """
-            SELECT s.schedule_id, s.day_week, s.start_time, s.end_time,
-                   d.discipline_id, d.title AS disciplineTitle, d.teacher_name, d.color AS color
+            SELECT *
             FROM schedule_table AS s
-            INNER JOIN discipline_table AS d
-              ON s.discipline_id = d.discipline_id
             WHERE s.start_time <= :timeEnd
               AND s.end_time >= :timeStart AND s.day_week = :weekDay
         """
     )
-    fun findAllByRangeTime(timeStart: Int, timeEnd: Int, weekDay: Int): Flow<List<ScheduleDTO>>
+    fun findAllByRangeTime(
+        timeStart: Int,
+        timeEnd: Int,
+        weekDay: Int
+    ): Flow<List<ScheduleAndDisciplineDTO>>
 
     @Delete
-    suspend fun delete(data: Schedule)
+    suspend fun delete(data: ScheduleEntity)
 
     @Update
-    suspend fun update(data: Schedule)
+    suspend fun update(data: ScheduleEntity)
 }

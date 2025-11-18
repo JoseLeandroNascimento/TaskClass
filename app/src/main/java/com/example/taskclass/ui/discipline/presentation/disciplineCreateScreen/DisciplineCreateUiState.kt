@@ -5,5 +5,6 @@ data class DisciplineCreateUiState(
     val form: FormState = FormState(),
     val showPickerColor: Boolean = false,
     val isBackNavigation: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isLoadingButton: Boolean = false,
 )

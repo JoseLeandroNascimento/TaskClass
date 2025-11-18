@@ -7,6 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
+/**
+ * Intercept touch events to hide the keyboard
+ * @author José Leandro da silva Nascimento
+ * @param content composables the inputs forms
+ * @param modifier modifier default
+ */
+
 @Composable
 fun HideKeyboardOnTap(
     modifier: Modifier = Modifier,

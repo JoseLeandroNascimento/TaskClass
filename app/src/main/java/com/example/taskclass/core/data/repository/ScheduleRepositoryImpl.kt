@@ -2,8 +2,8 @@ package com.example.taskclass.core.data.repository
 
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.ScheduleDao
-import com.example.taskclass.core.data.model.Schedule
-import com.example.taskclass.core.data.model.dto.ScheduleDTO
+import com.example.taskclass.core.data.model.dto.ScheduleAndDisciplineDTO
+import com.example.taskclass.core.data.model.entity.ScheduleEntity
 import com.example.taskclass.ui.schedules.domain.ScheduleRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -15,13 +15,13 @@ class ScheduleRepositoryImpl @Inject constructor(
     private val dao: ScheduleDao
 ) : ScheduleRepository {
 
-    override suspend fun save(data: Schedule): Flow<Resource<Schedule>> {
+    override suspend fun save(data: ScheduleEntity): Flow<Resource<ScheduleEntity>> {
 
         return saveAndUpdate(data)
 
     }
 
-    override suspend fun findAll(): Flow<Resource<List<ScheduleDTO>>> {
+    override suspend fun findAll(): Flow<Resource<List<ScheduleAndDisciplineDTO>>> {
 
         return flow {
             try {
@@ -36,7 +36,7 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun findById(id: Int): Flow<Resource<Schedule>> {
+    override suspend fun findById(id: Int): Flow<Resource<ScheduleEntity>> {
         return flow {
 
             try {
@@ -51,7 +51,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteById(id: Int): Flow<Resource<Schedule>> {
+    override suspend fun deleteById(id: Int): Flow<Resource<ScheduleEntity>> {
         return flow {
 
             try {
@@ -72,18 +72,18 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun update(data: Schedule): Flow<Resource<Schedule>> {
+    override suspend fun update(data: ScheduleEntity): Flow<Resource<ScheduleEntity>> {
         return saveAndUpdate(data)
     }
 
-    private fun saveAndUpdate(data: Schedule): Flow<Resource<Schedule>> {
+    private fun saveAndUpdate(data: ScheduleEntity): Flow<Resource<ScheduleEntity>> {
         return flow {
 
             try {
                 val conflicts =
-                    dao.findAllByRangeTime(data.startTime, data.endTime, data.dayWeek).first()
+                    dao.findAllByRangeTime(data.startTime.toSecondOfDay(), data.endTime.toSecondOfDay(), data.dayWeek).first()
 
-                if (conflicts.isEmpty() || conflicts.first().scheduleId == data.id) {
+                if (conflicts.isEmpty() || conflicts.first().schedule.id == data.id) {
                     if (data.id == 0) {
                         dao.save(data)
                     } else {

@@ -44,16 +44,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.CircleIndicator
-import com.example.taskclass.core.data.model.EEventStatus
-import com.example.taskclass.core.data.model.dto.EventWithType
-import com.example.taskclass.core.data.model.dto.toLocalDate
-import com.example.taskclass.core.data.model.formatted
+import com.example.taskclass.common.utils.toFormattedDateTime
+import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
+import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.daysOfWeek
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -106,7 +108,10 @@ fun EventScreen(
 
     val dayEvents by remember(uiState.dateSelected, uiState.events) {
         derivedStateOf {
-            uiState.events.filter { it.toLocalDate() == uiState.dateSelected }
+            uiState.events.filter {
+                it.event.datetime.atZone(ZoneId.systemDefault())
+                    .toLocalDate() == uiState.dateSelected
+            }
         }
     }
 
@@ -233,7 +238,7 @@ fun EventScreen(
                         }
                     } else {
 
-                        items(dayEvents, key = { it.id }) { event ->
+                        items(dayEvents, key = { it.event.id }) { event ->
                             EventCard(
                                 event = event,
                                 onSelectedEvent = {
@@ -254,16 +259,17 @@ fun EventScreen(
 
 @Composable
 private fun EventCard(
-    event: EventWithType,
+    event: EventEndTypeEventDto,
     onSelectedEvent: (Int) -> Unit,
     onCheckedStatusEvent: (Int, Boolean) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
+
     AppCardDefault(
         onSelected = {
-            onSelectedEvent(event.id)
+            onSelectedEvent(event.event.id)
         }
     ) {
 
@@ -274,7 +280,7 @@ private fun EventCard(
         ) {
 
             CircleIndicator(
-                color = event.color,
+                color = event.typeEvent.color,
                 size = 28.dp
             )
 
@@ -284,7 +290,7 @@ private fun EventCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = event.title,
+                    text = event.event.title,
                     style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = colorScheme.onSurface
                 )
@@ -299,7 +305,7 @@ private fun EventCard(
                             .padding(end = 4.dp)
                     )
                     Text(
-                        text = event.time.formatted(),
+                        text = event.event.datetime.toFormattedDateTime(pattern = "HH:mm"),
                         style = typography.labelMedium.copy(fontWeight = FontWeight.Medium),
                         color = colorScheme.primary
                     )
@@ -307,9 +313,9 @@ private fun EventCard(
             }
 
             Checkbox(
-                checked = event.status == EEventStatus.CONCLUIDA,
+                checked = event.event.status == EEventStatus.CONCLUIDA,
                 onCheckedChange = {
-                    onCheckedStatusEvent(event.id, it)
+                    onCheckedStatusEvent(event.event.id, it)
                 }
             )
 

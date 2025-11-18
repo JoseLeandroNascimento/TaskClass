@@ -5,10 +5,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
+import com.example.taskclass.common.utils.toFormattedTime
+import com.example.taskclass.common.utils.toLocalTime
 import com.example.taskclass.common.validators.TimeValidator
-import com.example.taskclass.core.data.converters.TimeConverters
-import com.example.taskclass.core.data.model.Discipline
-import com.example.taskclass.core.data.model.Schedule
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
+import com.example.taskclass.core.data.model.entity.ScheduleEntity
 import com.example.taskclass.ui.discipline.domain.DisciplineRepository
 import com.example.taskclass.ui.schedules.domain.ScheduleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,8 +48,8 @@ class NewScheduleViewModel @Inject constructor(
                                 scheduleResponse.data.apply {
                                     updateDayWeek(dayWeek)
                                     updateDiscipline(responseDisciplines.data.find { item -> item.id == disciplineId }!!)
-                                    updateStartTime(TimeConverters().toTimeString(startTime)!!)
-                                    updateEndTime(TimeConverters().toTimeString(endTime)!!)
+                                    updateStartTime(startTime.toFormattedTime())
+                                    updateEndTime(endTime.toFormattedTime())
                                 }
                             }
                         }
@@ -66,7 +67,7 @@ class NewScheduleViewModel @Inject constructor(
 
     }
 
-    fun updateDiscipline(discipline: Discipline) {
+    fun updateDiscipline(discipline: DisciplineEntity) {
 
         _uiState.update {
             it.copy(discipline = it.discipline.updateValue(discipline))
@@ -130,10 +131,10 @@ class NewScheduleViewModel @Inject constructor(
 
         val value = _uiState.value
 
-        val data = Schedule(
+        val data = ScheduleEntity(
             dayWeek = value.dayWeek.value!!,
-            startTime = TimeConverters().fromTimeString(value.startTime.value)!!,
-            endTime = TimeConverters().fromTimeString(value.endTime.value)!!,
+            startTime = value.startTime.value!!.toLocalTime(),
+            endTime = value.endTime.value!!.toLocalTime(),
             disciplineId = value.discipline.value?.id!!
         )
 

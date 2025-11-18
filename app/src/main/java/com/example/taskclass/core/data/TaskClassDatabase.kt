@@ -8,18 +8,18 @@ import com.example.taskclass.core.data.dao.DisciplineDao
 import com.example.taskclass.core.data.dao.EventDao
 import com.example.taskclass.core.data.dao.ScheduleDao
 import com.example.taskclass.core.data.dao.TypeEventDao
-import com.example.taskclass.core.data.model.Discipline
-import com.example.taskclass.core.data.model.EventEntity
-import com.example.taskclass.core.data.model.NoteEntity
-import com.example.taskclass.core.data.model.Schedule
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
+import com.example.taskclass.core.data.model.entity.EventEntity
+import com.example.taskclass.core.data.model.entity.NoteEntity
+import com.example.taskclass.core.data.model.entity.ScheduleEntity
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.core.data.dao.NoteDao
 
 @Database(
     entities = [
-        Discipline::class,
-        Schedule::class,
-        TypeEvent::class,
+        DisciplineEntity::class,
+        ScheduleEntity::class,
+        TypeEventEntity::class,
         EventEntity::class,
         NoteEntity::class
     ],

@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.typeEvents.domain.TypeEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -60,7 +60,7 @@ class TypeEventCreateViewModel @Inject constructor(
 
             uiState.value.formState.apply {
 
-                val data = TypeEvent(
+                val data = TypeEventEntity(
                     id = id.value ?: 0,
                     name = nameTypeEvent.value,
                     color = colorTypeEvent.value

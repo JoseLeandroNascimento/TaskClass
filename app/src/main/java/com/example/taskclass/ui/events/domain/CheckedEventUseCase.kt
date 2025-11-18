@@ -1,7 +1,7 @@
 package com.example.taskclass.ui.events.domain
 
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.EEventStatus
+import com.example.taskclass.core.data.model.enums.EEventStatus
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 

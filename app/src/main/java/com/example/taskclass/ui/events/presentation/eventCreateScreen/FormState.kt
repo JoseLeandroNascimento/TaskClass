@@ -3,7 +3,7 @@ package com.example.taskclass.ui.events.presentation.eventCreateScreen
 import com.example.taskclass.common.data.FieldState
 import com.example.taskclass.common.validators.NotBlankValidator
 import com.example.taskclass.common.validators.RequiredValidator
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 
 data class FormState(
     val title: FieldState<String> = FieldState(
@@ -22,7 +22,7 @@ data class FormState(
         )
     ),
     val description: FieldState<String> = FieldState(""),
-    val typeEventSelected: FieldState<TypeEvent?> = FieldState(null, validators = listOf(
+    val typeEventSelected: FieldState<TypeEventEntity?> = FieldState(null, validators = listOf(
         RequiredValidator(messageError = "Campo obrigatório")
     )),
 ) {

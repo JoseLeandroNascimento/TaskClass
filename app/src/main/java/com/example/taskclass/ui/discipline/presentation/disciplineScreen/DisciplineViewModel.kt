@@ -3,7 +3,7 @@ package com.example.taskclass.ui.discipline.presentation.disciplineScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.Discipline
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.core.data.model.Order
 import com.example.taskclass.ui.discipline.domain.DisciplineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +27,7 @@ class DisciplineViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(DisciplineUiState())
     val uiState: StateFlow<DisciplineUiState> = _uiState.asStateFlow()
-    private val _filterSort = MutableStateFlow(Order(selector = Discipline::createdAt))
+    private val _filterSort = MutableStateFlow(Order(selector = DisciplineEntity::createdAt))
     private val _filterQuery = MutableStateFlow("")
     val filterQuery: StateFlow<String> = _filterQuery.asStateFlow()
 
@@ -35,7 +35,7 @@ class DisciplineViewModel @Inject constructor(
         loadData()
     }
 
-    fun updateFilterSort(orderBy: KProperty1<Discipline, Comparable<*>>, sortDirection: Boolean) {
+    fun updateFilterSort(orderBy: KProperty1<DisciplineEntity, Comparable<*>>, sortDirection: Boolean) {
 
         _uiState.update {
             it.copy(
@@ -85,6 +85,7 @@ class DisciplineViewModel @Inject constructor(
                                 isLoading = false
                             )
                         }
+
                     }
 
                     is Resource.Error -> {

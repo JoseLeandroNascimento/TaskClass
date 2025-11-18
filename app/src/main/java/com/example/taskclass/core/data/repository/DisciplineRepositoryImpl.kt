@@ -2,8 +2,8 @@ package com.example.taskclass.core.data.repository
 
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.DisciplineDao
-import com.example.taskclass.core.data.model.Discipline
 import com.example.taskclass.core.data.model.Order
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.ui.discipline.domain.DisciplineRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -14,12 +14,15 @@ class DisciplineRepositoryImpl @Inject constructor(
     private val dao: DisciplineDao
 ) : DisciplineRepository {
 
-    override suspend fun save(data: Discipline): Flow<Resource<Discipline>> {
+    override suspend fun save(data: DisciplineEntity): Flow<Resource<DisciplineEntity>> {
 
         return flow {
             try {
                 emit(Resource.Loading())
-                dao.save(data)
+                if (data.id == 0)
+                    dao.save(data)
+                else
+                    dao.update(data)
                 emit(Resource.Success(data))
             } catch (e: Exception) {
                 emit(Resource.Error("Error desconhecido"))
@@ -27,22 +30,7 @@ class DisciplineRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun update(data: Discipline): Flow<Resource<Discipline>> {
-
-        return flow {
-
-            try {
-                emit(Resource.Loading())
-                dao.update(data)
-                emit(Resource.Success(data))
-
-            } catch (e: Exception) {
-                emit(Resource.Error("Erro ao atualizar"))
-            }
-        }
-    }
-
-    override suspend fun findById(id: Int): Flow<Resource<Discipline>> {
+    override suspend fun findById(id: Int): Flow<Resource<DisciplineEntity>> {
 
         return flow {
 
@@ -64,8 +52,8 @@ class DisciplineRepositoryImpl @Inject constructor(
         title: String?,
         createdAt: Long?,
         updatedAt: Long?,
-        order: Order<Discipline>
-    ): Flow<Resource<List<Discipline>>> {
+        order: Order<DisciplineEntity>
+    ): Flow<Resource<List<DisciplineEntity>>> {
         return flow {
             try {
                 emit(Resource.Loading())
@@ -74,7 +62,7 @@ class DisciplineRepositoryImpl @Inject constructor(
                     createdAt = createdAt,
                     updatedAt = updatedAt,
                 ).map { list ->
-                    val comparator = Comparator<Discipline> { a, b ->
+                    val comparator = Comparator<DisciplineEntity> { a, b ->
                         val va = order.getValue(a)
                         val vb = order.getValue(b)
 

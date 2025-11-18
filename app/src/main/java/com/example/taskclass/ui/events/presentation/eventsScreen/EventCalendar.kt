@@ -32,8 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.taskclass.core.data.model.dto.EventWithType
-import com.example.taskclass.core.data.model.dto.toLocalDate
+import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
@@ -43,6 +42,7 @@ import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -50,7 +50,7 @@ import java.util.Locale
 fun EventCalendar(
     modifier: Modifier = Modifier,
     calendarState: CalendarState,
-    events: List<EventWithType>,
+    events: List<EventEndTypeEventDto>,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     onNextMonth: (YearMonth) -> Unit,
@@ -75,8 +75,9 @@ fun EventCalendar(
         HorizontalCalendar(
             state = calendarState,
             dayContent = { day ->
+
                 val dayEvents by remember(day.date, events) {
-                    mutableStateOf(events.filter { it.toLocalDate() == day.date })
+                    mutableStateOf(events.filter { it.event.datetime.atZone(ZoneId.systemDefault()).toLocalDate() == day.date })
                 }
 
                 DayCell(
@@ -103,7 +104,7 @@ fun EventCalendar(
 @Composable
 private fun DayCell(
     day: CalendarDay,
-    events: List<EventWithType>,
+    events: List<EventEndTypeEventDto>,
     selectedDate: LocalDate,
     onClick: () -> Unit
 ) {
@@ -149,7 +150,7 @@ private fun DayCell(
                         .padding(top = 2.dp)
                         .height(3.dp)
                         .width(16.dp)
-                        .background(it.color, RoundedCornerShape(2.dp))
+                        .background(it.typeEvent.color, RoundedCornerShape(2.dp))
                 )
             }
 

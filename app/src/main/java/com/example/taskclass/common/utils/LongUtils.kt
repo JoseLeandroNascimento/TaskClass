@@ -1,7 +1,7 @@
 package com.example.taskclass.common.utils
 
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 

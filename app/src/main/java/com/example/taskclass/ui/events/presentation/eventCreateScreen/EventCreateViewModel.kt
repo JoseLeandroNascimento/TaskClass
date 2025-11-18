@@ -3,11 +3,9 @@ package com.example.taskclass.ui.events.presentation.eventCreateScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.converters.Converters
-import com.example.taskclass.core.data.model.DateInt
-import com.example.taskclass.core.data.model.EventEntity
-import com.example.taskclass.core.data.model.Time
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.common.utils.parseToInstant
+import com.example.taskclass.core.data.model.entity.EventEntity
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.events.domain.EventRepository
 import com.example.taskclass.ui.typeEvents.domain.TypeEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,10 +22,11 @@ class EventCreateViewModel @Inject constructor(
     private val eventRepository: EventRepository
 ) : ViewModel() {
 
+
+
     private val _uiState = MutableStateFlow(EventCreateUiState())
     val uiState: StateFlow<EventCreateUiState> = _uiState.asStateFlow()
 
-    private val converters = Converters()
 
     init {
         loadTypesEvents()
@@ -83,7 +82,7 @@ class EventCreateViewModel @Inject constructor(
         }
     }
 
-    fun updateTypeEvent(typeEvent: TypeEvent) {
+    fun updateTypeEvent(typeEvent: TypeEventEntity) {
         _uiState.update {
             it.copy(
                 formState = it.formState.copy(
@@ -92,7 +91,6 @@ class EventCreateViewModel @Inject constructor(
             )
         }
     }
-
 
 
     fun saveEvent() {
@@ -106,13 +104,14 @@ class EventCreateViewModel @Inject constructor(
 
 
             if (validatedForm.isValid()){
+
+                val instant = parseToInstant(dateStr = validatedForm.date.value, timeStr = validatedForm.time.value)
+
                 val event = EventEntity(
                     title = validatedForm.title.value,
                     description = validatedForm.description.value,
-                    date = converters.toDate(validatedForm.date.value) ?: DateInt(0),
-                    time = converters.fromTimeString(validatedForm.time.value) ?: Time(0),
-                    typeEventId = validatedForm.typeEventSelected.value?.id,
-                    typeEventName = validatedForm.typeEventSelected.value?.name
+                    datetime = instant,
+                    typeEventId = validatedForm.typeEventSelected.value!!.id,
                 )
 
                 eventRepository.save(event).collect { response ->

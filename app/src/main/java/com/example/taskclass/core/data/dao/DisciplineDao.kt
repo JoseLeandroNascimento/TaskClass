@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.taskclass.core.data.model.Discipline
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import kotlinx.coroutines.flow.Flow
 
 
@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface DisciplineDao {
 
     @Insert
-    suspend fun save(data: Discipline)
+    suspend fun save(data: DisciplineEntity)
 
     @Query("SELECT * FROM discipline_table WHERE discipline_id = :id")
-    fun findById(id: Int): Flow<Discipline>
+    fun findById(id: Int): Flow<DisciplineEntity>
 
     @Query(
         """
@@ -32,12 +32,12 @@ interface DisciplineDao {
         title: String? = null,
         createdAt: Long? = null,
         updatedAt: Long? = null,
-    ): Flow<List<Discipline>>
+    ): Flow<List<DisciplineEntity>>
 
     @Query("DELETE FROM discipline_table WHERE discipline_id = :id")
     suspend fun delete(id: Int)
 
     @Update
-    suspend fun update(data: Discipline)
+    suspend fun update(data: DisciplineEntity)
 
 }

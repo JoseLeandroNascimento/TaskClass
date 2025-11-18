@@ -1,4 +1,4 @@
-package com.example.taskclass.core.data.model
+package com.example.taskclass.core.data.model.entity
 
 import androidx.compose.ui.graphics.Color
 import androidx.room.ColumnInfo
@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "discipline_table")
-data class Discipline(
+data class DisciplineEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "discipline_id")
     val id: Int = 0,

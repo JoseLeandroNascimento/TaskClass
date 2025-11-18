@@ -1,6 +1,7 @@
 package com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,7 +19,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,10 +78,19 @@ fun DisciplineCreateScreen(
     onSave: () -> Unit
 ) {
 
+    val focusTitle = remember { FocusRequester() }
 
-    if (uiState.isBackNavigation) {
-        onBack()
+    LaunchedEffect(Unit) {
+        focusTitle.requestFocus()
     }
+
+    LaunchedEffect(uiState.isBackNavigation) {
+
+        if (uiState.isBackNavigation) {
+            onBack()
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -93,50 +109,66 @@ fun DisciplineCreateScreen(
                 .padding(top = 8.dp),
         ) {
 
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                AppInputText(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.form.title.value,
-                    isError = uiState.form.title.error != null,
-                    supportingText = uiState.form.title.error,
-                    onValueChange = { updateTitle?.invoke(it) },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    label = stringResource(R.string.label_nome_da_disciplina),
-                )
 
-                AppInputText(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.form.teacherName.value,
-                    onValueChange = { updateTeacherName?.invoke(it) },
-                    label = stringResource(R.string.label_nome_do_professor),
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    placeholder = stringResource(R.string.placeholder_opcional),
-                )
+                if (uiState.isLoading) {
+                    CircularProgressIndicator()
+                } else {
 
-                AppSelectColor(
-                    value = uiState.form.colorSelect,
-                    label = stringResource(R.string.label_cor_select),
-                    onValueChange = { color ->
-                        updateColorSelect?.invoke(color)
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .align(Alignment.TopCenter),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+
+                        AppInputText(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusTitle),
+                            value = uiState.form.title.value,
+                            isError = uiState.form.title.error != null,
+                            supportingText = uiState.form.title.error,
+                            onValueChange = { updateTitle?.invoke(it) },
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Next
+                            ),
+                            label = stringResource(R.string.label_nome_da_disciplina),
+                        )
+
+                        AppInputText(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.form.teacherName.value,
+                            onValueChange = { updateTeacherName?.invoke(it) },
+                            label = stringResource(R.string.label_nome_do_professor),
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Done
+                            ),
+                            placeholder = stringResource(R.string.placeholder_opcional),
+                        )
+
+                        AppSelectColor(
+                            value = uiState.form.colorSelect,
+                            label = stringResource(R.string.label_cor_select),
+                            onValueChange = { color ->
+                                updateColorSelect?.invoke(color)
+                            }
+                        )
+
+                        AppButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            isLoading = uiState.isLoadingButton,
+                            label = uiState.form.idDiscipline?.let { stringResource(R.string.btn_salvar_disciplina) }
+                                ?: stringResource(R.string.btn_cadastrar_disciplina),
+                            onClick = onSave
+                        )
                     }
-                )
-
-                AppButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    isLoading = uiState.isLoading,
-                    label = uiState.form.idDiscipline?.let { stringResource(R.string.btn_salvar_disciplina) }
-                        ?: stringResource(R.string.btn_cadastrar_disciplina),
-                    onClick = onSave
-                )
+                }
             }
         }
     }

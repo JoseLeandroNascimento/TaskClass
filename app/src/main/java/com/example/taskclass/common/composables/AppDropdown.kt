@@ -21,6 +21,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.taskclass.ui.theme.TaskClassTheme
 
+@DslMarker
+annotation class AppDropdownDsl
+
+@AppDropdownDsl
+class AppDropdownMenuScope(
+    private val close: () -> Unit,
+) {
+
+    fun closeMenu() = close()
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,10 +41,16 @@ fun AppDropdown(
     value: String,
     error: String? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
-    content: @Composable ColumnScope.(closeMenu: () -> Unit) -> Unit
+    content: @Composable AppDropdownMenuScope.() -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
+
+    val scope = remember {
+        AppDropdownMenuScope(
+            close = { expanded = false },
+        )
+    }
 
     ExposedDropdownMenuBox(
         modifier = modifier,
@@ -86,7 +103,7 @@ fun AppDropdown(
                 expanded = false
             }
         ) {
-            content { expanded = false }
+           scope.content()
         }
     }
 

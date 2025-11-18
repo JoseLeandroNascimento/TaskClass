@@ -3,7 +3,7 @@ package com.example.taskclass.ui.events.presentation.eventAllScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.EEventStatus
+import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.events.domain.CheckedEventUseCase
 import com.example.taskclass.ui.events.domain.EventFilter
 import com.example.taskclass.ui.events.domain.EventRepository
@@ -32,6 +32,13 @@ class EventAllViewModel @Inject constructor(
         search()
     }
 
+    fun updateQuery(query: String){
+        _filter.update {
+            it.copy(
+                query = query
+            )
+        }
+    }
 
     fun filterByStatus(status: EEventStatus?) {
         _filter.update {

@@ -1,6 +1,6 @@
 package com.example.taskclass.ui.notes.presentation.notesScreen
 
-import com.example.taskclass.core.data.model.NoteEntity
+import com.example.taskclass.core.data.model.entity.NoteEntity
 
 data class NotesUiState(
     val isLoading: Boolean = false,

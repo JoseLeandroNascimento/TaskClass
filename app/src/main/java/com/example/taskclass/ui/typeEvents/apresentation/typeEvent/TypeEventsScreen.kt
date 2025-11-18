@@ -54,7 +54,7 @@ import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.OrderByOption
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -247,7 +247,7 @@ fun TypeEventsScreen(
 @Composable
 fun TypeEventCardItem(
     modifier: Modifier = Modifier,
-    typeEventItem: TypeEvent,
+    typeEventItem: TypeEventEntity,
     onSelectedItemEdit: ((Int) -> Unit)? = null,
     onDelete: (Int) -> Unit
 ) {

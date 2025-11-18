@@ -3,6 +3,7 @@ package com.example.taskclass.ui.discipline.presentation.disciplineScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -29,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,10 +42,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,9 +62,11 @@ import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.composables.AppSearchBarScaffold
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.OrderByOption
-import com.example.taskclass.core.data.model.Discipline
+import com.example.taskclass.common.composables.SwipeContainer
+import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
+import kotlinx.coroutines.launch
 import kotlin.reflect.KProperty1
 
 
@@ -90,7 +99,7 @@ fun DisciplineScreen(
     onBack: () -> Unit,
     onCreateDiscipline: () -> Unit,
     onDeleteDiscipline: (Int) -> Unit,
-    updateFilterSort: (KProperty1<Discipline, Comparable<*>>, Boolean) -> Unit,
+    updateFilterSort: (KProperty1<DisciplineEntity, Comparable<*>>, Boolean) -> Unit,
     updateQuery: (String) -> Unit,
     filterQuery: String,
     uiState: DisciplineUiState,
@@ -101,9 +110,6 @@ fun DisciplineScreen(
 
     LaunchedEffect(expandedSearch) {
 
-        /**
-         * Limpa o filtro da busca toda vez que o usuário fecha a busca pelo teclado
-         */
         if (!expandedSearch && filterQuery.isNotEmpty()) {
             updateQuery("")
         }
@@ -114,26 +120,25 @@ fun DisciplineScreen(
         query = filterQuery,
         onExpandedChange = { expandedSearch = it },
         onQueryChange = updateQuery,
-        placeholder = "Buscar disciplina",
+        placeholder = stringResource(R.string.placeholder_buscar_disciplina),
         isLoading = uiState.isLoading,
         items = uiState.disciplines,
         key = { _, item -> item.id },
         searchItem = { discipline ->
             DisciplineSearchCardItem(
                 discipline = discipline,
+                onEditDiscipline = onEditDiscipline
             )
         }
     ) {
         Scaffold(
             topBar = {
-
                 DisciplineTopBar(
                     onBack = onBack,
                     onSearchActivity = {
                         expandedSearch = !expandedSearch
                     }
                 )
-
             },
             floatingActionButton = {
                 FloatingActionButton(
@@ -178,6 +183,26 @@ fun DisciplineScreen(
                                 onEditDiscipline = onEditDiscipline
                             )
                         }
+
+                        else -> {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Storage,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(40.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Nenhuma disciplina encontrada",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -187,8 +212,9 @@ fun DisciplineScreen(
 
 @Composable
 fun DisciplineSearchCardItem(
-    discipline: Discipline,
-    modifier: Modifier = Modifier
+    discipline: DisciplineEntity,
+    modifier: Modifier = Modifier,
+    onEditDiscipline: (Int) -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -202,18 +228,37 @@ fun DisciplineSearchCardItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
 
-            CircleIndicator(
-                color = discipline.color,
-                size = 30.dp
-            )
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
 
-            Text(
-                text = discipline.title,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.SemiBold
-            )
+                CircleIndicator(
+                    color = discipline.color,
+                    size = 30.dp
+                )
+
+                Text(
+                    text = discipline.title,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    onEditDiscipline(discipline.id)
+                }
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null
+                )
+            }
         }
     }
 }
@@ -259,23 +304,23 @@ fun DisciplineTopBar(
 fun DisciplineContent(
     modifier: Modifier = Modifier,
     uiState: DisciplineUiState,
-    updateFilterSort: (KProperty1<Discipline, Comparable<*>>, Boolean) -> Unit,
+    updateFilterSort: (KProperty1<DisciplineEntity, Comparable<*>>, Boolean) -> Unit,
     onDeleteDiscipline: (Int) -> Unit,
     onEditDiscipline: (Int) -> Unit,
 ) {
 
     val optionsOrderBy = listOf(
-        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
             label = "Nome",
-            value = Discipline::title
+            value = DisciplineEntity::title
         ),
-        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
             label = "Data de criação",
-            value = Discipline::createdAt
+            value = DisciplineEntity::createdAt
         ),
-        OrderByOption<KProperty1<Discipline, Comparable<*>>>(
+        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
             label = "Data de atualização",
-            value = Discipline::updatedAt
+            value = DisciplineEntity::updatedAt
         )
     )
 
@@ -312,6 +357,7 @@ fun DisciplineContent(
 
         items(uiState.disciplines, key = { it.id }) { discipline ->
             DisciplineItem(
+                modifier = Modifier.animateItem(),
                 discipline = discipline,
                 onDeleteDiscipline = onDeleteDiscipline,
                 onEditDiscipline = onEditDiscipline
@@ -328,14 +374,22 @@ fun DisciplineItem(
     modifier: Modifier = Modifier,
     onDeleteDiscipline: (Int) -> Unit,
     onEditDiscipline: (Int) -> Unit,
-    discipline: Discipline
+    discipline: DisciplineEntity
 ) {
     var openDropdown by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var lastSwipeState: SwipeToDismissBoxState? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
 
     if (confirmDelete) {
         AppConfirmDialog(
-            onDismissRequest = { confirmDelete = false },
+            onDismissRequest = {
+                confirmDelete = false
+
+                scope.launch {
+                    lastSwipeState?.reset()
+                }
+            },
             title = stringResource(R.string.title_dialog_excluir_disciplina),
             description = stringResource(
                 R.string.tem_certeza_que_deseja_excluir_a_disciplina,
@@ -347,83 +401,101 @@ fun DisciplineItem(
             },
             onCancel = {
                 confirmDelete = false
+                scope.launch {
+                    lastSwipeState?.reset()
+                }
             }
 
         )
     }
 
-    AppCardDefault(
-        modifier = modifier
-            .fillMaxWidth()
+    SwipeContainer(
+        modifier = Modifier.clip(shape = RoundedCornerShape(12.dp)),
+        onRemove = {
+            confirmDelete = true
+        },
+        onToggleDone = {
+            onEditDiscipline(discipline.id)
+        },
+        startIcon = Icons.Default.Delete,
+        endIcon = Icons.Default.Edit,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+
+        lastSwipeState = state
+
+        AppCardDefault(
+            modifier = modifier
+                .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
 
-                CircleIndicator(
-                    size = 28.dp,
-                    color = discipline.color
-                )
-
-                Text(
-                    text = discipline.title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
+                    CircleIndicator(
+                        size = 28.dp,
+                        color = discipline.color
                     )
-                )
-            }
 
-            Box {
-                IconButton(onClick = { openDropdown = !openDropdown }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opções"
+                    Text(
+                        text = discipline.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        )
                     )
                 }
-                DropdownMenu(
-                    expanded = openDropdown,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    onDismissRequest = { openDropdown = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Editar") },
-                        onClick = {
-                            openDropdown = false
-                            onEditDiscipline(discipline.id)
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Excluir") },
-                        onClick = {
-                            confirmDelete = true
-                            openDropdown = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    )
+
+                Box {
+                    IconButton(onClick = { openDropdown = !openDropdown }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opções"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = openDropdown,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        onDismissRequest = { openDropdown = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar") },
+                            onClick = {
+                                openDropdown = false
+                                onEditDiscipline(discipline.id)
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Excluir") },
+                            onClick = {
+                                confirmDelete = true
+                                openDropdown = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

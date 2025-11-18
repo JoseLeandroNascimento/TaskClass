@@ -1,7 +1,7 @@
 package com.example.taskclass.ui.notes.domain
 
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.NoteEntity
+import com.example.taskclass.core.data.model.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {

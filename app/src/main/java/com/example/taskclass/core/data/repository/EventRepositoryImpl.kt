@@ -3,10 +3,9 @@ package com.example.taskclass.core.data.repository
 import android.util.Log
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.EventDao
-import com.example.taskclass.core.data.model.EEventStatus
-import com.example.taskclass.core.data.model.EventEntity
-import com.example.taskclass.core.data.model.dto.EventWithType
-import com.example.taskclass.core.data.model.formatted
+import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
+import com.example.taskclass.core.data.model.entity.EventEntity
+import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.events.domain.EventFilter
 import com.example.taskclass.ui.events.domain.EventRepository
 import kotlinx.coroutines.flow.Flow
@@ -23,21 +22,21 @@ class EventRepositoryImpl @Inject constructor(
         private const val LOG_TAG = "EVENT_REPOSITORY"
     }
 
-    override fun findById(id: Int): Flow<Resource<EventWithType>> =
+    override fun findById(id: Int): Flow<Resource<EventEndTypeEventDto>> =
         dao.findByIdWithType(id)
-            .map { event -> // ← aqui o compilador não consegue inferir o tipo
+            .map { event ->
                 if (event != null) Resource.Success(event)
                 else Resource.Error("Evento não encontrado.")
             }
 
 
-    override fun findAll(): Flow<Resource<List<EventWithType>>> =
+    override fun findAll(): Flow<Resource<List<EventEndTypeEventDto>>> =
         dao.findAllWithType()
             .map { events ->
                 Resource.Success(events)
             }
 
-    override fun filter(filter: EventFilter): Flow<Resource<List<EventWithType>>> {
+    override fun filter(filter: EventFilter): Flow<Resource<List<EventEndTypeEventDto>>> {
 
         return flow {
 
@@ -45,11 +44,9 @@ class EventRepositoryImpl @Inject constructor(
                 emit(Resource.Loading())
                 dao.search(
                     id = filter.id,
-                    title = filter.title,
+                    query = filter.query,
                     status = filter.status,
                     typeEventId = filter.typeEventId,
-                    time = filter.time?.formatted(),
-                    date = filter.date?.formatted()
                 ).collect {
                     emit(Resource.Success(it))
                 }

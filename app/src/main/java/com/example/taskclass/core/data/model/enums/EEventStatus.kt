@@ -1,4 +1,4 @@
-package com.example.taskclass.core.data.model
+package com.example.taskclass.core.data.model.enums
 
 enum class EEventStatus(
     private val description: String,

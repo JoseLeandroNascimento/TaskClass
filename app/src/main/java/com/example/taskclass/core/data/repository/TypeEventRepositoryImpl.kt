@@ -2,7 +2,7 @@ package com.example.taskclass.core.data.repository
 
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.dao.TypeEventDao
-import com.example.taskclass.core.data.model.TypeEvent
+import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.typeEvents.domain.TypeEventRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,7 @@ class TypeEventRepositoryImpl @Inject constructor(
     private val dao: TypeEventDao
 ) : TypeEventRepository {
 
-    override fun save(data: TypeEvent): Flow<Resource<TypeEvent>> {
+    override fun save(data: TypeEventEntity): Flow<Resource<TypeEventEntity>> {
         return flow {
             emit(Resource.Loading())
             try {
@@ -29,7 +29,7 @@ class TypeEventRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun findAll(): Flow<Resource<List<TypeEvent>>> {
+    override fun findAll(): Flow<Resource<List<TypeEventEntity>>> {
 
         return flow {
             emit(Resource.Loading())
@@ -44,7 +44,7 @@ class TypeEventRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun findById(id: Int): Flow<Resource<TypeEvent>> {
+    override fun findById(id: Int): Flow<Resource<TypeEventEntity>> {
         return flow {
             emit(Resource.Loading())
             try {
@@ -58,7 +58,7 @@ class TypeEventRepositoryImpl @Inject constructor(
 
     }
 
-    override fun delete(id: Int): Flow<Resource<TypeEvent>> {
+    override fun delete(id: Int): Flow<Resource<TypeEventEntity>> {
 
         return flow {
 
@@ -82,7 +82,7 @@ class TypeEventRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun update(data: TypeEvent): Flow<Resource<TypeEvent>> {
+    override fun update(data: TypeEventEntity): Flow<Resource<TypeEventEntity>> {
 
         return flow {
             emit(Resource.Loading())

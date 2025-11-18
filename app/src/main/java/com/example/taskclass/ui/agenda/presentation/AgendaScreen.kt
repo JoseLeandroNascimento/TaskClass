@@ -54,8 +54,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.taskclass.R
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.common.utils.parseHors
-import com.example.taskclass.core.data.converters.TimeConverters
-import com.example.taskclass.core.data.model.dto.ScheduleDTO
+import com.example.taskclass.common.utils.toFormattedTime
+import com.example.taskclass.common.utils.toTotalMinutes
+import com.example.taskclass.core.data.model.dto.ScheduleAndDisciplineDTO
 import java.util.Calendar
 
 val dayHeaderHeight = 64.dp
@@ -70,15 +71,15 @@ fun AgendaScreen(
 ) {
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    val context = LocalContext.current
-    val daysOfWeek = context.resources.getStringArray(R.array.dias_da_semana_abreviado)
+    val resource = LocalContext.current.resources
+    val daysOfWeek = resource.getStringArray(R.array.dias_da_semana_abreviado)
 
     uiState.selectItem?.let { itemSelected ->
         ScheduleDetailsDialog(
             schedule = itemSelected,
             onDismiss = { viewModel.resetItemSelected() },
             onEdit = {
-                val id = uiState.selectItem.scheduleId
+                val id = uiState.selectItem.schedule.id
                 viewModel.resetItemSelected()
                 onEditSchedule(id)
             },
@@ -100,7 +101,7 @@ fun AgendaScreen(
         }
 
         is Resource.Success -> {
-            val firstEvent = uiState.schedules.data.minByOrNull { it.startTime }
+            val firstEvent = uiState.schedules.data.minByOrNull { it.schedule.startTime }
             val scrollGrid = rememberScrollState()
 
             BoxWithConstraints {
@@ -116,7 +117,7 @@ fun AgendaScreen(
 
                 LaunchedEffect(firstEvent, pxPerMinute) {
                     firstEvent?.let {
-                        val minutesFromTop = (it.startTime).coerceAtLeast(0)
+                        val minutesFromTop = (it.schedule.startTime.toTotalMinutes()).coerceAtLeast(0)
                         val offsetPx = minutesFromTop * pxPerMinute
                         scrollGrid.animateScrollTo(
                             offsetPx.toInt(),
@@ -190,14 +191,15 @@ fun AgendaScreen(
 
                                 val boxEventWidth = (maxWidth - timelineWidth) / 7
 
-                                uiState.schedules.data.forEachIndexed { index, event ->
+                                uiState.schedules.data.forEachIndexed { _, event ->
 
                                     val xPositionWeek =
-                                        timelineWidth + event.dayWeek * boxEventWidth
+                                        timelineWidth + event.schedule.dayWeek * boxEventWidth
                                     val yPositionWeek =
-                                        rowHeight * ((event.startTime / 60f) - startHors)
+                                        rowHeight * ((event.schedule.startTime.toTotalMinutes() / 60f) - startHors)
 
-                                    val eventDurationMinutes = event.endTime - event.startTime
+                                    val eventDurationMinutes =
+                                        event.schedule.endTime.toTotalMinutes() - event.schedule.startTime.toTotalMinutes()
                                     val heightBox = eventDurationMinutes * dpPerMinute
 
 
@@ -209,7 +211,7 @@ fun AgendaScreen(
                                             .height(heightBox.coerceAtLeast(40.dp))
                                             .padding(horizontal = 2.dp, vertical = 2.dp)
                                             .background(
-                                                color = event.color,
+                                                color = event.discipline.color,
                                                 shape = RoundedCornerShape(4.dp)
                                             )
                                             .padding(2.dp)
@@ -218,7 +220,7 @@ fun AgendaScreen(
                                             }
                                     ) {
                                         Text(
-                                            text = event.disciplineTitle,
+                                            text = event.discipline.title,
                                             style = MaterialTheme.typography.labelSmall,
                                             overflow = TextOverflow.Ellipsis,
                                             fontWeight = FontWeight.SemiBold,
@@ -245,10 +247,10 @@ fun AgendaScreen(
 
 @Composable
 fun ScheduleDetailsDialog(
-    schedule: ScheduleDTO,
+    schedule: ScheduleAndDisciplineDTO,
     onDismiss: () -> Unit,
-    onEdit: (ScheduleDTO) -> Unit,
-    onDelete: (ScheduleDTO) -> Unit
+    onEdit: (ScheduleAndDisciplineDTO) -> Unit,
+    onDelete: (ScheduleAndDisciplineDTO) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -273,7 +275,7 @@ fun ScheduleDetailsDialog(
                 ) {
 
                     Text(
-                        text = schedule.disciplineTitle,
+                        text = schedule.discipline.title,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         overflow = TextOverflow.Ellipsis,
@@ -299,10 +301,8 @@ fun ScheduleDetailsDialog(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "${TimeConverters().toTimeString(schedule.startTime)} - ${
-                            TimeConverters().toTimeString(
-                                schedule.endTime
-                            )
+                        text = "${schedule.schedule.startTime.toFormattedTime()} - ${
+                            schedule.schedule.endTime.toFormattedTime()
                         }",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -321,7 +321,7 @@ fun ScheduleDetailsDialog(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Dia da semana: ${daysOfWeek[schedule.dayWeek]}",
+                        text = "Dia da semana: ${daysOfWeek[schedule.schedule.dayWeek]}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
 

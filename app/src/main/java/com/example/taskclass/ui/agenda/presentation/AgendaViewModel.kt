@@ -1,10 +1,9 @@
 package com.example.taskclass.ui.agenda.presentation
 
-import android.icu.util.Calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
-import com.example.taskclass.core.data.model.dto.ScheduleDTO
+import com.example.taskclass.core.data.model.dto.ScheduleAndDisciplineDTO
 import com.example.taskclass.ui.schedules.domain.ScheduleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @HiltViewModel
 class AgendaViewModel @Inject constructor(
@@ -44,7 +44,7 @@ class AgendaViewModel @Inject constructor(
     fun deleteSchedule() {
         _uiState.value.selectItem?.let {
             viewModelScope.launch {
-                repo.deleteById(it.scheduleId).collect { response ->
+                repo.deleteById(it.schedule.id).collect { response ->
                     when (response) {
 
                         is Resource.Loading -> {
@@ -70,7 +70,7 @@ class AgendaViewModel @Inject constructor(
         }
     }
 
-    fun selectedItem(data: ScheduleDTO) {
+    fun selectedItem(data: ScheduleAndDisciplineDTO) {
         _uiState.update {
             it.copy(selectItem = data)
         }
