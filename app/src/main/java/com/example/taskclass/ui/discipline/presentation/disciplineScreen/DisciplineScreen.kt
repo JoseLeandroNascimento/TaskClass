@@ -86,9 +86,7 @@ fun DisciplineScreen(
         uiState = uiState,
         onCreateDiscipline = onCreateDiscipline,
         onEditDiscipline = onEditDiscipline,
-        onDeleteDiscipline = viewModel::deleteDiscipline,
-        updateFilterSort = viewModel::updateFilterSort,
-        updateQuery = viewModel::updateQuery,
+        onAction = viewModel::onAction,
         filterQuery = filterQuery
     )
 }
@@ -97,10 +95,8 @@ fun DisciplineScreen(
 @Composable
 fun DisciplineScreen(
     onBack: () -> Unit,
+    onAction: (action: DisciplinesAction) -> Unit,
     onCreateDiscipline: () -> Unit,
-    onDeleteDiscipline: (Int) -> Unit,
-    updateFilterSort: (KProperty1<DisciplineEntity, Comparable<*>>, Boolean) -> Unit,
-    updateQuery: (String) -> Unit,
     filterQuery: String,
     uiState: DisciplineUiState,
     onEditDiscipline: (Int) -> Unit,
@@ -111,7 +107,8 @@ fun DisciplineScreen(
     LaunchedEffect(expandedSearch) {
 
         if (!expandedSearch && filterQuery.isNotEmpty()) {
-            updateQuery("")
+
+            onAction(DisciplinesAction.UpdateQuery(""))
         }
     }
 
@@ -119,7 +116,9 @@ fun DisciplineScreen(
         expanded = expandedSearch,
         query = filterQuery,
         onExpandedChange = { expandedSearch = it },
-        onQueryChange = updateQuery,
+        onQueryChange = {
+            onAction(DisciplinesAction.UpdateQuery(it))
+        },
         placeholder = stringResource(R.string.placeholder_buscar_disciplina),
         isLoading = uiState.isLoading,
         items = uiState.disciplines,
@@ -178,8 +177,17 @@ fun DisciplineScreen(
                             DisciplineContent(
                                 modifier = Modifier.align(alignment = Alignment.TopCenter),
                                 uiState = uiState,
-                                updateFilterSort = updateFilterSort,
-                                onDeleteDiscipline = onDeleteDiscipline,
+                                updateFilterSort = { orderBy, sortDirection ->
+                                    onAction(
+                                        DisciplinesAction.UpdateFilterSort(
+                                            orderBy,
+                                            sortDirection
+                                        )
+                                    )
+                                },
+                                onDeleteDiscipline = {
+                                    onAction(DisciplinesAction.OnDeleteDiscipline(it))
+                                },
                                 onEditDiscipline = onEditDiscipline
                             )
                         }
@@ -513,11 +521,9 @@ private fun DisciplineScreenPreview() {
             onBack = {},
             uiState = DisciplineUiState(),
             onCreateDiscipline = {},
-            onDeleteDiscipline = {},
+            onAction = {},
             onEditDiscipline = {},
-            updateFilterSort = { _, a -> },
             filterQuery = "",
-            updateQuery = {}
         )
     }
 }
@@ -533,11 +539,9 @@ private fun DisciplineScreenDarkPreview() {
             onBack = {},
             uiState = DisciplineUiState(),
             onCreateDiscipline = {},
-            onDeleteDiscipline = {},
+            onAction = {},
             onEditDiscipline = {},
-            updateFilterSort = { _, a -> },
             filterQuery = "",
-            updateQuery = {}
         )
     }
 }

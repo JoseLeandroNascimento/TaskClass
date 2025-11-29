@@ -82,16 +82,4 @@ class TypeEventRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun update(data: TypeEventEntity): Flow<Resource<TypeEventEntity>> {
-
-        return flow {
-            emit(Resource.Loading())
-            try {
-                dao.update(data)
-                emit(Resource.Success(data))
-            } catch (e: Exception) {
-                emit(Resource.Error(e.message.toString()))
-            }
-        }
-    }
 }

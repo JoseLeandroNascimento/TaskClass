@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.taskclass.common.composables.AppCardNote
 import com.example.taskclass.common.utils.formatRelativeOrDate
 import com.example.taskclass.core.data.model.entity.NoteEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -34,10 +35,8 @@ fun NoteCard(
     note: NoteEntity,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    AppCardNote(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = .2.dp)
     ) {
         ListItem(
             headlineContent = {

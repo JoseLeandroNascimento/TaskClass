@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,18 +51,7 @@ fun DisciplineCreateScreen(
     DisciplineCreateScreen(
         onBack = onBack,
         uiState = uiState,
-        updateTitle = {
-            viewModel.updateTitle(it)
-        },
-        updateTeacherName = {
-            viewModel.updateTeacherName(it)
-        },
-        updateColorSelect = {
-            viewModel.updateColorSelect(it)
-        },
-        onSave = {
-            viewModel.save()
-        }
+        onAction = viewModel::onAction
     )
 }
 
@@ -72,10 +60,7 @@ fun DisciplineCreateScreen(
 fun DisciplineCreateScreen(
     onBack: () -> Unit,
     uiState: DisciplineCreateUiState,
-    updateTitle: ((String) -> Unit)? = null,
-    updateTeacherName: ((String) -> Unit)? = null,
-    updateColorSelect: ((Color) -> Unit)? = null,
-    onSave: () -> Unit
+    onAction: (DisciplineCreateAction) -> Unit,
 ) {
 
     val focusTitle = remember { FocusRequester() }
@@ -132,7 +117,7 @@ fun DisciplineCreateScreen(
                             value = uiState.form.title.value,
                             isError = uiState.form.title.error != null,
                             supportingText = uiState.form.title.error,
-                            onValueChange = { updateTitle?.invoke(it) },
+                            onValueChange = { onAction(DisciplineCreateAction.UpdateTitle(it)) },
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Next
                             ),
@@ -142,7 +127,7 @@ fun DisciplineCreateScreen(
                         AppInputText(
                             modifier = Modifier.fillMaxWidth(),
                             value = uiState.form.teacherName.value,
-                            onValueChange = { updateTeacherName?.invoke(it) },
+                            onValueChange = { onAction(DisciplineCreateAction.UpdateTeacherName(it)) },
                             label = stringResource(R.string.label_nome_do_professor),
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done
@@ -154,7 +139,7 @@ fun DisciplineCreateScreen(
                             value = uiState.form.colorSelect,
                             label = stringResource(R.string.label_cor_select),
                             onValueChange = { color ->
-                                updateColorSelect?.invoke(color)
+                                onAction(DisciplineCreateAction.UpdateColorSelect(color))
                             }
                         )
 
@@ -165,7 +150,9 @@ fun DisciplineCreateScreen(
                             isLoading = uiState.isLoadingButton,
                             label = uiState.form.idDiscipline?.let { stringResource(R.string.btn_salvar_disciplina) }
                                 ?: stringResource(R.string.btn_cadastrar_disciplina),
-                            onClick = onSave
+                            onClick = {
+                                onAction(DisciplineCreateAction.OnSave)
+                            }
                         )
                     }
                 }
@@ -218,8 +205,7 @@ private fun DisciplineCreateLightPreview() {
         DisciplineCreateScreen(
             uiState = DisciplineCreateUiState(),
             onBack = {},
-            updateTitle = {},
-            onSave = {}
+            onAction = {},
         )
     }
 }
@@ -235,9 +221,7 @@ private fun DisciplineCreateDarkPreview() {
         DisciplineCreateScreen(
             uiState = DisciplineCreateUiState(),
             onBack = {},
-            updateTitle = {},
-            onSave = {}
-
+            onAction = {},
         )
     }
 }

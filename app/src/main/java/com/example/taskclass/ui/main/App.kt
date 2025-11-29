@@ -17,6 +17,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.taskclass.common.data.NotificationCenter
+import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.BulletinScreen
+import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.BulletinViewModel
+import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.DisciplineReport
 import com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen.DisciplineCreateScreen
 import com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen.DisciplineCreateViewModel
 import com.example.taskclass.ui.discipline.presentation.disciplineScreen.DisciplineScreen
@@ -69,7 +72,7 @@ fun App() {
             )
         },
 
-    ) {
+        ) {
 
         NavHost(navController = appNavController, startDestination = Screen.MAIN.route) {
 
@@ -238,6 +241,9 @@ fun App() {
                     onBack = {
                         appNavController.navigateUp()
                     },
+                    onEditNavigation = {
+                        appNavController.navigate(Screen.TYPE_EVENT_EDIT.withArgs(it.toString()))
+                    },
                     onCreateNavigation = {
                         appNavController.navigate(Screen.TYPE_EVENT_CREATE.route)
                     }
@@ -254,10 +260,39 @@ fun App() {
                 )
             }
 
+            composable(
+                route = Screen.TYPE_EVENT_EDIT.route,
+                arguments = listOf(navArgument("typeId") {
+                    type = NavType.StringType
+                })
+
+            ) { backStackEntry ->
+
+                val viewModel = hiltViewModel<TypeEventCreateViewModel>(backStackEntry)
+                TypeEventCreateScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        appNavController.navigateUp()
+                    }
+                )
+            }
+
             composable(Screen.NOTE_CREATE.route) { backStackEntry ->
 
                 val viewModel = hiltViewModel<NoteEditorViewModel>(backStackEntry)
                 NoteEditScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        appNavController.navigateUp()
+                    }
+                )
+            }
+
+            composable(Screen.BULLETINS.route) { backStackEntry ->
+
+                val viewModel = hiltViewModel<BulletinViewModel>(backStackEntry)
+
+                BulletinScreen(
                     viewModel = viewModel,
                     onBack = {
                         appNavController.navigateUp()

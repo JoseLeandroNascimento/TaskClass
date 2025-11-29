@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,9 +37,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -54,15 +58,18 @@ import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.OrderByOption
+import com.example.taskclass.common.composables.SwipeContainer
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypeEventsScreen(
     viewModel: TypeEventsViewModel,
     onCreateNavigation: () -> Unit,
+    onEditNavigation: (Int) -> Unit,
     onBack: () -> Unit
 ) {
 
@@ -73,7 +80,9 @@ fun TypeEventsScreen(
         uiState = uiState,
         onDelete = viewModel::delete,
         onCreateNavigation = onCreateNavigation,
-        onSelectedItemEdit = {},
+        onSelectedItemEdit = {
+            onEditNavigation(it)
+        },
     )
 }
 
@@ -254,16 +263,29 @@ fun TypeEventCardItem(
 
     var openDropdown by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var stateSwipe: SwipeToDismissBoxState? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+
 
     if (confirmDelete) {
         AppConfirmDialog(
-            onDismissRequest = { confirmDelete = false },
+            onDismissRequest = {
+                confirmDelete = false
+                scope.launch {
+                    stateSwipe?.reset()
+                }
+            },
             onConfirm = {
                 onDelete(typeEventItem.id)
                 confirmDelete = false
             },
             onCancel = {
                 confirmDelete = false
+
+                scope.launch {
+                    stateSwipe?.reset()
+                }
+
             },
             title = stringResource(R.string.title_dialog_excluir_tipo_de_evento),
             description = stringResource(
@@ -273,76 +295,89 @@ fun TypeEventCardItem(
         )
     }
 
-    AppCardDefault(
-        modifier = modifier.fillMaxWidth(),
+    SwipeContainer(
+        modifier = Modifier.clip(shape = RoundedCornerShape(12.dp)),
+        onRemove = { confirmDelete = true },
+        onToggleDone = {
+            onSelectedItemEdit?.invoke(typeEventItem.id)
+        },
+        startIcon = Icons.Default.Delete,
+        endIcon = Icons.Default.Edit
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+        stateSwipe = state
+
+        AppCardDefault(
+            modifier = modifier.fillMaxWidth(),
         ) {
             Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement
-                    .spacedBy(8.dp)
+                Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement
+                        .spacedBy(8.dp)
+                ) {
 
-                CircleIndicator(
-                    color = typeEventItem.color,
-                    size = 28.dp
-                )
+                    CircleIndicator(
+                        color = typeEventItem.color,
+                        size = 28.dp
+                    )
 
-                Text(
-                    text = typeEventItem.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-
-            Box {
-                IconButton(onClick = { openDropdown = !openDropdown }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opções"
+                    Text(
+                        text = typeEventItem.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
-                DropdownMenu(
-                    expanded = openDropdown,
-                    containerColor = MaterialTheme.colorScheme.background,
-                    onDismissRequest = { openDropdown = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Editar") },
-                        onClick = {
-                            onSelectedItemEdit?.invoke(typeEventItem.id)
-                            openDropdown = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Excluir") },
-                        onClick = {
-                            openDropdown = false
-                            confirmDelete = true
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    )
+
+                Box {
+                    IconButton(onClick = { openDropdown = !openDropdown }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opções"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = openDropdown,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        onDismissRequest = { openDropdown = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar") },
+                            onClick = {
+                                onSelectedItemEdit?.invoke(typeEventItem.id)
+                                openDropdown = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Excluir") },
+                            onClick = {
+                                openDropdown = false
+                                confirmDelete = true
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

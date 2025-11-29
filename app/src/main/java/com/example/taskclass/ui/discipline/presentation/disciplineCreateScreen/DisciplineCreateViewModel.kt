@@ -30,6 +30,31 @@ class DisciplineCreateViewModel @Inject constructor(
 
     init {
 
+        loadDataById()
+    }
+
+    fun onAction(action: DisciplineCreateAction) {
+        when (action) {
+
+            is DisciplineCreateAction.UpdateTitle -> {
+                updateTitle(action.title)
+            }
+
+            is DisciplineCreateAction.UpdateColorSelect -> {
+                updateColorSelect(action.color)
+            }
+
+            is DisciplineCreateAction.UpdateTeacherName -> {
+                updateTeacherName(action.teacherName)
+            }
+
+            is DisciplineCreateAction.OnSave -> {
+                save()
+            }
+        }
+    }
+
+    private fun loadDataById() {
         disciplineId?.let { idDiscipline ->
 
             _uiState.update {
@@ -70,10 +95,9 @@ class DisciplineCreateViewModel @Inject constructor(
                 }
             }
         }
-
     }
 
-    fun updateTitle(title: String) {
+    private fun updateTitle(title: String) {
 
         _uiState.update {
             it.copy(
@@ -84,7 +108,7 @@ class DisciplineCreateViewModel @Inject constructor(
         }
     }
 
-    fun updateTeacherName(teacherName: String) {
+    private fun updateTeacherName(teacherName: String) {
         _uiState.update {
             it.copy(
                 form = it.form.copy(
@@ -94,7 +118,7 @@ class DisciplineCreateViewModel @Inject constructor(
         }
     }
 
-    fun updateColorSelect(color: Color) {
+    private fun updateColorSelect(color: Color) {
         _uiState.update {
             it.copy(
                 form = it.form.copy(
@@ -125,7 +149,7 @@ class DisciplineCreateViewModel @Inject constructor(
     }
 
 
-    fun save() {
+    private fun save() {
 
         _uiState.update {
             it.copy(
@@ -147,36 +171,37 @@ class DisciplineCreateViewModel @Inject constructor(
 
             viewModelScope.launch {
 
-                repo.save(disciplineId?.let { id -> data.copy(id = id.toInt()) } ?: data).collect { response ->
+                repo.save(disciplineId?.let { id -> data.copy(id = id.toInt()) } ?: data)
+                    .collect { response ->
 
-                    when (response) {
-                        is Resource.Loading -> {
-                            _uiState.update {
-                                it.copy(
-                                    isLoadingButton = true
-                                )
+                        when (response) {
+                            is Resource.Loading -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoadingButton = true
+                                    )
+                                }
                             }
-                        }
 
-                        is Resource.Success -> {
-                            _uiState.update {
-                                it.copy(
-                                    isBackNavigation = true,
-                                    isLoadingButton = false
-                                )
+                            is Resource.Success -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isBackNavigation = true,
+                                        isLoadingButton = false
+                                    )
+                                }
+                                NotificationCenter.push(AppNotification.Success("Disciplina salva!"))
                             }
-                            NotificationCenter.push(AppNotification.Success("Disciplina salva!"))
-                        }
 
-                        is Resource.Error -> {
-                            _uiState.update {
-                                it.copy(
-                                    isLoadingButton = false,
-                                )
+                            is Resource.Error -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoadingButton = false,
+                                    )
+                                }
                             }
                         }
                     }
-                }
             }
         }
     }

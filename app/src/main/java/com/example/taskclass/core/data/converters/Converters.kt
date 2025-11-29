@@ -14,7 +14,6 @@ class Converters {
     @TypeConverter
     fun toColor(value: Long): Color = Color(value.toULong())
 
-
     @TypeConverter
     fun fromInstant(value: Instant?): Long? = value?.toEpochMilli()
 

@@ -25,11 +25,13 @@ fun AppCardDefault(
     content: @Composable () -> Unit
 ) {
 
+
     val clickableModifier = if (onSelected != null) {
         Modifier.clickable{ onSelected() }
     } else {
         Modifier
     }
+
 
     Card(
         modifier  = modifier

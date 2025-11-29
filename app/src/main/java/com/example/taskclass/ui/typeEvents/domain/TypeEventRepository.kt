@@ -14,6 +14,5 @@ interface TypeEventRepository {
 
     fun delete(id: Int): Flow<Resource<TypeEventEntity>>
 
-    fun update(data: TypeEventEntity): Flow<Resource<TypeEventEntity>>
 
 }

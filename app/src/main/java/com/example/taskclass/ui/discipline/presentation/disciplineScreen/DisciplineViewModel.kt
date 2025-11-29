@@ -35,7 +35,27 @@ class DisciplineViewModel @Inject constructor(
         loadData()
     }
 
-    fun updateFilterSort(orderBy: KProperty1<DisciplineEntity, Comparable<*>>, sortDirection: Boolean) {
+    fun onAction(action: DisciplinesAction) {
+        when (action) {
+
+            is DisciplinesAction.OnDeleteDiscipline -> {
+                deleteDiscipline(action.id)
+            }
+
+            is DisciplinesAction.UpdateQuery -> {
+                updateQuery(action.query)
+            }
+
+            is DisciplinesAction.UpdateFilterSort -> {
+                updateFilterSort(action.orderBy, action.sortDirection)
+            }
+        }
+    }
+
+    private fun updateFilterSort(
+        orderBy: KProperty1<DisciplineEntity, Comparable<*>>,
+        sortDirection: Boolean
+    ) {
 
         _uiState.update {
             it.copy(
@@ -48,7 +68,7 @@ class DisciplineViewModel @Inject constructor(
         }
     }
 
-    fun updateQuery(query: String) {
+    private fun updateQuery(query: String) {
         _filterQuery.value = query
     }
 
@@ -100,7 +120,7 @@ class DisciplineViewModel @Inject constructor(
         }
     }
 
-    fun deleteDiscipline(id: Int) {
+    private fun deleteDiscipline(id: Int) {
 
         viewModelScope.launch {
             repo.delete(id)

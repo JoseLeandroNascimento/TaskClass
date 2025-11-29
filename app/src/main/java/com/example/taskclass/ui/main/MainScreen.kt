@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Event
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.filled.EventAvailable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mode
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -157,6 +160,11 @@ private fun DrawerContent(
 
         DrawerItem(Icons.AutoMirrored.Filled.MenuBook, "Disciplinas") {
             onNavigationDrawer(Screen.DISCIPLINE)
+            onCloseDrawer()
+        }
+
+        DrawerItem(Icons.Default.BarChart, "Minhas notas") {
+            onNavigationDrawer(Screen.BULLETINS)
             onCloseDrawer()
         }
 

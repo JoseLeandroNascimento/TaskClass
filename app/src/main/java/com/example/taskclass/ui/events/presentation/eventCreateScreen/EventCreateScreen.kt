@@ -26,8 +26,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +43,7 @@ import com.example.taskclass.common.composables.AppInputDate
 import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.AppInputTime
 import com.example.taskclass.common.composables.CircleIndicator
+import com.example.taskclass.common.composables.HideKeyboardOnTap
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
@@ -94,6 +98,13 @@ fun EventCreateScreen(
     onBack: () -> Unit,
 ) {
 
+    val titleFocus = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+
+        titleFocus.requestFocus()
+    }
+
     LaunchedEffect(uiState.savedSuccessAndClose) {
         if (uiState.savedSuccessAndClose) onBack()
     }
@@ -132,144 +143,150 @@ fun EventCreateScreen(
                 .fillMaxSize()
         ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AppInputText(
-                    label = stringResource(R.string.label_titulo),
-                    isError = uiState.formState.title.error != null,
-                    supportingText = uiState.formState.title.error,
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.formState.title.value,
-                    onValueChange = {
-                        updateTitle?.invoke(it)
-                    }
-                )
+            HideKeyboardOnTap {
 
-                AppDropdown(
-                    label = stringResource(R.string.label_tipo_de_evento),
-                    error = uiState.formState.typeEventSelected.error,
-                    value = uiState.formState.typeEventSelected.value?.name ?: "",
-                    leadingIcon = uiState.formState.typeEventSelected.value?.let {
-                        {
-                            CircleIndicator(
-                                color = it.color,
-                                size = 20.dp
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    uiState.typeEvents?.let { response ->
-                        when (response) {
-                            is Resource.Loading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
+
+                    AppInputText(
+                        label = stringResource(R.string.label_titulo),
+                        isError = uiState.formState.title.error != null,
+                        supportingText = uiState.formState.title.error,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(titleFocus),
+                        value = uiState.formState.title.value,
+                        onValueChange = {
+                            updateTitle?.invoke(it)
+                        }
+                    )
+
+                    AppDropdown(
+                        label = stringResource(R.string.label_tipo_de_evento),
+                        error = uiState.formState.typeEventSelected.error,
+                        value = uiState.formState.typeEventSelected.value?.name ?: "",
+                        leadingIcon = uiState.formState.typeEventSelected.value?.let {
+                            {
+                                CircleIndicator(
+                                    color = it.color,
+                                    size = 20.dp
+                                )
                             }
+                        }
+                    ) {
+                        uiState.typeEvents?.let { response ->
+                            when (response) {
+                                is Resource.Loading -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
 
-                            is Resource.Success -> {
+                                is Resource.Success -> {
 
-                                response.data.forEachIndexed { _, typeEvent ->
+                                    response.data.forEachIndexed { _, typeEvent ->
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = typeEvent.name,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    maxLines = 1
+                                                )
+                                            },
+                                            leadingIcon = {
+
+                                                CircleIndicator(
+                                                    size = 26.dp,
+                                                    color = typeEvent.color
+                                                )
+                                            },
+                                            onClick = {
+                                                updateTypeEvent?.invoke(typeEvent)
+                                                closeMenu()
+                                            },
+                                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        )
+                                    }
 
                                     DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                text = typeEvent.name,
-                                                overflow = TextOverflow.Ellipsis,
-                                                maxLines = 1
-                                            )
+                                        onClick = {
+                                            closeMenu()
+                                            addTypeEvent?.invoke()
                                         },
                                         leadingIcon = {
-
-                                            CircleIndicator(
-                                                size = 26.dp,
-                                                color = typeEvent.color
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = null
                                             )
                                         },
-                                        onClick = {
-                                            updateTypeEvent?.invoke(typeEvent)
-                                            closeMenu()
-                                        },
-                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                        text = {
+                                            Text(text = stringResource(R.string.novo_tipo_de_evento))
+                                        }
                                     )
                                 }
 
-                                DropdownMenuItem(
-                                    onClick = {
-                                        closeMenu()
-                                        addTypeEvent?.invoke()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = null
-                                        )
-                                    },
-                                    text = {
-                                        Text(text = stringResource(R.string.novo_tipo_de_evento))
-                                    }
-                                )
-                            }
+                                is Resource.Error -> {
 
-                            is Resource.Error -> {
-
+                                }
                             }
                         }
                     }
-                }
 
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
 
-                    AppInputDate(
-                        label = stringResource(R.string.label_data),
-                        value = uiState.formState.date.value,
-                        onValueChange = {
-                            updateDate?.invoke(it)
+                        AppInputDate(
+                            label = stringResource(R.string.label_data),
+                            value = uiState.formState.date.value,
+                            onValueChange = {
+                                updateDate?.invoke(it)
+                            },
+                            error = uiState.formState.date.error,
+                            modifier = Modifier.weight(1f),
+                        )
+
+                        AppInputTime(
+                            modifier = Modifier.weight(1f),
+                            label = stringResource(R.string.label_hora),
+                            error = uiState.formState.time.error,
+                            value = uiState.formState.time.value
+                        ) {
+                            updateTime?.invoke(it)
+                        }
+                    }
+
+                    OutlinedTextField(
+                        label = {
+                            Text(text = "Descrição", style = MaterialTheme.typography.labelMedium)
                         },
-                        error = uiState.formState.date.error,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 4,
+                        maxLines = 4,
+                        value = uiState.formState.description.value,
+                        onValueChange = {
+                            updateDescription?.invoke(it)
+                        }
                     )
 
-                    AppInputTime(
-                        modifier = Modifier.weight(1f),
-                        label = stringResource(R.string.label_hora),
-                        error = uiState.formState.time.error,
-                        value = uiState.formState.time.value
-                    ) {
-                        updateTime?.invoke(it)
-                    }
+                    AppButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        label = stringResource(R.string.btn_cadastrar_evento),
+                        onClick = onSave
+                    )
                 }
-
-                OutlinedTextField(
-                    label = {
-                        Text(text = "Descrição", style = MaterialTheme.typography.labelMedium)
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 4,
-                    maxLines = 4,
-                    value = uiState.formState.description.value,
-                    onValueChange = {
-                        updateDescription?.invoke(it)
-                    }
-                )
-
-                AppButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    label = stringResource(R.string.btn_cadastrar_evento),
-                    onClick = onSave
-                )
             }
         }
     }

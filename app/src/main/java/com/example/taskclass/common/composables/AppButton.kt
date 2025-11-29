@@ -56,7 +56,7 @@ private fun AppButtonLightPreview() {
         dynamicColor = false,
         darkTheme = false
     ) {
-        AppButton(label = "Botão") {}
+        AppButton(label = "Botão", isLoading = true) {}
     }
 }
 
