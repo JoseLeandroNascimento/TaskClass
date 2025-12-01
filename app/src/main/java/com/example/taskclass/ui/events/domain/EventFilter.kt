@@ -11,5 +11,6 @@ data class EventFilter(
     val time: Time? = null,
     val typeEventId: Int? = null,
     val typeEventName: String? = null,
+    val isCompleted: Boolean? = null,
     val status: EEventStatus? = null
 )

@@ -4,7 +4,8 @@ enum class EEventStatus(
     private val description: String,
     val label: String
 ) {
-    AGENDADO("AGENDADO", "Agendado"),
-    PENDENTE("PENDENTE", "Pendente"),
-    CONCLUIDA("CONCLUIDA", "Concluída"),
+    HOJE("HOJE", "Hoje"),
+    AGENDADO("AGENDADO", "Proximos eventos"),
+    ATRASADO("ATRASADO", "Evento Atrasado"),
+    CONCLUIDO("CONCLUIDA", "Concluídos"),
 }

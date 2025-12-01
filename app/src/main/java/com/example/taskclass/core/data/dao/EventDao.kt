@@ -45,19 +45,19 @@ interface EventDao {
     WHERE (:id IS NULL OR e.id = :id)
       AND (:query is NULL OR e.title LIKE '%' || :query || '%')
       AND (:typeEventId IS NULL OR e.typeEventId = :typeEventId)
-      AND (:status IS NULL OR e.status = :status)
+      AND (:completed IS NULL OR e.completed = :completed)
     """
     )
     fun search(
         id: Int? = null,
         query: String? = null,
         typeEventId: Int? = null,
-        status: EEventStatus? = null
+        completed: Boolean? = null,
     ): Flow<List<EventEndTypeEventDto>>
 
 
-    @Query("UPDATE events_table SET status = :status WHERE id = :id")
-    suspend fun updateStatus(id: Int, status: EEventStatus)
+    @Query("UPDATE events_table SET completed = :isCompleted WHERE id = :id")
+    suspend fun updateCompleted(id: Int, isCompleted: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(event: EventEntity)

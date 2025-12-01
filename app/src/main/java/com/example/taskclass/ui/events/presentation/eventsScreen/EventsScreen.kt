@@ -313,7 +313,7 @@ private fun EventCard(
             }
 
             Checkbox(
-                checked = event.event.status == EEventStatus.CONCLUIDA,
+                checked = event.event.completed,
                 onCheckedChange = {
                     onCheckedStatusEvent(event.event.id, it)
                 }

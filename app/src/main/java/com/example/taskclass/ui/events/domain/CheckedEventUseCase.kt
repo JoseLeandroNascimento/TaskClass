@@ -11,7 +11,7 @@ class CheckedEventUseCase @Inject constructor(
 
     operator fun invoke(eventId: Int, checked: Boolean): Flow<Resource<Unit>> {
 
-        return repo.updateStatus(id = eventId, status = if (checked) EEventStatus.CONCLUIDA else EEventStatus.AGENDADO)
+        return repo.updateCompleted(id = eventId, checked)
     }
 
 }

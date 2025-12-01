@@ -1,5 +1,17 @@
 package com.example.taskclass.ui.events.presentation.eventDetailScreen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,41 +24,57 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.utils.toFormattedDateTime
 import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
 import com.example.taskclass.core.data.model.entity.EventEntity
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
-import com.example.taskclass.core.data.model.enums.EEventStatus
+import com.example.taskclass.ui.events.domain.statusCurrent
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 import java.time.Instant
@@ -60,7 +88,10 @@ fun EventDetailScreen(
 
     EventDetailScreen(
         onBack = onBack,
-        uiState = uiState
+        uiState = uiState,
+        onToggleComplete = {
+            viewModel.updateStatusChecked(it)
+        }
     )
 }
 
@@ -68,7 +99,8 @@ fun EventDetailScreen(
 @Composable
 fun EventDetailScreen(
     onBack: () -> Unit,
-    uiState: EventDetailUiState
+    uiState: EventDetailUiState,
+    onToggleComplete: ((Boolean) -> Unit)? = null
 ) {
     Scaffold(
         topBar = {
@@ -89,6 +121,12 @@ fun EventDetailScreen(
                     titleContentColor = White,
                     navigationIconContentColor = White
                 ),
+            )
+        },
+        floatingActionButton = {
+            EventActionsFab(
+                onEdit = { /* abrir tela de edição */ },
+                onDelete = { /* excluir evento */ }
             )
         }
     ) { innerPadding ->
@@ -115,7 +153,12 @@ fun EventDetailScreen(
                 }
 
                 uiState.event != null -> {
-                    EventDetailContent(event = uiState.event)
+                    EventDetailContent(
+                        event = uiState.event,
+                        onToggleComplete = {
+                            onToggleComplete?.invoke(it)
+                        }
+                    )
                 }
             }
         }
@@ -123,21 +166,30 @@ fun EventDetailScreen(
 }
 
 @Composable
-fun EventDetailContent(event: EventEndTypeEventDto) {
+fun EventDetailContent(
+    event: EventEndTypeEventDto,
+    onToggleComplete: (Boolean) -> Unit
+) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
+
+    val isCompleted = event.event.completed
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 20.dp)
+            .verticalScroll(state = rememberScrollState())
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally,
+
     ) {
 
+        Spacer(Modifier.height(20.dp))
 
         CircleIndicator(
             color = event.typeEvent.color,
-            size = 68.dp
+            size = 80.dp
         )
 
         Spacer(Modifier.height(20.dp))
@@ -145,34 +197,51 @@ fun EventDetailContent(event: EventEndTypeEventDto) {
         Text(
             text = event.event.title,
             style = typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            color = colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = colorScheme.onSurface
         )
-
 
         Text(
             text = event.typeEvent.name,
-            style = typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-            color = event.typeEvent.color,
-            textAlign = TextAlign.Center,
+            style = typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium,
+                color = event.typeEvent.color
+            ),
             modifier = Modifier.padding(top = 4.dp)
         )
-
 
         Spacer(Modifier.height(28.dp))
 
         ElevatedCard(
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(26.dp),
             colors = CardDefaults.elevatedCardColors(
                 containerColor = colorScheme.surface
             ),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
+            elevation = CardDefaults.elevatedCardElevation(.5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
             ) {
+                Text(
+                    "Informações do Evento",
+                    style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = 20.dp,
+                    vertical = 22.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+
                 InfoRow(
                     icon = Icons.Default.CalendarMonth,
                     label = "Data",
@@ -192,32 +261,187 @@ fun EventDetailContent(event: EventEndTypeEventDto) {
                         value = event.event.description
                     )
                 }
+
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(colorScheme.outlineVariant.copy(alpha = .4f))
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        "Estado do Evento",
+                        style = typography.labelLarge,
+                        color = colorScheme.onSurfaceVariant
+                    )
+
+                    AssistChip(
+                        onClick = {},
+                        label = {
+                            Text(
+                                text = event.event.statusCurrent().label,
+                                style = typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor =
+                                if (isCompleted)
+                                    Color(0xFFC8E6C9).copy(alpha = 0.35f)
+                                else
+                                    colorScheme.primary.copy(alpha = 0.12f),
+                            labelColor =
+                                if (isCompleted)
+                                    Color(0xFFC8E6C9)
+                                else colorScheme.primary
+                        ),
+                        border = null
+                    )
+                }
             }
         }
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(24.dp))
 
-        // Chip de status
-        val statusText = "Pendente"
-        val statusColor = colorScheme.primary
+        CompleteEventButton(
+            isCompleted = event.event.completed,
+            onToggle = { onToggleComplete(!event.event.completed) }
+        )
 
-        AssistChip(
-            onClick = { },
-            label = {
-                Text(
-                    text = statusText,
-                    style = typography.labelLarge.copy(fontWeight = FontWeight.Medium)
-                )
-            },
-            border = null,
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = statusColor.copy(alpha = 0.1f),
-                labelColor = statusColor,
-                leadingIconContentColor = statusColor
+        Spacer(Modifier.height(80.dp))
+
+
+
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun EventActionsFab(
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(
+                animationSpec = tween(200)
+            ) + slideInVertically(
+                initialOffsetY = { fullHeight -> fullHeight / 3 },
+                animationSpec = tween(250, easing = FastOutSlowInEasing)
+            ) + scaleIn(
+                initialScale = 0.8f,
+                animationSpec = tween(250, easing = FastOutSlowInEasing)
+            ),
+            exit = fadeOut(
+                animationSpec = tween(150)
+            ) + slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight / 3 },
+                animationSpec = tween(200, easing = FastOutSlowInEasing)
+            ) + scaleOut(
+                targetScale = 0.8f,
+                animationSpec = tween(200, easing = FastOutSlowInEasing)
             )
+        ) {
+            Column(
+                modifier = Modifier.padding(end = 4.dp, bottom = 72.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+
+                val editColor = Color(0xFFBBDEFB)
+                val deleteColor = Color(0xFFFFCDD2)
+                val iconColor = Color(0xFF1A1A1A)
+
+                SmallFloatingActionButton(
+                    onClick = onEdit,
+                    containerColor = editColor,
+                    contentColor = iconColor
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar")
+                }
+
+                SmallFloatingActionButton(
+                    onClick = onDelete,
+                    containerColor = deleteColor,
+                    contentColor = iconColor
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Excluir")
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { expanded = !expanded },
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            AnimatedContent(
+                targetState = expanded,
+                label = "fab_icon_transition"
+            ) { isExpanded ->
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.MoreVert,
+                    contentDescription = if (isExpanded) "Fechar ações" else "Mais ações"
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CompleteEventButton(
+    isCompleted: Boolean,
+    onToggle: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
+    val grayColor = Color(0xFFE0E0E0)
+    val greenLightColor = Color(0xFFC8E6C9)
+
+    val animatedContainerColor by animateColorAsState(
+        targetValue = if (isCompleted) greenLightColor else grayColor,
+        animationSpec = tween(durationMillis = 450)
+    )
+
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(54.dp),
+        onClick = onToggle,
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = animatedContainerColor,
+            contentColor = Color.Black
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Default.Check,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 6.dp)
+        )
+
+        Text(
+            text = if (isCompleted) "Evento Concluído" else "Marcar como Concluído",
+            style = typography.titleSmall
         )
     }
 }
+
 
 @Composable
 private fun InfoRow(
@@ -230,7 +454,7 @@ private fun InfoRow(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
@@ -271,9 +495,11 @@ private fun EventDetailLightPreview() {
                     event = EventEntity(
                         description = "Teasdasd as das",
                         title = "Teste",
-                        status = EEventStatus.PENDENTE,
+                        completed = false,
                         typeEventId = 1,
                         datetime = Instant.now(),
+                        updatedAt = System.currentTimeMillis(),
+                        createdAt = System.currentTimeMillis(),
                     ),
                     typeEvent = TypeEventEntity(
                         color = MaterialTheme.colorScheme.primary,
@@ -302,9 +528,11 @@ private fun EventDetailDarkPreview() {
                     event = EventEntity(
                         description = "Teasdasd as das",
                         title = "Teste",
-                        status = EEventStatus.PENDENTE,
+                        completed = false,
                         typeEventId = 1,
                         datetime = Instant.now(),
+                        updatedAt = System.currentTimeMillis(),
+                        createdAt = System.currentTimeMillis(),
                     ),
                     typeEvent = TypeEventEntity(
                         color = MaterialTheme.colorScheme.primary,

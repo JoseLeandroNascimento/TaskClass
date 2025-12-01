@@ -23,7 +23,6 @@ class EventCreateViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-
     private val _uiState = MutableStateFlow(EventCreateUiState())
     val uiState: StateFlow<EventCreateUiState> = _uiState.asStateFlow()
 
@@ -112,6 +111,8 @@ class EventCreateViewModel @Inject constructor(
                     description = validatedForm.description.value,
                     datetime = instant,
                     typeEventId = validatedForm.typeEventSelected.value!!.id,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
                 )
 
                 eventRepository.save(event).collect { response ->

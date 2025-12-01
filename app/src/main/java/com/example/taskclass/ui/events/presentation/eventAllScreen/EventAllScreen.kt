@@ -64,7 +64,6 @@ fun EventAllScreen(
     val filter = viewModel.filter.collectAsStateWithLifecycle().value
 
     EventAllScreen(
-        modifier = modifier,
         uiState = uiState,
         filter = filter,
         onBack = onBack,
@@ -81,7 +80,6 @@ fun EventAllScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventAllScreen(
-    modifier: Modifier = Modifier,
     filter: EventFilter,
     uiState: EventAllUiState,
     filterByStatus: ((EEventStatus?) -> Unit)? = null,
@@ -113,7 +111,7 @@ fun EventAllScreen(
             expandedSearch = it
         },
         key = { _, item -> item.event.id },
-        items = uiState.events,
+        items = uiState.events.toList(),
         isLoading = uiState.isLoading,
         placeholder = "Pesquisar eventos",
         query = filter.query ?: "",
@@ -255,25 +253,38 @@ fun EventAllContent(
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
 
+                            uiState.eventsGroup.forEach { eventGroup ->
 
-                            items(
-                                items = uiState.events,
-                                key = { it.event.id }
-                            ) { event ->
+                                item {
+                                    Text(
+                                        text = eventGroup.key.label,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(vertical = 8.dp).padding(start = 4.dp)
+                                    )
+                                }
 
-                                EventItemCard(
-                                    title = event.event.title,
-                                    color = event.typeEvent.color,
-                                    checked = event.event.status == EEventStatus.CONCLUIDA,
-                                    dateTime = event.event.datetime,
-                                    onCheckedChange = { checked ->
-                                        updateStatusChecked?.invoke(event.event.id, checked)
-                                    },
-                                    onSelected = {
-                                        onViewEventNavigation(event.event.id)
-                                    }
-                                )
+                                items(
+                                    items = eventGroup.value,
+                                    key = { it.event.id }
+                                ) { event ->
+
+                                    EventItemCard(
+                                        title = event.event.title,
+                                        color = event.typeEvent.color,
+                                        checked = event.event.completed,
+                                        dateTime = event.event.datetime,
+                                        onCheckedChange = { checked ->
+                                            updateStatusChecked?.invoke(event.event.id, checked)
+                                        },
+                                        typeEvent = event.typeEvent.name,
+                                        onSelected = {
+                                            onViewEventNavigation(event.event.id)
+                                        }
+                                    )
+                                }
+
                             }
+
 
                             item {
 

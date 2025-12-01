@@ -3,7 +3,6 @@ package com.example.taskclass.core.data.model.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.example.taskclass.core.data.model.enums.EEventStatus
 import java.time.Instant
 
 @Entity(
@@ -23,5 +22,7 @@ data class EventEntity(
     val description: String,
     val datetime: Instant,
     val typeEventId: Int,
-    val status: EEventStatus = EEventStatus.AGENDADO
+    val completed: Boolean = false,
+    val createdAt: Long,
+    val updatedAt: Long
 )

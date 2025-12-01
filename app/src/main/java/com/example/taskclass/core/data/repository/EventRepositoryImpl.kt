@@ -8,10 +8,13 @@ import com.example.taskclass.core.data.model.entity.EventEntity
 import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.events.domain.EventFilter
 import com.example.taskclass.ui.events.domain.EventRepository
+import com.example.taskclass.ui.events.domain.statusCurrent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 
 class EventRepositoryImpl @Inject constructor(
@@ -36,7 +39,7 @@ class EventRepositoryImpl @Inject constructor(
                 Resource.Success(events)
             }
 
-    override fun filter(filter: EventFilter): Flow<Resource<List<EventEndTypeEventDto>>> {
+    override fun filter(filter: EventFilter): Flow<Resource<Map<EEventStatus, List<EventEndTypeEventDto>>>> {
 
         return flow {
 
@@ -45,9 +48,20 @@ class EventRepositoryImpl @Inject constructor(
                 dao.search(
                     id = filter.id,
                     query = filter.query,
-                    status = filter.status,
+                    completed = filter.isCompleted,
                     typeEventId = filter.typeEventId,
-                ).collect {
+                ).map { events ->
+                    val grouped = events.groupBy { item ->
+                       item.event.statusCurrent()
+                    }.toSortedMap(compareBy { it.ordinal })
+
+                    if (filter.status == null) {
+                        grouped
+                    } else {
+                        val onlyStatusList = grouped[filter.status] ?: emptyList()
+                        mapOf(filter.status to onlyStatusList)
+                    }
+                }.collect {
                     emit(Resource.Success(it))
                 }
             } catch (e: Exception) {
@@ -55,7 +69,6 @@ class EventRepositoryImpl @Inject constructor(
             }
 
         }
-
 
     }
 
@@ -71,14 +84,14 @@ class EventRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun updateStatus(
+    override fun updateCompleted(
         id: Int,
-        status: EEventStatus
+        isCompleted: Boolean
     ): Flow<Resource<Unit>> {
 
         return flow {
             emit(Resource.Loading())
-            dao.updateStatus(id, status)
+            dao.updateCompleted(id, isCompleted)
             emit(Resource.Success(Unit))
 
         }.catch { e ->

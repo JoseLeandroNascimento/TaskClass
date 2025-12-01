@@ -111,7 +111,8 @@ class EventAllViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                events = response.data
+                                eventsGroup = response.data,
+                                events = response.data.values.flatten()
                             )
                         }
                     }

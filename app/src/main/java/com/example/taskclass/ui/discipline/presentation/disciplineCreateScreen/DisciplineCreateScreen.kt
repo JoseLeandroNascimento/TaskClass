@@ -65,6 +65,8 @@ fun DisciplineCreateScreen(
 
     val focusTitle = remember { FocusRequester() }
 
+
+
     LaunchedEffect(Unit) {
         focusTitle.requestFocus()
     }
@@ -193,8 +195,7 @@ fun DisciplineCreateTopBar(
     )
 }
 
-
-@Preview(showBackground = true)
+@Preview
 @Composable
 private fun DisciplineCreateLightPreview() {
 
@@ -210,7 +211,7 @@ private fun DisciplineCreateLightPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview()
 @Composable
 private fun DisciplineCreateDarkPreview() {
 

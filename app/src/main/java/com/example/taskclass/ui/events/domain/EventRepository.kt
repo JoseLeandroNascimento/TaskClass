@@ -9,9 +9,9 @@ import kotlinx.coroutines.flow.Flow
 interface EventRepository {
     fun findById(id: Int): Flow<Resource<EventEndTypeEventDto>>
     fun findAll(): Flow<Resource<List<EventEndTypeEventDto>>>
-    fun filter(filter: EventFilter): Flow<Resource<List<EventEndTypeEventDto>>>
+    fun filter(filter: EventFilter): Flow<Resource<Map<EEventStatus, List<EventEndTypeEventDto>>>>
     fun save(event: EventEntity): Flow<Resource<Unit>>
-    fun updateStatus(id: Int, status: EEventStatus): Flow<Resource<Unit>>
+    fun updateCompleted(id: Int, isCompleted: Boolean): Flow<Resource<Unit>>
     fun update(event: EventEntity): Flow<Resource<Unit>>
     fun delete(id: Int): Flow<Resource<Unit>>
 }
