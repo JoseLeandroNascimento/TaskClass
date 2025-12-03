@@ -28,6 +28,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -50,8 +52,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -63,12 +65,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.taskclass.R
+import com.example.taskclass.common.composables.AppButton
+import com.example.taskclass.common.composables.AppDialog
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.utils.toFormattedDateTime
 import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
@@ -91,7 +97,8 @@ fun EventDetailScreen(
         uiState = uiState,
         onToggleComplete = {
             viewModel.updateStatusChecked(it)
-        }
+        },
+        onDelete = viewModel::deleteEvent
     )
 }
 
@@ -100,8 +107,26 @@ fun EventDetailScreen(
 fun EventDetailScreen(
     onBack: () -> Unit,
     uiState: EventDetailUiState,
+    onDelete: (() -> Unit)? = null,
     onToggleComplete: ((Boolean) -> Unit)? = null
 ) {
+
+    var showConfirmDeleteDialog by remember { mutableStateOf(false) }
+
+    if(uiState.isBackNavigation) onBack()
+
+    if (showConfirmDeleteDialog) {
+
+        ConfirmDeleteDialog(
+            onDismissRequest = { showConfirmDeleteDialog = false },
+            confirmDelete = {
+                onDelete?.invoke()
+                showConfirmDeleteDialog = false
+            }
+        )
+    }
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -113,7 +138,7 @@ fun EventDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ChevronLeft, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -126,7 +151,7 @@ fun EventDetailScreen(
         floatingActionButton = {
             EventActionsFab(
                 onEdit = { /* abrir tela de edição */ },
-                onDelete = { /* excluir evento */ }
+                onDelete = { showConfirmDeleteDialog = true }
             )
         }
     ) { innerPadding ->
@@ -178,12 +203,11 @@ fun EventDetailContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp)
-            .verticalScroll(state = rememberScrollState())
-        ,
+            .padding(horizontal = 16.dp)
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
 
-    ) {
+        ) {
 
         Spacer(Modifier.height(20.dp))
 
@@ -198,6 +222,8 @@ fun EventDetailContent(
             text = event.event.title,
             style = typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = colorScheme.onSurface
         )
 
@@ -213,7 +239,7 @@ fun EventDetailContent(
         Spacer(Modifier.height(28.dp))
 
         ElevatedCard(
-            shape = RoundedCornerShape(26.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.elevatedCardColors(
                 containerColor = colorScheme.surface
             ),
@@ -229,7 +255,7 @@ fun EventDetailContent(
             ) {
                 Text(
                     "Informações do Evento",
-                    style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -258,6 +284,7 @@ fun EventDetailContent(
                     InfoRow(
                         icon = Icons.Default.Description,
                         label = "Descrição",
+                        overflowValue = TextOverflow.Ellipsis,
                         value = event.event.description
                     )
                 }
@@ -316,9 +343,55 @@ fun EventDetailContent(
         Spacer(Modifier.height(80.dp))
 
 
+    }
+}
+
+@Composable
+fun ConfirmDeleteDialog(
+    onDismissRequest: () -> Unit,
+    confirmDelete: () -> Unit
+) {
+    AppDialog(
+        onDismissRequest = onDismissRequest,
+        title = "Excluir Evento",
+    ) {
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                text = "Tem certeza que deseja excluir este evento?",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = onDismissRequest
+                ) {
+                    Text(
+                        text = stringResource(R.string.btn_cancelar),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+
+                AppButton(
+                    label = stringResource(R.string.btn_confirm),
+                    onClick = confirmDelete
+                )
+            }
+        }
 
     }
 }
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -364,17 +437,20 @@ fun EventActionsFab(
 
                 val editColor = Color(0xFFBBDEFB)
                 val deleteColor = Color(0xFFFFCDD2)
-                val iconColor = Color(0xFF1A1A1A)
+                val iconColor = White
 
-                SmallFloatingActionButton(
+                FloatingActionButton(
                     onClick = onEdit,
                     containerColor = editColor,
                     contentColor = iconColor
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar")
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Editar"
+                    )
                 }
 
-                SmallFloatingActionButton(
+                FloatingActionButton(
                     onClick = onDelete,
                     containerColor = deleteColor,
                     contentColor = iconColor
@@ -447,7 +523,9 @@ fun CompleteEventButton(
 private fun InfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
-    value: String
+    value: String,
+    overflowValue: TextOverflow = TextOverflow.Clip,
+    maxLineValue: Int = Int.MAX_VALUE
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -471,6 +549,8 @@ private fun InfoRow(
             )
             Text(
                 text = value,
+                overflow = overflowValue,
+                maxLines = maxLineValue,
                 style = typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                 color = colorScheme.onSurface
             )

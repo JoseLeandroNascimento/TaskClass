@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -44,87 +46,90 @@ fun EventItemCard(
 ) {
 
     SwipeContainer(
-        modifier = Modifier.clip(shape = RoundedCornerShape(12.dp)),
+        modifier = Modifier.clip(RoundedCornerShape(14.dp)),
         onRemove = {},
         onToggleDone = {},
         startIcon = Icons.Default.Delete,
         endIcon = Icons.Default.Edit
     ) {
 
-        AppCardDefault(
-            onSelected = onSelected
-        ) {
+        AppCardDefault(onSelected = onSelected) {
 
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .alpha(if (checked) 0.45f else 1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(alpha = if (checked) .4f else 1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                CircleIndicator(
+                    color = color,
+                    size = 18.dp
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    CircleIndicator(color = color, size = 35.dp)
+
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
 
                     Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
 
-                            Text(
-                                text = title,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 1,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-
-                            Text(
-                                text = "${dateTime.toFormattedDateTime("dd/MM/yyyy")} - ${
-                                    dateTime.toFormattedDateTime(
-                                        "HH:mm"
-                                    )
-                                }",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = .7f)
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = color.copy(alpha = .2f),
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .padding(vertical = 2.dp, horizontal = 8.dp)
-
-                        ) {
-                            Text(
-                                text = typeEvent,
-                                style = MaterialTheme.typography.labelLarge,
-                                color = color,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
-                    }
-
-                    Checkbox(
-                        checked = checked,
-                        onCheckedChange = onCheckedChange,
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.primary
+                        Text(
+                            text = dateTime.toFormattedDateTime("dd/MM/yyyy · HH:mm"),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                    )
+
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Text(
+                            text = typeEvent,
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = color,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                    }
                 }
+
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.outline
+                    )
+                )
             }
         }
     }
 }
+
+
+
+
 
 @Preview(showBackground = true)
 @Composable

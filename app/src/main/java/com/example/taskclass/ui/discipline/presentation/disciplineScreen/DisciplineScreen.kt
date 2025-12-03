@@ -194,20 +194,18 @@ fun DisciplineScreen(
 
                         else -> {
                             Column(
-                                modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Storage,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                                    contentDescription = null
                                 )
+
                                 Text(
-                                    text = "Nenhuma disciplina encontrada",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    text = "Nenhuma disciplina encontrada!",
+                                    style = MaterialTheme.typography.labelMedium
                                 )
                             }
                         }

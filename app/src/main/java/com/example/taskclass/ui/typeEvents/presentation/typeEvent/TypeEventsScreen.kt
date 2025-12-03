@@ -1,4 +1,4 @@
-package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
+package com.example.taskclass.ui.typeEvents.presentation.typeEvent
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -227,21 +228,18 @@ fun TypeEventsScreen(
                     ) {
 
                         Column(
+                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-
-                            Image(
-                                modifier = Modifier.size(60.dp),
-                                painter = painterResource(id = R.drawable.empty),
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            Icon(
+                                imageVector = Icons.Default.Storage,
+                                contentDescription = null
                             )
 
                             Text(
-                                text = "Nenhum tipo de evento cadastrado",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.SemiBold
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = "Nenhum tipo de evento encontrado!",
+                                style = MaterialTheme.typography.labelMedium
                             )
                         }
 

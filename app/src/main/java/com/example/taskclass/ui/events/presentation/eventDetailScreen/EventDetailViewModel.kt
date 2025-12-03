@@ -38,6 +38,44 @@ class EventDetailViewModel @Inject constructor(
         } ?: Log.e(LOG_TAG, "Nenhum ID de evento foi passado na navegação")
     }
 
+    fun deleteEvent() {
+
+        if (eventId == null) return
+
+        viewModelScope.launch {
+            repository.delete(eventId).collect { response ->
+                when (response) {
+
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                isBackNavigation = true
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
     fun updateStatusChecked(isChecked: Boolean) {
 
         viewModelScope.launch {

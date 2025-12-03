@@ -1,4 +1,4 @@
-package com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate
+package com.example.taskclass.ui.typeEvents.presentation.typeEventCreate
 
 data class TypeEventUiState(
     val formState: FormState = FormState(),

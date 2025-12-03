@@ -1,4 +1,4 @@
-package com.example.taskclass.ui.typeEvents.apresentation.typeEvent
+package com.example.taskclass.ui.typeEvents.presentation.typeEvent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

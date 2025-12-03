@@ -1,4 +1,4 @@
-package com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate
+package com.example.taskclass.ui.typeEvents.presentation.typeEventCreate
 
 import androidx.compose.ui.graphics.Color
 import com.example.taskclass.common.data.FieldState

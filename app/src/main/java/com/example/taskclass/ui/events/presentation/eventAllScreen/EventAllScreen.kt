@@ -228,19 +228,18 @@ fun EventAllContent(
                     uiState.events.isEmpty() -> {
 
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Icon(
-                                modifier = Modifier.size(40.dp),
                                 imageVector = Icons.Default.Storage,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
+                                contentDescription = null
                             )
+
                             Text(
-                                text = "Nenhum evento encontrado",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                                modifier = Modifier.padding(top = 8.dp),
+                                text = "Nenhum evento agendado!",
+                                style = MaterialTheme.typography.labelMedium
                             )
                         }
 

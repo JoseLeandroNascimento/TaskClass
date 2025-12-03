@@ -19,7 +19,6 @@ import androidx.navigation.navArgument
 import com.example.taskclass.common.data.NotificationCenter
 import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.BulletinScreen
 import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.BulletinViewModel
-import com.example.taskclass.ui.bulletin.presentation.bulletinScreen.DisciplineReport
 import com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen.DisciplineCreateScreen
 import com.example.taskclass.ui.discipline.presentation.disciplineCreateScreen.DisciplineCreateViewModel
 import com.example.taskclass.ui.discipline.presentation.disciplineScreen.DisciplineScreen
@@ -34,10 +33,10 @@ import com.example.taskclass.ui.notes.presentation.noteEditorScreen.NoteEditorVi
 import com.example.taskclass.ui.schedules.presentation.newSchedule.NewScheduleScreen
 import com.example.taskclass.ui.schedules.presentation.newSchedule.NewScheduleViewModel
 import com.example.taskclass.ui.schedules.presentation.schedules.SchedulesScreen
-import com.example.taskclass.ui.typeEvents.apresentation.typeEvent.TypeEventsScreen
-import com.example.taskclass.ui.typeEvents.apresentation.typeEvent.TypeEventsViewModel
-import com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate.TypeEventCreateScreen
-import com.example.taskclass.ui.typeEvents.apresentation.typeEventCreate.TypeEventCreateViewModel
+import com.example.taskclass.ui.typeEvents.presentation.typeEvent.TypeEventsScreen
+import com.example.taskclass.ui.typeEvents.presentation.typeEvent.TypeEventsViewModel
+import com.example.taskclass.ui.typeEvents.presentation.typeEventCreate.TypeEventCreateScreen
+import com.example.taskclass.ui.typeEvents.presentation.typeEventCreate.TypeEventCreateViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
