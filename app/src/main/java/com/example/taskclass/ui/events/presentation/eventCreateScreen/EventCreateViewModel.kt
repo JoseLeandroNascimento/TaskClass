@@ -1,9 +1,11 @@
 package com.example.taskclass.ui.events.presentation.eventCreateScreen
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskclass.common.data.Resource
 import com.example.taskclass.common.utils.parseToInstant
+import com.example.taskclass.common.utils.toFormattedDateTime
 import com.example.taskclass.core.data.model.entity.EventEntity
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.events.domain.EventRepository
@@ -19,17 +21,72 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class EventCreateViewModel @Inject constructor(
     private val typeEventRepository: TypeEventRepository,
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
     private val _uiState = MutableStateFlow(EventCreateUiState())
     val uiState: StateFlow<EventCreateUiState> = _uiState.asStateFlow()
 
+    private val idEvent: Int? = savedStateHandle["eventId"]
 
     init {
         loadTypesEvents()
+        loadById()
     }
+
+    private fun loadById() {
+
+        idEvent?.let { id ->
+
+            _uiState.update {
+                it.copy(isEditing = true)
+            }
+
+            viewModelScope.launch {
+                eventRepository.findById(id).collect { response ->
+
+                    when (response) {
+
+                        is Resource.Loading -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = true
+                                )
+                            }
+                        }
+
+                        is Resource.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false
+                                )
+                            }
+
+                            with(response.data){
+                                updateTypeEvent(typeEvent)
+                                updateTitle(event.title)
+                                updateDate(event.datetime.toFormattedDateTime("dd/MM/yyyy"))
+                                updateTime(event.datetime.toFormattedDateTime("HH:mm"))
+                                updateDescription(event.description)
+                            }
+                        }
+
+                        is Resource.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 
     private fun loadTypesEvents() {
         viewModelScope.launch {
@@ -102,9 +159,12 @@ class EventCreateViewModel @Inject constructor(
             }
 
 
-            if (validatedForm.isValid()){
+            if (validatedForm.isValid()) {
 
-                val instant = parseToInstant(dateStr = validatedForm.date.value, timeStr = validatedForm.time.value)
+                val instant = parseToInstant(
+                    dateStr = validatedForm.date.value,
+                    timeStr = validatedForm.time.value
+                )
 
                 val event = EventEntity(
                     title = validatedForm.title.value,
@@ -116,19 +176,19 @@ class EventCreateViewModel @Inject constructor(
                 )
 
                 eventRepository.save(event).collect { response ->
-                    when(response){
+                    when (response) {
 
                         is Resource.Loading -> {
 
                         }
 
-                        is Resource.Success->{
+                        is Resource.Success -> {
                             _uiState.update {
                                 it.copy(savedSuccessAndClose = true)
                             }
                         }
 
-                        is Resource.Error ->{
+                        is Resource.Error -> {
 
                         }
                     }

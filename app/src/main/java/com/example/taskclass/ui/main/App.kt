@@ -112,7 +112,10 @@ fun App() {
                 arguments = listOf(navArgument("eventId") { type = NavType.IntType })
             ) {
                 EventDetailScreen(
-                    onBack = { appNavController.navigateUp() }
+                    onBack = { appNavController.navigateUp() },
+                    onEdit = {
+                        appNavController.navigate(Screen.EVENT_EDIT.withArgs(it.toString()))
+                    }
                 )
             }
 
@@ -215,6 +218,24 @@ fun App() {
                 )
             }
 
+            composable(
+                route = Screen.EVENT_EDIT.route,
+                arguments = listOf(navArgument("eventId") {
+                    type = NavType.IntType
+                })
+            ) { backStackEntry ->
+                val viewModel = hiltViewModel<EventCreateViewModel>(backStackEntry)
+                EventCreateScreen(
+                    viewModel = viewModel,
+                    addTypeEvent = {
+                        appNavController.navigate(Screen.TYPE_EVENT_CREATE.route)
+                    },
+                    onBack = {
+                        appNavController.navigateUp()
+                    }
+                )
+            }
+
             composable(Screen.EVENT_ALL.route) { backStackEntry ->
 
                 val viewModel = hiltViewModel<EventAllViewModel>(backStackEntry)
@@ -223,6 +244,9 @@ fun App() {
                     viewModel = viewModel,
                     onCreateNewEvent = {
                         appNavController.navigate(Screen.NEW_EVENT.route)
+                    },
+                    onEditNavigation = {
+                        appNavController.navigate(Screen.EVENT_EDIT.withArgs(it.toString()))
                     },
                     onBack = {
                         appNavController.navigateUp()

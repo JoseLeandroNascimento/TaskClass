@@ -81,6 +81,7 @@ import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
 import com.example.taskclass.core.data.model.entity.EventEntity
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.events.domain.statusCurrent
+import com.example.taskclass.ui.events.presentation.components.ConfirmDeleteDialog
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 import java.time.Instant
@@ -88,7 +89,8 @@ import java.time.Instant
 @Composable
 fun EventDetailScreen(
     onBack: () -> Unit,
-    viewModel: EventDetailViewModel = hiltViewModel()
+    viewModel: EventDetailViewModel = hiltViewModel(),
+    onEdit: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -98,7 +100,8 @@ fun EventDetailScreen(
         onToggleComplete = {
             viewModel.updateStatusChecked(it)
         },
-        onDelete = viewModel::deleteEvent
+        onDelete = viewModel::deleteEvent,
+        onEdit = onEdit
     )
 }
 
@@ -108,16 +111,17 @@ fun EventDetailScreen(
     onBack: () -> Unit,
     uiState: EventDetailUiState,
     onDelete: (() -> Unit)? = null,
+    onEdit: ((Int) -> Unit)? = null,
     onToggleComplete: ((Boolean) -> Unit)? = null
 ) {
 
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
 
-    if(uiState.isBackNavigation) onBack()
+    if (uiState.isBackNavigation) onBack()
 
     if (showConfirmDeleteDialog) {
 
-        ConfirmDeleteDialog(
+        ConfirmDeleteDialog (
             onDismissRequest = { showConfirmDeleteDialog = false },
             confirmDelete = {
                 onDelete?.invoke()
@@ -150,7 +154,11 @@ fun EventDetailScreen(
         },
         floatingActionButton = {
             EventActionsFab(
-                onEdit = { /* abrir tela de edição */ },
+                onEdit = {
+                    uiState.event?.event?.id?.let { id ->
+                        onEdit?.invoke(id)
+                    }
+                },
                 onDelete = { showConfirmDeleteDialog = true }
             )
         }
@@ -346,51 +354,7 @@ fun EventDetailContent(
     }
 }
 
-@Composable
-fun ConfirmDeleteDialog(
-    onDismissRequest: () -> Unit,
-    confirmDelete: () -> Unit
-) {
-    AppDialog(
-        onDismissRequest = onDismissRequest,
-        title = "Excluir Evento",
-    ) {
 
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text(
-                text = "Tem certeza que deseja excluir este evento?",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-
-                TextButton(
-                    modifier = Modifier.padding(end = 8.dp),
-                    onClick = onDismissRequest
-                ) {
-                    Text(
-                        text = stringResource(R.string.btn_cancelar),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-
-                AppButton(
-                    label = stringResource(R.string.btn_confirm),
-                    onClick = confirmDelete
-                )
-            }
-        }
-
-    }
-}
 
 
 @OptIn(ExperimentalAnimationApi::class)

@@ -48,6 +48,8 @@ import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.core.data.model.dto.EventEndTypeEventDto
 import com.example.taskclass.core.data.model.enums.EEventStatus
 import com.example.taskclass.ui.events.domain.EventFilter
+import com.example.taskclass.ui.events.presentation.components.EventItemCard
+import com.example.taskclass.ui.events.presentation.components.FilterEventChip
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
 
@@ -57,6 +59,7 @@ fun EventAllScreen(
     viewModel: EventAllViewModel,
     onCreateNewEvent: () -> Unit,
     onBack: () -> Unit,
+    onEditNavigation: (Int) -> Unit,
     onViewEventNavigation: (Int) -> Unit
 ) {
 
@@ -71,7 +74,11 @@ fun EventAllScreen(
         filterByStatus = viewModel::filterByStatus,
         updateStatusChecked = viewModel::updateStatusChecked,
         search = viewModel::updateQuery,
-        onViewEventNavigation = onViewEventNavigation
+        onViewEventNavigation = onViewEventNavigation,
+        onEdit = onEditNavigation,
+        onDelete = { id ->
+            viewModel.deleteEvent(id)
+        }
     )
 
 }
@@ -87,7 +94,9 @@ fun EventAllScreen(
     search: ((String) -> Unit)? = null,
     onCreateNewEvent: (() -> Unit)? = null,
     onBack: () -> Unit,
-    onViewEventNavigation: (Int) -> Unit
+    onViewEventNavigation: (Int) -> Unit,
+    onDelete: ((Int) -> Unit)? = null,
+    onEdit: ((Int) -> Unit)? = null
 ) {
 
     var expandedSearch by rememberSaveable { mutableStateOf(false) }
@@ -180,7 +189,9 @@ fun EventAllScreen(
                 uiState = uiState,
                 filterByStatus = filterByStatus,
                 updateStatusChecked = updateStatusChecked,
-                onViewEventNavigation = onViewEventNavigation
+                onViewEventNavigation = onViewEventNavigation,
+                onDelete = onDelete,
+                onEdit = onEdit
             )
 
         }
@@ -195,7 +206,9 @@ fun EventAllContent(
     uiState: EventAllUiState,
     filterByStatus: ((EEventStatus?) -> Unit)? = null,
     updateStatusChecked: ((Int, Boolean) -> Unit)? = null,
-    onViewEventNavigation: (Int) -> Unit
+    onViewEventNavigation: (Int) -> Unit,
+    onDelete: ((Int) -> Unit)? = null,
+    onEdit: ((Int) -> Unit)? = null
 ) {
     Surface(
         modifier = modifier,
@@ -258,7 +271,9 @@ fun EventAllContent(
                                     Text(
                                         text = eventGroup.key.label,
                                         style = MaterialTheme.typography.labelSmall,
-                                        modifier = Modifier.padding(vertical = 8.dp).padding(start = 4.dp)
+                                        modifier = Modifier
+                                            .padding(vertical = 8.dp)
+                                            .padding(start = 4.dp)
                                     )
                                 }
 
@@ -268,6 +283,7 @@ fun EventAllContent(
                                 ) { event ->
 
                                     EventItemCard(
+                                        id = event.event.id,
                                         title = event.event.title,
                                         color = event.typeEvent.color,
                                         checked = event.event.completed,
@@ -278,6 +294,12 @@ fun EventAllContent(
                                         typeEvent = event.typeEvent.name,
                                         onSelected = {
                                             onViewEventNavigation(event.event.id)
+                                        },
+                                        onEdit = {
+                                            onEdit?.invoke(it)
+                                        },
+                                        onDelete = {
+                                            onDelete?.invoke(it)
                                         }
                                     )
                                 }

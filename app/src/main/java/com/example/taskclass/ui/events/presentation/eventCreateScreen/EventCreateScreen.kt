@@ -140,10 +140,14 @@ fun EventCreateScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(top = 8.dp)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+
         ) {
 
-            HideKeyboardOnTap {
+            HideKeyboardOnTap(
+                modifier = Modifier.align(alignment = Alignment.TopCenter)
+            ) {
 
                 Column(
                     modifier = Modifier
@@ -287,6 +291,10 @@ fun EventCreateScreen(
                         onClick = onSave
                     )
                 }
+            }
+
+            if(uiState.isLoading){
+                CircularProgressIndicator()
             }
         }
     }

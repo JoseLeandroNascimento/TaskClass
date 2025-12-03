@@ -1,14 +1,10 @@
-package com.example.taskclass.ui.events.presentation.eventAllScreen
+package com.example.taskclass.ui.events.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -16,8 +12,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,26 +34,63 @@ import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.SwipeContainer
 import com.example.taskclass.common.utils.toFormattedDateTime
 import com.example.taskclass.ui.theme.TaskClassTheme
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 @Composable
 fun EventItemCard(
+    id: Int,
     title: String,
     color: Color,
     typeEvent: String,
     checked: Boolean,
     dateTime: Instant,
+    onDelete: ((Int)-> Unit)? = null,
+    onEdit: ((Int)-> Unit)? = null,
     onSelected: () -> Unit,
     onCheckedChange: (Boolean) -> Unit
 ) {
 
+    var confirmDelete by remember { mutableStateOf(false) }
+    var swipeState by remember { mutableStateOf<SwipeToDismissBoxState?>(null) }
+    val scope = rememberCoroutineScope ()
+
+    if(confirmDelete){
+
+        ConfirmDeleteDialog(
+            onDismissRequest = {
+                confirmDelete = false
+                swipeState?.let {
+                    scope.launch {
+                        it.reset()
+                    }
+                }
+            },
+            confirmDelete = {
+                confirmDelete = false
+                swipeState?.let {
+                    scope.launch {
+                        it.reset()
+                        onDelete?.invoke(id)
+                    }
+                }
+            }
+        )
+    }
+
     SwipeContainer(
         modifier = Modifier.clip(RoundedCornerShape(14.dp)),
-        onRemove = {},
-        onToggleDone = {},
+        onRemove = {
+            confirmDelete = true
+        },
+        onToggleDone = {
+            onEdit?.invoke(id)
+        },
         startIcon = Icons.Default.Delete,
         endIcon = Icons.Default.Edit
     ) {
+
+        swipeState = state
 
         AppCardDefault(onSelected = onSelected) {
 
@@ -139,6 +178,7 @@ private fun EventItemCardPreview() {
         dynamicColor = false
     ) {
         EventItemCard(
+            id = 1,
             title = "Event 1",
             color = MaterialTheme.colorScheme.primary,
             checked = false,
@@ -157,6 +197,7 @@ private fun EventItemCardDarkPreview() {
         dynamicColor = false
     ) {
         EventItemCard(
+            id = 1,
             title = "Event 1",
             color = MaterialTheme.colorScheme.primary,
             checked = true,

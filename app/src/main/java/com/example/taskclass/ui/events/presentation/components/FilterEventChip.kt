@@ -1,4 +1,4 @@
-package com.example.taskclass.ui.events.presentation.eventAllScreen
+package com.example.taskclass.ui.events.presentation.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons

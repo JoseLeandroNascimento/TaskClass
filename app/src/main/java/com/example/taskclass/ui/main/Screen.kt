@@ -8,6 +8,7 @@ enum class Screen(val route: String) {
     NEW_EVENT("NEW_EVENT"),
     EVENT_ALL("EVENT_ALL"),
     EVENT_CREATE("EVENT_CREATE"),
+    EVENT_EDIT("EVENT_EDIT/{eventId}"),
     NOTES("NOTES"),
     NOTE_CREATE("NOTE_CREATE"),
     DISCIPLINE("DISCIPLINE"),

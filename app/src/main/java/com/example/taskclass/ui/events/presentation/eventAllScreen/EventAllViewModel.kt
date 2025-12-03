@@ -48,6 +48,14 @@ class EventAllViewModel @Inject constructor(
         }
     }
 
+    fun deleteEvent(id: Int) {
+        viewModelScope.launch {
+            repo.delete(id).collect { response ->
+
+            }
+        }
+    }
+
     fun updateStatusChecked(id: Int, isChecked: Boolean) {
 
         viewModelScope.launch {
