@@ -1,7 +1,9 @@
 package com.example.taskclass.ui.notes.presentation.notesScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,34 +35,54 @@ import com.mohamedrejeb.richeditor.ui.material3.RichText
 @Composable
 fun NoteCard(
     note: NoteEntity,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val state = rememberRichTextState()
+
+    LaunchedEffect(note.id, note.updatedAt, note.html) {
+        state.setHtml(note.html)
+    }
+
+    val collapsedHeight = 132.dp
+
     AppCardNote(
         modifier = modifier,
-    ) {
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = note.title.ifBlank { "Sem título" },
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            trailingContent = {
+        onClick = onClick,
+        header = {
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = note.title.ifBlank { "Sem título" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                trailingContent = {
 
+                }
+            )
+        },
+        footer = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ProvideTextStyle(MaterialTheme.typography.labelSmall) {
+                    Text(
+                        text = note.updatedAt.formatRelativeOrDate(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                    )
+                }
             }
-        )
+        }
+    ) {
 
         if (note.html.isNotBlank()) {
-            val state = rememberRichTextState()
-
-            LaunchedEffect(note.id, note.updatedAt, note.html) {
-                state.setHtml(note.html)
-            }
-
-            val collapsedHeight = 132.dp
 
             Box(
                 modifier = Modifier
@@ -102,17 +124,6 @@ fun NoteCard(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
-
-        ProvideTextStyle(MaterialTheme.typography.labelSmall) {
-            Text(
-                text = note.updatedAt.formatRelativeOrDate(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .align(Alignment.End)
-            )
-        }
     }
 }
 
@@ -126,6 +137,7 @@ private fun NoteCardPreview() {
     ) {
 
         NoteCard(
+            onClick = {},
             note = NoteEntity(
                 id = 0,
                 title = "Título da nota",
@@ -148,6 +160,7 @@ private fun NoteCardDarkPreview() {
     ) {
 
         NoteCard(
+            onClick = {},
             note = NoteEntity(
                 id = 0,
                 title = "Título da nota",

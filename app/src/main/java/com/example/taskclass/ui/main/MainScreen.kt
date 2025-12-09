@@ -81,6 +81,7 @@ fun MainScreen(
     onNavigationNewNote: () -> Unit,
     onNavigateToAllEvents: () -> Unit,
     onSelectedEvent: (Int) -> Unit,
+    onEditNavigation: (Int) -> Unit,
     onEditSchedule: (Int) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -122,7 +123,8 @@ fun MainScreen(
             onEditSchedule = onEditSchedule,
             onNavigateToAllEvents = onNavigateToAllEvents,
             onSelectedEvent = onSelectedEvent,
-            onNavigationNewNote = onNavigationNewNote
+            onNavigationNewNote = onNavigationNewNote,
+            onEditNavigation = onEditNavigation
         )
     }
 }
@@ -227,6 +229,7 @@ fun MainContent(
     onSelectedEvent: (Int) -> Unit,
     onNavigateToAllEvents: () -> Unit,
     onEditSchedule: (Int) -> Unit,
+    onEditNavigation: (Int) -> Unit,
     onNavigationNewNote: () -> Unit,
 
     ) {
@@ -329,7 +332,8 @@ fun MainContent(
 
                     val viewModel = hiltViewModel<NotesViewModel>(backStackEntry)
                     NotesScreen(
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        onEditNavigation = onEditNavigation
                     )
                 }
             }
@@ -430,6 +434,7 @@ private fun MainScreenPreview() {
             onNavigationDrawer = {},
             onNavigationNewEvent = {},
             onNavigationNewSchedule = {},
+            onEditNavigation = {},
             onSelectedEvent = {}
         )
     }
@@ -450,6 +455,7 @@ private fun MainScreenDarkPreview() {
             onNavigationDrawer = {},
             onNavigationNewEvent = {},
             onNavigationNewSchedule = {},
+            onEditNavigation = {},
             onSelectedEvent = {}
         )
     }

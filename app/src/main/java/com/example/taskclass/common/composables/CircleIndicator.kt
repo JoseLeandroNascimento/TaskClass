@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NotInterested
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +23,7 @@ import com.example.taskclass.ui.theme.TaskClassTheme
 @Composable
 fun CircleIndicator(
     modifier: Modifier = Modifier,
+    colorTransparent: Color = Color.Transparent,
     size: Dp = 40.dp,
     checked: Boolean = false,
     onClick: (() -> Unit)? = null,
@@ -52,14 +56,23 @@ fun CircleIndicator(
 
         contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(size * .6f)
-                .background(
-                    color = color,
-                    shape = CircleShape
-                )
-        )
+
+        if (color == colorTransparent) {
+            Icon(
+                imageVector = Icons.Default.NotInterested,
+                contentDescription = null,
+                tint = Color.Gray.copy(alpha = 0.9f)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(size * .6f)
+                    .background(
+                        color = color,
+                        shape = CircleShape
+                    )
+            )
+        }
     }
 }
 
@@ -85,6 +98,20 @@ private fun CircleIndicatorCheckedPreview() {
     ) {
         CircleIndicator(
             color = MaterialTheme.colorScheme.primary,
+            checked = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CircleIndicatorTransparentPreview() {
+    TaskClassTheme(
+        dynamicColor = false,
+        darkTheme = false
+    ) {
+        CircleIndicator(
+            color = Color.Transparent,
             checked = true
         )
     }

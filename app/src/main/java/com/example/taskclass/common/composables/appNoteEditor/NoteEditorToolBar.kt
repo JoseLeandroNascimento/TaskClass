@@ -37,41 +37,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.taskclass.common.composables.SelectColorOptionsDialog
+import com.example.taskclass.ui.theme.ColorsSelect
 import com.example.taskclass.ui.theme.TaskClassTheme
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
 
 @Composable
 fun NoteEditorToolBar(
+    state: RichTextState,
     modifier: Modifier = Modifier,
-    isBold: Boolean = false,
-    onBoldClick: () -> Unit,
-    isItalic: Boolean = false,
-    onItalicClick: () -> Unit,
-    isUnderline: Boolean = false,
-    onUnderlineClick: () -> Unit,
     colorBackground: Color = MaterialTheme.colorScheme.background,
     onColorBackground: (Color) -> Unit,
     colorText: Color = Color.Unspecified,
     onColorText: (Color) -> Unit,
-    isLink: Boolean,
     onAddLink: () -> Unit,
-    textAlign: TextAlign,
-    onAlignLeft: () -> Unit,
-    onAlignJustify: () -> Unit,
-    onAlignRight: () -> Unit,
-    isOrderedList: Boolean,
-    isUnorderedList: Boolean,
-    onToggleOrderedList: () -> Unit,
-    onToggleUnorderedList: () -> Unit,
     onEmojiPicker: () -> Unit
 ) {
 
     var expandedColorBackground by remember { mutableStateOf(false) }
     var expandedColorText by remember { mutableStateOf(false) }
 
+    val colorsSelect = (ColorsSelect.GrayPalette + ColorsSelect.predefinedColors).toMutableList().also {
+        it.add(0,MaterialTheme.colorScheme.background)
+    }
 
     if (expandedColorBackground) {
 
@@ -81,6 +79,8 @@ fun NoteEditorToolBar(
                 onColorBackground(it)
                 expandedColorBackground = false
             },
+            colorTransparent = MaterialTheme.colorScheme.background,
+            predefinedColors = colorsSelect,
             onDismiss = { expandedColorBackground = false }
         )
 
@@ -90,6 +90,8 @@ fun NoteEditorToolBar(
 
         SelectColorOptionsDialog(
             currentColor = colorText,
+            predefinedColors =  colorsSelect,
+            colorTransparent = MaterialTheme.colorScheme.background,
             onColorSelected = {
                 onColorText(it)
                 expandedColorText = false
@@ -98,6 +100,9 @@ fun NoteEditorToolBar(
         )
 
     }
+
+    val currentAlign: TextAlign = state.currentParagraphStyle.textAlign
+
 
     Surface(
         modifier = modifier
@@ -114,58 +119,60 @@ fun NoteEditorToolBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            IconButton(
-                onClick = onEmojiPicker,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.EmojiEmotions,
-                    contentDescription = "Inserir emoji",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            IconButtonActionStyle(
+                imageVector = Icons.Default.EmojiEmotions,
+                contentDescription = "Inserir emoji",
+                onClick = onEmojiPicker
+            )
 
+            VerticalDivider()
 
             Row() {
 
-                IconButton(
-                    onClick = onBoldClick,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatBold,
-                        contentDescription = null,
-                        tint = if (isBold) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                IconButtonActionStyle(
+                    imageVector = Icons.Default.FormatBold,
+                    selected = state.currentSpanStyle.fontWeight == FontWeight.Bold,
+                    onClick = {
+                        state.toggleSpanStyle(
+                            SpanStyle(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                )
 
-                IconButton(
-                    onClick = onItalicClick,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatItalic,
-                        contentDescription = null,
-                        tint = if (isItalic) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-                }
 
-                IconButton(
-                    onClick = onUnderlineClick,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FormatUnderlined,
-                        contentDescription = null,
-                        tint = if (isUnderline) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                IconButtonActionStyle(
+                    imageVector = Icons.Default.FormatItalic,
+                    selected = state.currentSpanStyle.fontStyle == FontStyle.Italic,
+                    onClick = {
+                        state.toggleSpanStyle(
+                            SpanStyle(
+                                fontStyle = FontStyle.Italic
+                            )
+                        )
+                    }
+                )
 
-                IconButton(
-                    onClick = onAddLink,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Link,
-                        contentDescription = null,
-                        tint = if (isLink) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                IconButtonActionStyle(
+                    imageVector = Icons.Default.FormatUnderlined,
+                    selected = state.currentSpanStyle.textDecoration?.contains(TextDecoration.Underline)
+                        ?: false,
+                    onClick = {
+                        state.toggleSpanStyle(
+                            SpanStyle(
+                                textDecoration = TextDecoration.Underline
+                            )
+                        )
+                    }
+                )
+
+                IconButtonActionStyle(
+                    imageVector = Icons.Default.Link,
+                    selected = state.isLink,
+                    onClick = onAddLink
+                )
+
             }
 
             VerticalDivider()
@@ -179,7 +186,7 @@ fun NoteEditorToolBar(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = textAlign == TextAlign.Start || textAlign == TextAlign.Left,
+                    selected = currentAlign == TextAlign.Start || currentAlign == TextAlign.Left,
                     label = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.FormatAlignLeft,
@@ -187,7 +194,9 @@ fun NoteEditorToolBar(
                         )
                     },
                     icon = {},
-                    onClick = onAlignLeft,
+                    onClick = {
+                        state.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.Start))
+                    },
                     shape = MaterialTheme.shapes.small,
                 )
                 SegmentedButton(
@@ -198,7 +207,7 @@ fun NoteEditorToolBar(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = textAlign == TextAlign.Justify,
+                    selected = currentAlign == TextAlign.Justify,
                     label = {
                         Icon(
                             imageVector = Icons.Default.FormatAlignJustify,
@@ -206,7 +215,9 @@ fun NoteEditorToolBar(
                         )
                     },
                     icon = {},
-                    onClick = onAlignJustify,
+                    onClick = {
+                        state.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.Justify))
+                    },
                     shape = MaterialTheme.shapes.small,
                 )
                 SegmentedButton(
@@ -217,7 +228,7 @@ fun NoteEditorToolBar(
                         activeContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .2f),
                         inactiveContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    selected = textAlign == TextAlign.End || textAlign == TextAlign.Right,
+                    selected = currentAlign == TextAlign.End || currentAlign == TextAlign.Right,
                     label = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.FormatAlignRight,
@@ -225,7 +236,9 @@ fun NoteEditorToolBar(
                         )
                     },
                     icon = {},
-                    onClick = onAlignRight,
+                    onClick = {
+                        state.toggleParagraphStyle(ParagraphStyle(textAlign = TextAlign.Right))
+                    },
                     shape = MaterialTheme.shapes.small,
                 )
             }
@@ -233,23 +246,29 @@ fun NoteEditorToolBar(
             VerticalDivider()
 
             Row {
-                IconButton(onClick = onToggleOrderedList) {
-                    Icon(
-                        imageVector = Icons.Default.FormatListNumbered,
-                        contentDescription = "Lista ordenada",
-                        tint = if (isOrderedList) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface
-                    )
-                }
 
-                IconButton(onClick = onToggleUnorderedList) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
-                        contentDescription = "Lista não ordenada",
-                        tint = if (isUnorderedList) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                IconButtonActionStyle(
+                    imageVector = Icons.Default.FormatListNumbered,
+                    selected = state.isOrderedList,
+                    onClick = {
+                        if (state.isOrderedList)
+                            state.removeOrderedList()
+                        else
+                            state.addOrderedList()
+                    }
+                )
+
+                IconButtonActionStyle(
+                    imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
+                    selected = state.isUnorderedList,
+                    onClick = {
+                        if (state.isUnorderedList)
+                            state.removeUnorderedList()
+                        else
+                            state.addUnorderedList()
+                    }
+                )
+
             }
 
             VerticalDivider()
@@ -284,9 +303,28 @@ fun NoteEditorToolBar(
 
             }
 
-            VerticalDivider()
-
         }
+    }
+}
+
+@Composable
+fun IconButtonActionStyle(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    contentDescription: String = "",
+    selected: Boolean = false,
+    onClick: () -> Unit
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = contentDescription,
+            tint = if (selected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -300,29 +338,17 @@ private fun NoteEditorToolBarPreview() {
     ) {
 
         NoteEditorToolBar(
+            state = rememberRichTextState(),
             onEmojiPicker = {},
-            isLink = false,
             onAddLink = {},
-            textAlign = TextAlign.Left,
             colorBackground = MaterialTheme.colorScheme.surface,
             onColorBackground = {},
-            isUnderline = false,
-            onUnderlineClick = {},
-            isBold = false,
-            onBoldClick = {},
+
             colorText = MaterialTheme.colorScheme.onSurface,
             onColorText = {},
-            isItalic = false,
-            onAlignJustify = {},
-            isOrderedList = false,
-            isUnorderedList = false,
-            onAlignLeft = {},
-            onAlignRight = {},
-            onItalicClick = {},
-            onToggleOrderedList = {},
-            onToggleUnorderedList = {}
 
-        )
+
+            )
     }
 }
 
@@ -336,28 +362,14 @@ private fun NoteEditorToolBarDarkPreview() {
     ) {
 
         NoteEditorToolBar(
+            state = rememberRichTextState(),
             onEmojiPicker = {},
-            isLink = false,
             onAddLink = {},
-            textAlign = TextAlign.Left,
             colorBackground = MaterialTheme.colorScheme.surface,
             onColorBackground = {},
-            isUnderline = false,
-            onUnderlineClick = {},
-            isBold = false,
-            onBoldClick = {},
             colorText = MaterialTheme.colorScheme.onSurface,
             onColorText = {},
-            isItalic = false,
-            onAlignJustify = {},
-            isOrderedList = false,
-            isUnorderedList = false,
-            onAlignLeft = {},
-            onAlignRight = {},
-            onItalicClick = {},
-            onToggleOrderedList = {},
-            onToggleUnorderedList = {}
 
-        )
+            )
     }
 }

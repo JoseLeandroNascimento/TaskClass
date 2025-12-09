@@ -1,6 +1,5 @@
 package com.example.taskclass.ui.typeEvents.presentation.typeEvent
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,8 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -79,7 +75,7 @@ fun TypeEventsScreen(
     TypeEventsScreen(
         onBack = onBack,
         uiState = uiState,
-        onDelete = viewModel::delete,
+        onAction = viewModel::onAction,
         onCreateNavigation = onCreateNavigation,
         onSelectedItemEdit = {
             onEditNavigation(it)
@@ -94,7 +90,7 @@ fun TypeEventsScreen(
     uiState: TypeEventsUiState,
     onCreateNavigation: () -> Unit,
     onSelectedItemEdit: ((Int) -> Unit)? = null,
-    onDelete: (Int) -> Unit,
+    onAction: (TypeEventAction)-> Unit
 ) {
 
     val valueDefault = "name"
@@ -213,7 +209,11 @@ fun TypeEventsScreen(
                         items(items = uiState.typeEvents, key = { it.id }) { typeEventItem ->
                             TypeEventCardItem(
                                 typeEventItem = typeEventItem,
-                                onDelete = onDelete,
+                                onDelete = {
+                                    onAction(
+                                        TypeEventAction.OnDelete(typeEventItem.id)
+                                    )
+                                },
                                 onSelectedItemEdit = onSelectedItemEdit
                             )
                         }
@@ -399,7 +399,7 @@ private fun TypeEventsScreenLightPreview() {
                 isLoading = true
             ),
             onCreateNavigation = {},
-            onDelete = {},
+            onAction = {}
         )
     }
 }
@@ -417,7 +417,7 @@ private fun TypeEventsScreenDarkPreview() {
             onBack = {},
             uiState = TypeEventsUiState(),
             onCreateNavigation = {},
-            onDelete = {},
+            onAction = {}
         )
     }
 }

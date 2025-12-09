@@ -11,6 +11,7 @@ enum class Screen(val route: String) {
     EVENT_EDIT("EVENT_EDIT/{eventId}"),
     NOTES("NOTES"),
     NOTE_CREATE("NOTE_CREATE"),
+    NOTE_EDIT("NOTE_EDIT/{idNote}"),
     DISCIPLINE("DISCIPLINE"),
     DISCIPLINE_CREATE("DISCIPLINE_CREATE"),
     DISCIPLINE_EDIT("DISCIPLINE_EDIT/{disciplineId}"),

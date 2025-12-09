@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -103,6 +104,9 @@ fun App() {
                     },
                     onNavigationNewNote = {
                         appNavController.navigate(Screen.NOTE_CREATE.route)
+                    },
+                    onEditNavigation = { idNote ->
+                        appNavController.navigate(Screen.NOTE_EDIT.withArgs(idNote.toString()))
                     }
                 )
             }
@@ -302,6 +306,23 @@ fun App() {
 
             composable(Screen.NOTE_CREATE.route) { backStackEntry ->
 
+                val viewModel = hiltViewModel<NoteEditorViewModel>(backStackEntry)
+                NoteEditScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        appNavController.navigateUp()
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.NOTE_EDIT.route,
+                arguments = listOf(
+                    navArgument("idNote") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
                 val viewModel = hiltViewModel<NoteEditorViewModel>(backStackEntry)
                 NoteEditScreen(
                     viewModel = viewModel,

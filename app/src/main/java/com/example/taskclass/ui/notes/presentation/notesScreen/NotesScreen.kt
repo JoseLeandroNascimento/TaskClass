@@ -40,12 +40,14 @@ import com.example.taskclass.ui.theme.TaskClassTheme
 @Composable
 fun NotesScreen(
     modifier: Modifier = Modifier,
+    onEditNavigation: (Int) -> Unit,
     viewModel: NotesViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     NotesScreen(
         modifier = modifier,
+        onEditNavigation = onEditNavigation,
         uiState = uiState
     )
 }
@@ -54,6 +56,7 @@ fun NotesScreen(
 @Composable
 fun NotesScreen(
     modifier: Modifier = Modifier,
+    onEditNavigation: (Int) -> Unit,
     uiState: NotesUiState
 ) {
 
@@ -150,13 +153,16 @@ fun NotesScreen(
 
                             items(items = uiState.notes, key = { it.id }) { note ->
                                 NoteCard(
+                                    onClick = {
+                                        onEditNavigation(note.id)
+                                    },
                                     note = note
                                 )
                             }
 
-                            item (
+                            item(
                                 span = StaggeredGridItemSpan.FullLine
-                            ){
+                            ) {
                                 Spacer(
                                     modifier = Modifier.height(80.dp)
                                 )
@@ -179,7 +185,8 @@ private fun NotesScreenLightPreview() {
         darkTheme = false
     ) {
         NotesScreen(
-            uiState = NotesUiState()
+            uiState = NotesUiState(),
+            onEditNavigation = {}
         )
     }
 }
@@ -193,7 +200,8 @@ private fun NotesScreenDarkPreview() {
         darkTheme = true
     ) {
         NotesScreen(
-            uiState = NotesUiState()
+            uiState = NotesUiState(),
+            onEditNavigation = {}
         )
     }
 }

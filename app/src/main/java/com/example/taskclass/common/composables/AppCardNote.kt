@@ -1,12 +1,16 @@
 package com.example.taskclass.common.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
@@ -19,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,15 +34,32 @@ import com.example.taskclass.ui.theme.TaskClassTheme
 @Composable
 fun AppCardNote(
     modifier: Modifier = Modifier,
+    header: @Composable () -> Unit,
+    footer: @Composable () -> Unit,
+    onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
 
     val CARD_CUT_RADIUS = 30.dp
 
+    val onClickModifier = if (onClick != null) {
+        Modifier.clickable { onClick() }
+    } else {
+        Modifier
+    }
+
+
     Box {
         Card(
             modifier = modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clip(
+                    shape = CutTopEndRoundedShape(
+                        roundedRadius = CornerSize(8.dp),
+                        cutSize = CornerSize(CARD_CUT_RADIUS)
+                    )
+                )
+                .then(onClickModifier),
             shape = CutTopEndRoundedShape(
                 roundedRadius = CornerSize(8.dp),
                 cutSize = CornerSize(CARD_CUT_RADIUS)
@@ -46,20 +68,48 @@ fun AppCardNote(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             ),
-
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-            Surface(
-                modifier = Modifier.padding(
-                    top = 8.dp,
-                    bottom = 8.dp,
-                    start = 16.dp,
-                    end = CARD_CUT_RADIUS
-                ),
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .heightIn(min = CARD_CUT_RADIUS)
+                        .padding(
+                            top = 8.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = CARD_CUT_RADIUS
+                        ),
                 ) {
-                    content()
+                    header()
+                }
+                Surface(
+                    modifier = Modifier
+                        .padding(
+                            top = 8.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = CARD_CUT_RADIUS
+                        ),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        content()
+                    }
+                }
+
+                Box(
+                    modifier = Modifier.padding(
+                        top = 8.dp,
+                        bottom = 8.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
+                ) {
+                    footer()
                 }
             }
         }
@@ -115,7 +165,20 @@ private fun AppCardNotePreview() {
         dynamicColor = false,
         darkTheme = false
     ) {
-        AppCardNote {
+        AppCardNote(
+            header = {
+                Text(text = "Título da nota")
+            },
+            footer = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "05 Dec 2025")
+                }
+            }
+        ) {
             Text(text = LoremIpsum(80).values.joinToString(" "))
         }
     }
@@ -128,7 +191,20 @@ private fun AppCardNoteDarkPreview() {
         dynamicColor = false,
         darkTheme = true
     ) {
-        AppCardNote {
+        AppCardNote(
+            header = {
+                Text(text = "Título da nota")
+            },
+            footer = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "05 Dec 2025")
+                }
+            }
+        ) {
             Text(
                 textAlign = TextAlign.Justify,
                 text = LoremIpsum(80).values.joinToString(" ")

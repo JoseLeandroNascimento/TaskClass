@@ -7,5 +7,5 @@ data class NoteUiState(
     val id: Int? = null,
     val isLoading: Boolean = false,
     val isBackNavigation: Boolean = false,
-    val messageError: String? = null
+    val messageError: String? = null,
 )

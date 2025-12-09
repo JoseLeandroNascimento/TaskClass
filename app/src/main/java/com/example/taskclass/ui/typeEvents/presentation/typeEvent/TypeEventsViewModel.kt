@@ -25,6 +25,16 @@ class TypeEventsViewModel @Inject constructor(
         loadAll()
     }
 
+    fun onAction(action: TypeEventAction){
+        when(action){
+
+            is TypeEventAction.OnDelete ->{
+                delete(action.id)
+            }
+        }
+
+    }
+
     fun loadAll() {
         viewModelScope.launch {
             repo.findAll().collectLatest { response ->
@@ -56,7 +66,7 @@ class TypeEventsViewModel @Inject constructor(
     }
 
 
-    fun delete(id: Int) {
+    private fun delete(id: Int) {
         viewModelScope.launch {
             repo.delete(id).collect { response ->
 

@@ -24,12 +24,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +41,7 @@ import com.example.taskclass.common.composables.AppInputText
 import com.example.taskclass.common.composables.appNoteEditor.NoteEditor
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
+import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 
 @Composable
@@ -51,6 +54,7 @@ fun NoteEditScreen(
 
     NoteEditScreen(
         uiState = uiState,
+        stateEditor = viewModel.stateEditor.value,
         onBack = onBack,
         updateHtml = viewModel::updateHtml,
         updatePlain = viewModel::updatePlain,
@@ -63,6 +67,7 @@ fun NoteEditScreen(
 @Composable
 fun NoteEditScreen(
     uiState: NoteUiState,
+    stateEditor: RichTextState,
     onBack: () -> Unit,
     updateHtml: ((String) -> Unit)? = null,
     updatePlain: ((String) -> Unit)? = null,
@@ -70,14 +75,17 @@ fun NoteEditScreen(
     onSave: (() -> Unit)? = null,
 ) {
 
-    val stateEditor = rememberRichTextState()
+    val stateEditor = stateEditor
+    stateEditor.config.linkColor = MaterialTheme.colorScheme.primary
+    stateEditor.config.linkTextDecoration = TextDecoration.None
+
     var showConfirmSaveDialog by remember { mutableStateOf(false) }
 
-    if(uiState.isBackNavigation){
+    if (uiState.isBackNavigation) {
         onBack()
     }
 
-    if(showConfirmSaveDialog) {
+    if (showConfirmSaveDialog) {
 
         AppDialog(
             title = "Salvar alterações",
@@ -202,6 +210,7 @@ private fun NoteEditPreview() {
         darkTheme = false
     ) {
         NoteEditScreen(
+            stateEditor = rememberRichTextState(),
             uiState = NoteUiState(),
             onBack = {}
         )
@@ -217,6 +226,7 @@ private fun NoteEditDarkPreview() {
         darkTheme = true
     ) {
         NoteEditScreen(
+            stateEditor = rememberRichTextState(),
             uiState = NoteUiState(),
             onBack = {}
         )
