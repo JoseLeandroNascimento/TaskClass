@@ -136,18 +136,18 @@ fun NotesScreen(
                                     horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    AppButtonOrderBy(
-                                        options = optionsOrderBy,
-                                        value = orderBy,
-                                        onValueChange = {
-                                            orderBy = it
-                                        },
-                                        sortDirection = sortDirection,
-                                        onSortDirectionChange = {
-                                            sortDirection = !sortDirection
-                                        }
-
-                                    )
+//                                    AppButtonOrderBy(
+//                                        options = optionsOrderBy,
+//                                        value = orderBy,
+//                                        onValueChange = {
+//                                            orderBy = it
+//                                        },
+//                                        sortDirection = sortDirection,
+//                                        onSortDirectionChange = {
+//                                            sortDirection = !sortDirection
+//                                        }
+//
+//                                    )
                                 }
                             }
 

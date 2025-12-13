@@ -11,5 +11,6 @@ data class FormState(
             NotBlankValidator(messageError = "Informe o nome do evento")
         )
     ),
+    val createdAt: FieldState<Long?> = FieldState(null),
     val colorTypeEvent: FieldState<Color> = FieldState(Color.Blue)
 )

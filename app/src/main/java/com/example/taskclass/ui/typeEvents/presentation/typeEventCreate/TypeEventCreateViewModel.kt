@@ -53,7 +53,8 @@ class TypeEventCreateViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 formState = it.formState.copy(
-                                    id = it.formState.id.updateValue(response.data.id)
+                                    id = it.formState.id.updateValue(response.data.id),
+                                    createdAt = it.formState.createdAt.updateValue(response.data.createdAt),
                                 ),
                                 isLoading = false
                             )
@@ -114,7 +115,9 @@ class TypeEventCreateViewModel @Inject constructor(
                 val data = TypeEventEntity(
                     id = id.value ?: 0,
                     name = nameTypeEvent.value,
-                    color = colorTypeEvent.value
+                    color = colorTypeEvent.value,
+                    createdAt = createdAt.value ?: System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
                 )
 
                 viewModelScope.launch {

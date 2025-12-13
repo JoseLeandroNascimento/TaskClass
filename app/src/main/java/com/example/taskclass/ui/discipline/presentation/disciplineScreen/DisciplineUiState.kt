@@ -6,6 +6,4 @@ import kotlin.reflect.KProperty1
 data class DisciplineUiState(
     val disciplines: List<DisciplineEntity> = emptyList(),
     val isLoading: Boolean = false,
-    val orderBy:KProperty1<DisciplineEntity, Comparable<*>> = DisciplineEntity::createdAt,
-    val sortDirection: Boolean = false
 )

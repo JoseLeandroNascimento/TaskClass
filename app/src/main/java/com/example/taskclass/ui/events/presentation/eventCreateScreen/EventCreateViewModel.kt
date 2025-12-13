@@ -90,7 +90,9 @@ class EventCreateViewModel @Inject constructor(
 
     private fun loadTypesEvents() {
         viewModelScope.launch {
-            typeEventRepository.findAll().collect { response ->
+            typeEventRepository.findAll(
+                query = null
+            ).collect { response ->
                 _uiState.update {
                     it.copy(typeEvents = response)
                 }

@@ -9,5 +9,7 @@ data class TypeEventEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val color: Color,
-    val icon: Int? = null
+    val icon: Int? = null,
+    val createdAt: Long,
+    val updatedAt: Long
 )

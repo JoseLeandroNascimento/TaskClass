@@ -16,8 +16,10 @@ interface TypeEventDao {
     @Query("SELECT * FROM type_event_table WHERE id = :id")
     fun findById(id: Int): Flow<TypeEventEntity>
 
-    @Query("SELECT * FROM type_event_table")
-    fun findAll(): Flow<List<TypeEventEntity>>
+    @Query("SELECT * FROM type_event_table WHERE (:name IS NULL OR name LIKE '%' || :name || '%')")
+    fun findAll(
+        name: String? = null,
+    ): Flow<List<TypeEventEntity>>
 
     @Query("DELETE FROM type_event_table WHERE id = :id")
     suspend fun delete(id: Int)

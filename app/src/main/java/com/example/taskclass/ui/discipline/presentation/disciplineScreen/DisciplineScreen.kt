@@ -63,6 +63,7 @@ import com.example.taskclass.common.composables.AppSearchBarScaffold
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.OrderByOption
 import com.example.taskclass.common.composables.SwipeContainer
+import com.example.taskclass.core.data.model.Order
 import com.example.taskclass.core.data.model.entity.DisciplineEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
@@ -80,6 +81,7 @@ fun DisciplineScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val filterQuery by viewModel.filterQuery.collectAsStateWithLifecycle()
+    val filterSort by viewModel.filterSort.collectAsStateWithLifecycle()
 
     DisciplineScreen(
         onBack = onBack,
@@ -87,7 +89,8 @@ fun DisciplineScreen(
         onCreateDiscipline = onCreateDiscipline,
         onEditDiscipline = onEditDiscipline,
         onAction = viewModel::onAction,
-        filterQuery = filterQuery
+        filterQuery = filterQuery,
+        filterSort = filterSort
     )
 }
 
@@ -98,6 +101,7 @@ fun DisciplineScreen(
     onAction: (action: DisciplinesAction) -> Unit,
     onCreateDiscipline: () -> Unit,
     filterQuery: String,
+    filterSort: Order<DisciplineEntity>,
     uiState: DisciplineUiState,
     onEditDiscipline: (Int) -> Unit,
 ) {
@@ -177,17 +181,18 @@ fun DisciplineScreen(
                             DisciplineContent(
                                 modifier = Modifier.align(alignment = Alignment.TopCenter),
                                 uiState = uiState,
-                                updateFilterSort = { orderBy, sortDirection ->
+                                updateFilterSort = {
                                     onAction(
                                         DisciplinesAction.UpdateFilterSort(
-                                            orderBy,
-                                            sortDirection
+                                            it
                                         )
                                     )
                                 },
+
                                 onDeleteDiscipline = {
                                     onAction(DisciplinesAction.OnDeleteDiscipline(it))
                                 },
+                                filterSort = filterSort,
                                 onEditDiscipline = onEditDiscipline
                             )
                         }
@@ -310,23 +315,24 @@ fun DisciplineTopBar(
 fun DisciplineContent(
     modifier: Modifier = Modifier,
     uiState: DisciplineUiState,
-    updateFilterSort: (KProperty1<DisciplineEntity, Comparable<*>>, Boolean) -> Unit,
+    filterSort: Order<DisciplineEntity>,
+    updateFilterSort: (order: Order<DisciplineEntity>) -> Unit,
     onDeleteDiscipline: (Int) -> Unit,
     onEditDiscipline: (Int) -> Unit,
 ) {
 
     val optionsOrderBy = listOf(
-        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
+        OrderByOption(
             label = "Nome",
-            value = DisciplineEntity::title
+            value = Order(DisciplineEntity::title)
         ),
-        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
+        OrderByOption(
             label = "Data de criação",
-            value = DisciplineEntity::createdAt
+            value = Order(DisciplineEntity::createdAt)
         ),
-        OrderByOption<KProperty1<DisciplineEntity, Comparable<*>>>(
+        OrderByOption(
             label = "Data de atualização",
-            value = DisciplineEntity::updatedAt
+            value = Order(DisciplineEntity::updatedAt)
         )
     )
 
@@ -349,13 +355,17 @@ fun DisciplineContent(
             ) {
                 AppButtonOrderBy(
                     options = optionsOrderBy,
-                    value = uiState.orderBy,
+                    value = filterSort,
                     onValueChange = {
-                        updateFilterSort(it, uiState.sortDirection)
+                        updateFilterSort(it)
                     },
-                    sortDirection = uiState.sortDirection,
+                    sortDirection = filterSort.ascending,
                     onSortDirectionChange = {
-                        updateFilterSort(uiState.orderBy, !uiState.sortDirection)
+                        updateFilterSort(
+                            filterSort.copy(
+                                ascending = !filterSort.ascending
+                            )
+                        )
                     }
                 )
             }
@@ -522,6 +532,7 @@ private fun DisciplineScreenPreview() {
             onAction = {},
             onEditDiscipline = {},
             filterQuery = "",
+            filterSort = Order(DisciplineEntity::createdAt),
         )
     }
 }
@@ -537,6 +548,7 @@ private fun DisciplineScreenDarkPreview() {
             onBack = {},
             uiState = DisciplineUiState(),
             onCreateDiscipline = {},
+            filterSort = Order(DisciplineEntity::createdAt),
             onAction = {},
             onEditDiscipline = {},
             filterQuery = "",

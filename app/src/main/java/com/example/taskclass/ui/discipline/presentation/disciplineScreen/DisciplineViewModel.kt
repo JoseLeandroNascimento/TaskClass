@@ -28,6 +28,8 @@ class DisciplineViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DisciplineUiState())
     val uiState: StateFlow<DisciplineUiState> = _uiState.asStateFlow()
     private val _filterSort = MutableStateFlow(Order(selector = DisciplineEntity::createdAt))
+    val filterSort = _filterSort.asStateFlow()
+
     private val _filterQuery = MutableStateFlow("")
     val filterQuery: StateFlow<String> = _filterQuery.asStateFlow()
 
@@ -47,25 +49,15 @@ class DisciplineViewModel @Inject constructor(
             }
 
             is DisciplinesAction.UpdateFilterSort -> {
-                updateFilterSort(action.orderBy, action.sortDirection)
+                updateFilterSort(action.order)
             }
         }
     }
 
     private fun updateFilterSort(
-        orderBy: KProperty1<DisciplineEntity, Comparable<*>>,
-        sortDirection: Boolean
+        order: Order<DisciplineEntity>
     ) {
-
-        _uiState.update {
-            it.copy(
-                orderBy = orderBy,
-                sortDirection = sortDirection
-            )
-        }
-        _filterSort.update {
-            it.copy(selector = orderBy, ascending = sortDirection)
-        }
+        _filterSort.value = order
     }
 
     private fun updateQuery(query: String) {

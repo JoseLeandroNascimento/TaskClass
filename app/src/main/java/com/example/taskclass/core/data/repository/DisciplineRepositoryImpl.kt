@@ -59,8 +59,6 @@ class DisciplineRepositoryImpl @Inject constructor(
                 emit(Resource.Loading())
                 dao.findAll(
                     title = title,
-                    createdAt = createdAt,
-                    updatedAt = updatedAt,
                 ).map { list ->
                     val comparator = Comparator<DisciplineEntity> { a, b ->
                         val va = order.getValue(a)

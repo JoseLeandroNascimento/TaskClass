@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.taskclass.core.data.model.Order
 import com.example.taskclass.ui.theme.TaskClassTheme
 
 data class OrderByOption<T>(
@@ -46,9 +47,9 @@ data class OrderByOption<T>(
 @Composable
 fun <T> AppButtonOrderBy(
     modifier: Modifier = Modifier,
-    options: List<OrderByOption<T>> = listOf(),
-    value: T,
-    onValueChange: (T) -> Unit,
+    options: List<OrderByOption<Order<T>>> = listOf(),
+    value: Order<T>,
+    onValueChange: (Order<T>) -> Unit,
     sortDirection: Boolean = true,
     onSortDirectionChange: () -> Unit,
     colorContent: Color = MaterialTheme.colorScheme.onSurface,
@@ -88,7 +89,7 @@ fun <T> AppButtonOrderBy(
                         contentDescription = null
                     )
                     Text(
-                        text = options.find { it.value == value }?.label ?: "",
+                        text = options.find { it.value.selector == value.selector }?.label ?: "",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 12.sp
                     )
@@ -104,7 +105,7 @@ fun <T> AppButtonOrderBy(
 
                     options.forEach { opt ->
                         DropdownMenuItem(
-                            trailingIcon = if (value == opt.value) {
+                            trailingIcon = if (value.selector == opt.value.selector) {
                                 {
                                     Icon(
                                         modifier = Modifier.size(18.dp),
@@ -170,18 +171,18 @@ private fun AppButtonOrderByPreview() {
             options = listOf(
                 OrderByOption(
                     label = "Opção 1",
-                    value = 1
+                    value = Order(String::length)
                 ),
                 OrderByOption(
                     label = "Opção 2",
-                    value = 2
+                    value = Order(String::length)
                 ),
                 OrderByOption(
                     label = "Opção 3",
-                    value = 3
+                    value = Order(String::length)
                 )
             ),
-            value = 1,
+            value = Order(String::length),
             onValueChange = {},
             onSortDirectionChange = {
 
@@ -202,18 +203,18 @@ private fun AppButtonOrderByDarkPreview() {
             options = listOf(
                 OrderByOption(
                     label = "Opção 1",
-                    value = 1
+                    value = Order(String::length)
                 ),
                 OrderByOption(
                     label = "Opção 2",
-                    value = 2
+                    value = Order(String::length)
                 ),
                 OrderByOption(
                     label = "Opção 3",
-                    value = 3
+                    value = Order(String::length)
                 )
             ),
-            value = 1,
+            value = Order(String::length),
             onValueChange = {},
             onSortDirectionChange = {
 

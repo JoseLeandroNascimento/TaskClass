@@ -547,7 +547,9 @@ private fun EventDetailLightPreview() {
                     ),
                     typeEvent = TypeEventEntity(
                         color = MaterialTheme.colorScheme.primary,
-                        name = "Prova"
+                        name = "Prova",
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
                     )
                 )
             )
@@ -580,7 +582,9 @@ private fun EventDetailDarkPreview() {
                     ),
                     typeEvent = TypeEventEntity(
                         color = MaterialTheme.colorScheme.primary,
-                        name = "Prova"
+                        name = "Prova",
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
                     )
                 )
             )

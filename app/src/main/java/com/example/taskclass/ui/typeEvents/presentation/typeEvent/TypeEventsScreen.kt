@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -53,9 +54,11 @@ import com.example.taskclass.R
 import com.example.taskclass.common.composables.AppButtonOrderBy
 import com.example.taskclass.common.composables.AppCardDefault
 import com.example.taskclass.common.composables.AppConfirmDialog
+import com.example.taskclass.common.composables.AppSearchBarScaffold
 import com.example.taskclass.common.composables.CircleIndicator
 import com.example.taskclass.common.composables.OrderByOption
 import com.example.taskclass.common.composables.SwipeContainer
+import com.example.taskclass.core.data.model.Order
 import com.example.taskclass.core.data.model.entity.TypeEventEntity
 import com.example.taskclass.ui.theme.TaskClassTheme
 import com.example.taskclass.ui.theme.White
@@ -70,13 +73,17 @@ fun TypeEventsScreen(
     onBack: () -> Unit
 ) {
 
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val filterQuery by viewModel.filterQuery.collectAsStateWithLifecycle()
+    val filterSort by viewModel.filterSort.collectAsStateWithLifecycle()
 
     TypeEventsScreen(
         onBack = onBack,
         uiState = uiState,
         onAction = viewModel::onAction,
         onCreateNavigation = onCreateNavigation,
+        filterQuery = filterQuery,
+        filterSort = filterSort,
         onSelectedItemEdit = {
             onEditNavigation(it)
         },
@@ -88,166 +95,201 @@ fun TypeEventsScreen(
 fun TypeEventsScreen(
     onBack: () -> Unit,
     uiState: TypeEventsUiState,
+    filterQuery: String,
+    filterSort: Order<TypeEventEntity>,
     onCreateNavigation: () -> Unit,
     onSelectedItemEdit: ((Int) -> Unit)? = null,
-    onAction: (TypeEventAction)-> Unit
+    onAction: (TypeEventAction) -> Unit
 ) {
 
-    val valueDefault = "name"
+
+
     val optionsOrderBy = listOf(
         OrderByOption(
             label = "Nome",
-            value = "name"
+            value = Order(TypeEventEntity::name)
         ),
         OrderByOption(
             label = "Data de criação",
-            value = "dateCreate"
+            value = Order(TypeEventEntity::createdAt)
         ),
         OrderByOption(
-            label = "Data de atalização",
-            value = "dateUpdate"
+            label = "Data de atualização",
+            value = Order(TypeEventEntity::updatedAt)
         )
     )
 
-    var orderBy by remember { mutableStateOf(valueDefault) }
-    var sortDirection by remember { mutableStateOf(true) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.tipos_de_eventos),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = White,
-                    navigationIconContentColor = White,
-
-                    )
-            )
+    AppSearchBarScaffold(
+        query = filterQuery,
+        onQueryChange = {
+            onAction(TypeEventAction.Search(it))
         },
-
-        floatingActionButton = {
-            FloatingActionButton(
-                containerColor = MaterialTheme.colorScheme.primary,
-                onClick = onCreateNavigation
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            }
+        onExpandedChange = {
+            onAction(TypeEventAction.ShowSearch(it))
+        },
+        expanded = uiState.showSearch,
+        isLoading = uiState.isLoading,
+        items = uiState.typeEvents,
+        searchItem = {
+            Text(text = it.name)
         }
-    ) { innerPadding ->
+    ) {
 
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(top = 8.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.tipos_de_eventos),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBack
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                onAction(TypeEventAction.ShowSearch(true))
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Default.Search, contentDescription = null)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = White,
+                        navigationIconContentColor = White,
+                        actionIconContentColor = White
+                    )
+                )
+            },
 
-        ) {
-
-            when {
-
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            floatingActionButton = {
+                FloatingActionButton(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    onClick = onCreateNavigation
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
                 }
+            }
+        ) { innerPadding ->
 
-                uiState.typeEvents.isNotEmpty() -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-                    ) {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(top = 8.dp)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
 
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AppButtonOrderBy(
-                                    options = optionsOrderBy,
-                                    value = orderBy,
-                                    onValueChange = {
-                                        orderBy = it
+            ) {
+
+                when {
+
+                    uiState.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    uiState.typeEvents.isNotEmpty() -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
+
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.background)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    AppButtonOrderBy(
+                                        options = optionsOrderBy,
+                                        value = filterSort,
+                                        onValueChange = {
+                                            onAction(TypeEventAction.OrderBy(it))
+                                        },
+                                        sortDirection = filterSort.ascending,
+                                        onSortDirectionChange = {
+                                            onAction(
+                                                TypeEventAction.OrderBy(
+                                                    filterSort.copy(
+                                                        selector = filterSort.selector,
+                                                        ascending = !filterSort.ascending
+                                                    )
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+
+                            items(items = uiState.typeEvents, key = { it.id }) { typeEventItem ->
+                                TypeEventCardItem(
+                                    typeEventItem = typeEventItem,
+                                    onDelete = {
+                                        onAction(
+                                            TypeEventAction.OnDelete(typeEventItem.id)
+                                        )
                                     },
-                                    sortDirection = sortDirection,
-                                    onSortDirectionChange = {
-                                        sortDirection = !sortDirection
-                                    }
+                                    onSelectedItemEdit = onSelectedItemEdit
                                 )
                             }
                         }
-
-                        items(items = uiState.typeEvents, key = { it.id }) { typeEventItem ->
-                            TypeEventCardItem(
-                                typeEventItem = typeEventItem,
-                                onDelete = {
-                                    onAction(
-                                        TypeEventAction.OnDelete(typeEventItem.id)
-                                    )
-                                },
-                                onSelectedItemEdit = onSelectedItemEdit
-                            )
-                        }
                     }
-                }
 
-                else -> {
+                    else -> {
 
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Storage,
-                                contentDescription = null
-                            )
 
-                            Text(
-                                modifier = Modifier.padding(top = 8.dp),
-                                text = "Nenhum tipo de evento encontrado!",
-                                style = MaterialTheme.typography.labelMedium
-                            )
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Storage,
+                                    contentDescription = null
+                                )
+
+                                Text(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    text = "Nenhum tipo de evento encontrado!",
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                            }
+
                         }
-
                     }
                 }
             }
         }
     }
+
 
 }
 
@@ -394,6 +436,8 @@ private fun TypeEventsScreenLightPreview() {
     ) {
         TypeEventsScreen(
             onBack = {},
+            filterQuery = "",
+            filterSort = Order(TypeEventEntity::createdAt),
             uiState = TypeEventsUiState(
                 typeEvents = listOf(),
                 isLoading = true
@@ -416,6 +460,8 @@ private fun TypeEventsScreenDarkPreview() {
         TypeEventsScreen(
             onBack = {},
             uiState = TypeEventsUiState(),
+            filterQuery = "",
+            filterSort = Order(TypeEventEntity::createdAt),
             onCreateNavigation = {},
             onAction = {}
         )

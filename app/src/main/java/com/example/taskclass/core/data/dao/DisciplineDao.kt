@@ -23,15 +23,11 @@ interface DisciplineDao {
         FROM 
         discipline_table
         WHERE
-        (:title IS NULL OR title LIKE '%' || :title || '%') AND
-        (:createdAt IS NULL OR title = :createdAt) AND
-        (:updatedAt IS NULL OR title = :updatedAt)
+        (:title IS NULL OR title LIKE '%' || :title || '%')
         """
     )
     fun findAll(
         title: String? = null,
-        createdAt: Long? = null,
-        updatedAt: Long? = null,
     ): Flow<List<DisciplineEntity>>
 
     @Query("DELETE FROM discipline_table WHERE discipline_id = :id")
