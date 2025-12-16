@@ -1,0 +1,17 @@
+package com.joseleandro.taskclass.ui.events.domain
+
+import com.joseleandro.taskclass.common.data.Resource
+import com.joseleandro.taskclass.core.data.model.dto.EventEndTypeEventDto
+import com.joseleandro.taskclass.core.data.model.entity.EventEntity
+import com.joseleandro.taskclass.core.data.model.enums.EEventStatus
+import kotlinx.coroutines.flow.Flow
+
+interface EventRepository {
+    fun findById(id: Int): Flow<Resource<EventEndTypeEventDto>>
+    fun findAll(): Flow<Resource<List<EventEndTypeEventDto>>>
+    fun filter(filter: EventFilter): Flow<Resource<Map<EEventStatus, List<EventEndTypeEventDto>>>>
+    fun save(event: EventEntity): Flow<Resource<Unit>>
+    fun updateCompleted(id: Int, isCompleted: Boolean): Flow<Resource<Unit>>
+    fun update(event: EventEntity): Flow<Resource<Unit>>
+    fun delete(id: Int): Flow<Resource<Unit>>
+}

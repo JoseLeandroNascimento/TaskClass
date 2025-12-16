@@ -39,6 +39,9 @@
     <string name="nenhuma_informa_o_foi_encontrada">Nenhuma informação foi encontrada</string>
     <string name="search_bar_pesquisar">Pesquisar</string>
     <string name="placeholder_buscar_disciplina">Buscar disciplina</string>
+    <string name="nenhum_evento_agendado">Nenhum evento agendado!</string>
+    <string name="pesquisar_eventos">Pesquisar eventos</string>
+    <string name="eventos">Eventos</string>
 
     <string-array name="dias_da_semana_completo">
         <item>Domingo</item>

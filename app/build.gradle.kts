@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.taskclass"
+    namespace = "com.joseleandro.taskclass"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.taskclass"
+        applicationId = "com.joseleandro.taskclass"
         minSdk = 21
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,9 +45,9 @@ android {
 
 dependencies {
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    implementation("com.kizitonwose.calendar:compose:2.6.0")
-    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc10")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(libs.compose)
+    implementation(libs.richeditor.compose)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.hilt.android)
