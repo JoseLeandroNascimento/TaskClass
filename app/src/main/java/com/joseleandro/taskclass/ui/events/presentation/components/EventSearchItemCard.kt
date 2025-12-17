@@ -1,5 +1,6 @@
 package com.joseleandro.taskclass.ui.events.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,9 @@ fun EventSearchItemCard(
 ) {
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clickable{
+            onNavigation?.invoke(event.event.id)
+        },
         color = MaterialTheme.colorScheme.surface,
     ) {
         Row(
@@ -72,16 +75,12 @@ fun EventSearchItemCard(
 
             }
 
-            IconButton(
-                onClick = {
-                    onNavigation?.invoke(event.event.id)
-                }) {
-                Icon(
-                    modifier = Modifier.size(18.dp),
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = null
-                )
-            }
+            Icon(
+                modifier = Modifier.size(18.dp),
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null
+            )
+
         }
     }
 }

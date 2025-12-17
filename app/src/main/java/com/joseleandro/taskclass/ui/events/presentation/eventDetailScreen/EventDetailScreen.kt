@@ -136,7 +136,7 @@ fun EventDetailScreen(
                     ) {
                         uiState.event?.let { (event, typeEvent) ->
                             Text(
-                                text = event.title,
+                                text = event.title.replaceFirstChar { it.uppercase() },
                                 style = MaterialTheme.typography.titleLarge,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis

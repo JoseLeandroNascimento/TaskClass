@@ -34,9 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -213,13 +215,13 @@ fun EventScreen(
                                     contentDescription = null,
                                     tint = colorScheme.primary,
                                     modifier = Modifier
-                                        .size(40.dp)
+                                        .size(35.dp)
                                         .padding(bottom = 8.dp)
                                 )
 
                                 Text(
                                     text = stringResource(R.string.nenhum_evento_neste_dia),
-                                    style = typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                                    style = typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                                     fontWeight = FontWeight.Bold,
                                     color = colorScheme.onSurface
                                 )
@@ -272,7 +274,11 @@ private fun EventCard(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .graphicsLayer{
+                    alpha =  if(event.event.completed) .5f else 1f
+                }
+            ,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -288,6 +294,8 @@ private fun EventCard(
             ) {
                 Text(
                     text = event.event.title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = colorScheme.onSurface
                 )
