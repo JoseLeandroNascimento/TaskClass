@@ -108,7 +108,7 @@ fun EventDetailScreen(
     var menuActionExpanded by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
 
-    if(confirmDelete){
+    if (confirmDelete) {
         ConfirmDeleteDialog(
             onDismissRequest = {
                 confirmDelete = false
@@ -121,7 +121,7 @@ fun EventDetailScreen(
 
     LaunchedEffect(uiState.isBackNavigation) {
 
-        if(uiState.isBackNavigation){
+        if (uiState.isBackNavigation) {
             onBack()
         }
     }
@@ -259,7 +259,7 @@ fun EventDetailContent(
     onToggleComplete: ((Boolean) -> Unit)? = null
 ) {
 
-    val completed by derivedStateOf { uiState.event?.event?.completed ?: false }
+    val completed = uiState.event?.event?.completed ?: false
 
     val transition = updateTransition(
         targetState = completed,
