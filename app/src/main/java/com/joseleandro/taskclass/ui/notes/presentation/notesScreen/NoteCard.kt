@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ListItem
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +34,9 @@ import com.mohamedrejeb.richeditor.ui.material3.RichText
 fun NoteCard(
     note: NoteEntity,
     onClick: () -> Unit,
+    onLongPress: () -> Unit,
+    selected: Boolean = false,
+    showSelected: Boolean = false,
     modifier: Modifier = Modifier
 ) {
 
@@ -47,21 +51,31 @@ fun NoteCard(
     AppCardNote(
         modifier = modifier,
         onClick = onClick,
+        onLongPress = onLongPress,
         header = {
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = note.title.ifBlank { "Sem título" },
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (showSelected) {
+                    RadioButton(
+                        modifier = Modifier.size(20.dp),
+                        selected = selected,
+                        onClick = onLongPress
                     )
-                },
-                trailingContent = {
 
                 }
-            )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = note.title.ifBlank { "Sem título" },
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
         footer = {
             Row(
@@ -73,7 +87,7 @@ fun NoteCard(
                         text = note.updatedAt.formatRelativeOrDate(),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
 
-                    )
+                        )
                 }
             }
         }
@@ -135,6 +149,8 @@ private fun NoteCardPreview() {
 
         NoteCard(
             onClick = {},
+            onLongPress = {},
+            showSelected = true,
             note = NoteEntity(
                 id = 0,
                 title = "Título da nota",
@@ -158,6 +174,7 @@ private fun NoteCardDarkPreview() {
 
         NoteCard(
             onClick = {},
+            onLongPress = {},
             note = NoteEntity(
                 id = 0,
                 title = "Título da nota",

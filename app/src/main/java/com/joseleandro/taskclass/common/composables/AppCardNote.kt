@@ -2,6 +2,7 @@ package com.joseleandro.taskclass.common.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
@@ -38,13 +40,23 @@ fun AppCardNote(
     header: @Composable () -> Unit,
     footer: @Composable () -> Unit,
     onClick: (() -> Unit)? = null,
+    onLongPress: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
 
     val CARD_CUT_RADIUS = 30.dp
 
     val onClickModifier = if (onClick != null) {
-        Modifier.clickable { onClick() }
+        Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                  onClick()
+                },
+                onLongPress = {
+                    onLongPress()
+                }
+            )
+        }
     } else {
         Modifier
     }
@@ -167,6 +179,7 @@ private fun AppCardNotePreview() {
         darkTheme = false
     ) {
         AppCardNote(
+            onLongPress = {},
             header = {
                 Text(text = "Título da nota")
             },
@@ -193,6 +206,7 @@ private fun AppCardNoteDarkPreview() {
         darkTheme = true
     ) {
         AppCardNote(
+            onLongPress = {},
             header = {
                 Text(text = "Título da nota")
             },

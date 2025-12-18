@@ -1,5 +1,11 @@
 package com.joseleandro.taskclass.ui.notes.presentation.notesScreen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,31 +16,54 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.joseleandro.taskclass.common.composables.AppButtonOrderBy
 import com.joseleandro.taskclass.common.composables.OrderByOption
+import com.joseleandro.taskclass.core.data.model.Order
+import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import com.joseleandro.taskclass.ui.theme.TaskClassTheme
+import kotlin.math.roundToInt
 
 @Composable
 fun NotesScreen(
@@ -47,6 +76,7 @@ fun NotesScreen(
     NotesScreen(
         modifier = modifier,
         onEditNavigation = onEditNavigation,
+        onAction = viewModel::onAction,
         uiState = uiState
     )
 }
@@ -56,120 +86,229 @@ fun NotesScreen(
 fun NotesScreen(
     modifier: Modifier = Modifier,
     onEditNavigation: (Int) -> Unit,
+    onAction: (NoteAction) -> Unit,
     uiState: NotesUiState
 ) {
 
-    val valueDefault = "name"
+
+    var sortDirection by remember { mutableStateOf(true) }
+    val density = LocalDensity.current
+    val modeSelectedNoteActive by derivedStateOf { uiState.notesSelected.isNotEmpty() }
+    val gridState = rememberLazyStaggeredGridState()
+
+
+    val topBarHeight = 56.dp
+    val topBarHeightPx = with(LocalDensity.current) { topBarHeight.toPx() }
+    val contentTopSpacing = 12.dp
+    var topBarOffsetPx by remember { mutableFloatStateOf(0f) }
+
+    val visibleTopBarHeightDp = with(density) {
+        (topBarHeightPx - topBarOffsetPx).toDp() + contentTopSpacing
+    }
+
+    LaunchedEffect(gridState) {
+        snapshotFlow { gridState.firstVisibleItemScrollOffset }
+            .collect { scrollOffset ->
+                topBarOffsetPx = scrollOffset
+                    .toFloat()
+                    .coerceIn(0f, topBarHeightPx)
+            }
+    }
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+
+        Box {
+
+            NotesTopBar(
+                modifier = Modifier
+                    .zIndex(1f)
+                    .height(topBarHeight)
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = -topBarOffsetPx.roundToInt()
+                        )
+                    }
+                    .graphicsLayer {
+                        alpha = 1f - (topBarOffsetPx / topBarHeightPx)
+                    },
+                modeSelection = modeSelectedNoteActive,
+                sort = uiState.sort,
+                elementsSelectedTotal = uiState.notesSelected.size,
+                onDelete = { /* ação */ },
+                onSortChange = { /* ação */ },
+                onToggleSortDirection = {
+                    sortDirection = !sortDirection
+                }
+            )
+
+            when {
+                uiState.isLoading -> NotesLoading()
+                uiState.notes.isEmpty() -> NotesEmptyState( modifier = Modifier.padding(top = topBarHeight))
+                else -> NotesGrid(
+                    state = gridState,
+                    topPadding = visibleTopBarHeightDp,
+                    notes = uiState.notes,
+                    selectedNotes = uiState.notesSelected,
+                    selectionMode = modeSelectedNoteActive,
+                    onClick = onEditNavigation,
+                    onLongPress = { onAction(NoteAction.OnToggleNote(it)) }
+                )
+            }
+
+        }
+    }
+
+}
+
+@Composable
+private fun NotesGrid(
+    state: LazyStaggeredGridState,
+    notes: List<NoteEntity>,
+    topPadding: Dp,
+    selectedNotes: Set<NoteEntity>,
+    selectionMode: Boolean,
+    onClick: (Int) -> Unit,
+    onLongPress: (NoteEntity) -> Unit
+) {
+    LazyVerticalStaggeredGrid(
+        state = state,
+        columns = StaggeredGridCells.Fixed(2),
+        verticalItemSpacing = 8.dp,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(
+            top = topPadding,
+            start = 12.dp,
+            end = 12.dp,
+            bottom = 96.dp
+        ),
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        items(notes, key = { it.id }) { note ->
+            NoteCard(
+                note = note,
+                selected = selectedNotes.contains(note),
+                showSelected = selectionMode,
+                onClick = { onClick(note.id) },
+                onLongPress = { onLongPress(note) }
+            )
+        }
+
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Spacer(Modifier.height(96.dp))
+        }
+    }
+}
+
+
+@Composable
+private fun NotesEmptyState(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .zIndex(0f)
+            .fillMaxSize()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Storage,
+            contentDescription = null,
+            modifier = Modifier.size(48.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = "Nenhuma anotação ainda",
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = "Crie sua primeira anotação para começar",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+
+@Composable
+private fun NotesLoading() {
+    Box(
+        modifier = Modifier.zIndex(0f).fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+
+@Composable
+private fun NotesTopBar(
+    modifier: Modifier = Modifier,
+    modeSelection: Boolean,
+    sort: Order<NoteEntity>,
+    elementsSelectedTotal: Int = 0,
+    onDelete: () -> Unit,
+    onSortChange: (Order<NoteEntity>) -> Unit,
+    onToggleSortDirection: () -> Unit
+) {
+
     val optionsOrderBy = listOf(
         OrderByOption(
             label = "Nome",
-            value = "name"
+            value = Order(NoteEntity::title)
         ),
         OrderByOption(
             label = "Data de criação",
-            value = "dateCreate"
+            value = Order(NoteEntity::createdAt)
         ),
         OrderByOption(
-            label = "Data de atalização",
-            value = "dateUpdate"
+            label = "Data de atualização",
+            value = Order(NoteEntity::updatedAt)
         )
     )
 
-    var orderBy by remember { mutableStateOf(valueDefault) }
-    var sortDirection by remember { mutableStateOf(true) }
+    Surface(
+        modifier = modifier.zIndex(0f),
+        tonalElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-
-    Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-
-                when {
-
-                    uiState.isLoading -> {
-
-                        CircularProgressIndicator()
-                    }
-
-                    uiState.notes.isEmpty() -> {
-
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Storage,
-                                contentDescription = null
-                            )
-
-                            Text(
-                                modifier = Modifier.padding(top = 8.dp),
-                                text = "Nenhuma anotação encontrada!",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                    }
-
-                    else -> {
-                        LazyVerticalStaggeredGrid(
-                            columns = StaggeredGridCells.Fixed(2),
-                            verticalItemSpacing = 8.dp,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(12.dp),
-                            modifier = Modifier.align(alignment = Alignment.TopCenter)
-                        ) {
-
-                            item(
-                                span = StaggeredGridItemSpan.FullLine
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .background(MaterialTheme.colorScheme.background)
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp),
-                                    horizontalArrangement = Arrangement.End,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-//                                    AppButtonOrderBy(
-//                                        options = optionsOrderBy,
-//                                        value = orderBy,
-//                                        onValueChange = {
-//                                            orderBy = it
-//                                        },
-//                                        sortDirection = sortDirection,
-//                                        onSortDirectionChange = {
-//                                            sortDirection = !sortDirection
-//                                        }
-//
-//                                    )
-                                }
-                            }
-
-                            items(items = uiState.notes, key = { it.id }) { note ->
-                                NoteCard(
-                                    onClick = {
-                                        onEditNavigation(note.id)
-                                    },
-                                    note = note
-                                )
-                            }
-
-                            item(
-                                span = StaggeredGridItemSpan.FullLine
-                            ) {
-                                Spacer(
-                                    modifier = Modifier.height(80.dp)
-                                )
-                            }
-                        }
-                    }
+            if (modeSelection) {
+                TextButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(Modifier.size(4.dp))
+                    Text(
+                        "Excluir ($elementsSelectedTotal)",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
+
+            Spacer(Modifier.weight(1f))
+
+            AppButtonOrderBy(
+                options = optionsOrderBy,
+                value = sort,
+                onValueChange = onSortChange,
+                sortDirection = sort.ascending,
+                onSortDirectionChange = onToggleSortDirection,
+                colorBackground = Color.Transparent
+            )
         }
     }
 }
@@ -185,6 +324,7 @@ private fun NotesScreenLightPreview() {
     ) {
         NotesScreen(
             uiState = NotesUiState(),
+            onAction = {},
             onEditNavigation = {}
         )
     }
@@ -200,6 +340,7 @@ private fun NotesScreenDarkPreview() {
     ) {
         NotesScreen(
             uiState = NotesUiState(),
+            onAction = {},
             onEditNavigation = {}
         )
     }
