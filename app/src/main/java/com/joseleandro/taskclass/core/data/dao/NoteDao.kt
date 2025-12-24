@@ -1,6 +1,7 @@
 package com.joseleandro.taskclass.core.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -16,8 +17,12 @@ interface NoteDao {
     suspend fun update(note: NoteEntity)
 
     @Query("SELECT * FROM notes_table WHERE id = :id")
-     fun findById(id: Int): Flow<NoteEntity?>
+    fun findById(id: Int): Flow<NoteEntity?>
 
     @Query("SELECT * FROM notes_table ORDER BY updatedAt DESC")
-     fun listAll(): Flow<List<NoteEntity>>
+    fun listAll(): Flow<List<NoteEntity>>
+
+    @Delete
+    suspend fun deleteAll(notes: List<NoteEntity>)
+
 }

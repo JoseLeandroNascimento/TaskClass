@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -112,7 +113,7 @@ fun BulletinScreen(
                     ) {
                         Text(
                             modifier = Modifier.padding(end = 8.dp),
-                            text = if (uiState.showScores) "Ocultar" else "Exibir",
+                            text = if (uiState.showScores) "Ocultar notas" else "Exibir notas",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -128,6 +129,18 @@ fun BulletinScreen(
                     navigationIconContentColor = White
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = White,
+                onClick = {}
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+            }
         }
     ) { innerPadding ->
         Column(
@@ -145,6 +158,12 @@ fun BulletinScreen(
                     DisciplineReportCardModern(
                         discipline,
                         showScore = uiState.showScores
+                    )
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier.height(80.dp)
                     )
                 }
             }
@@ -201,7 +220,7 @@ fun DisciplineReportCardModern(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = .4.dp),
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.small
     ) {
         Surface(modifier = Modifier.padding(20.dp)) {
 

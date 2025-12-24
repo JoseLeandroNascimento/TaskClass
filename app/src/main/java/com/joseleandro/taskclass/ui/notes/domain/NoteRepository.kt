@@ -7,8 +7,14 @@ import kotlinx.coroutines.flow.Flow
 interface NoteRepository {
 
     suspend fun saveNew(title: String, html: String, plain: String): Flow<Resource<NoteEntity>>
-    suspend fun update(id: Int, title: String, html: String, plain: String): Flow<Resource<NoteEntity>>
+    suspend fun update(
+        id: Int,
+        title: String,
+        html: String,
+        plain: String
+    ): Flow<Resource<NoteEntity>>
+
     suspend fun load(id: Int): Flow<NoteEntity?>
     fun findAll(): Flow<Resource<List<NoteEntity>>>
-    suspend fun delete(id: Int)
+    suspend fun deleteAll(notes: List<NoteEntity>): Flow<Resource<Unit>>
 }

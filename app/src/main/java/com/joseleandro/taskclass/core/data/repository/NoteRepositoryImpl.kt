@@ -1,8 +1,8 @@
 package com.joseleandro.taskclass.core.data.repository
 
 import com.joseleandro.taskclass.common.data.Resource
-import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import com.joseleandro.taskclass.core.data.dao.NoteDao
+import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import com.joseleandro.taskclass.ui.notes.domain.NoteRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -95,7 +95,21 @@ class NoteRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun delete(id: Int) {
-        TODO("Not yet implemented")
+
+    override suspend fun deleteAll(notes: List<NoteEntity>): Flow<Resource<Unit>> {
+
+
+        return flow {
+            try {
+                emit(Resource.Loading())
+
+                dao.deleteAll(notes)
+
+
+                emit(Resource.Success(Unit))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "Não foi possível excluir a(s) nota(s)"))
+            }
+        }
     }
 }

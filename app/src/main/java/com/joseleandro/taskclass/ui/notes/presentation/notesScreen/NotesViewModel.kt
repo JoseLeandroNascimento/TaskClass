@@ -33,14 +33,22 @@ class NotesViewModel @Inject constructor(
             is NoteAction.OnToggleNote -> {
                 onToggleNote(action.note)
             }
+
+            is NoteAction.OnDelete -> {
+                delete(action.notes)
+            }
+
+            is NoteAction.OnSelectAll -> {
+                onSelectAll()
+            }
         }
     }
 
-    private fun onToggleNote(note: NoteEntity){
+    private fun onToggleNote(note: NoteEntity) {
 
         val notesSelected = _uiState.value.notesSelected
 
-        if (notesSelected.contains(note)){
+        if (notesSelected.contains(note)) {
             _uiState.update {
                 it.copy(
                     notesSelected = notesSelected - note
@@ -55,6 +63,66 @@ class NotesViewModel @Inject constructor(
             )
         }
 
+    }
+
+    private fun onSelectAll(){
+
+        with(_uiState.value){
+
+            if(notesSelected.size == notes.size){
+                _uiState.update {
+                    it.copy(
+                        notesSelected = emptySet()
+                    )
+                }
+                return
+            }
+        }
+        _uiState.update {
+            it.copy(
+                notesSelected = it.notes.toSet()
+            )
+        }
+
+    }
+
+    private fun delete(notes: List<NoteEntity>) {
+
+
+        viewModelScope.launch {
+
+            if (notes.isEmpty()) return@launch
+
+            repo.deleteAll(notes).collect { response ->
+                when (response) {
+
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                notesSelected = emptySet()
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun loadData() {

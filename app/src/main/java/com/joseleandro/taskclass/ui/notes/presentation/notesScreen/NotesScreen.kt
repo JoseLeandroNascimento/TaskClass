@@ -1,12 +1,5 @@
 package com.joseleandro.taskclass.ui.notes.presentation.notesScreen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -29,7 +21,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,12 +47,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.joseleandro.taskclass.common.composables.AppButtonOrderBy
 import com.joseleandro.taskclass.common.composables.OrderByOption
 import com.joseleandro.taskclass.core.data.model.Order
 import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
+import com.joseleandro.taskclass.ui.notes.presentation.components.NoteConfirmDeleteDialog
 import com.joseleandro.taskclass.ui.theme.TaskClassTheme
 import kotlin.math.roundToInt
 
@@ -93,9 +86,12 @@ fun NotesScreen(
 
     var sortDirection by remember { mutableStateOf(true) }
     val density = LocalDensity.current
-    val modeSelectedNoteActive by derivedStateOf { uiState.notesSelected.isNotEmpty() }
+    val modeSelectedNoteActive by remember(uiState.notesSelected) {
+        derivedStateOf {
+            uiState.notesSelected.isNotEmpty()
+        }
+    }
     val gridState = rememberLazyStaggeredGridState()
-
 
     val topBarHeight = 56.dp
     val topBarHeightPx = with(LocalDensity.current) { topBarHeight.toPx() }
@@ -106,6 +102,14 @@ fun NotesScreen(
         (topBarHeightPx - topBarOffsetPx).toDp() + contentTopSpacing
     }
 
+    val selectedAll by remember(uiState.notesSelected) {
+        derivedStateOf {
+            uiState.notesSelected.size == uiState.notes.size
+        }
+    }
+
+    var showDeleteAllConfirmDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(gridState) {
         snapshotFlow { gridState.firstVisibleItemScrollOffset }
             .collect { scrollOffset ->
@@ -114,6 +118,25 @@ fun NotesScreen(
                     .coerceIn(0f, topBarHeightPx)
             }
     }
+
+
+    if (showDeleteAllConfirmDialog) {
+
+        NoteConfirmDeleteDialog(
+            onDismissRequest = {
+                showDeleteAllConfirmDialog = false
+            },
+            onConfirm = {
+                onAction(
+                    NoteAction.OnDelete(
+                        uiState.notesSelected.toList()
+                    )
+                )
+                showDeleteAllConfirmDialog = false
+            }
+        )
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -137,16 +160,22 @@ fun NotesScreen(
                 modeSelection = modeSelectedNoteActive,
                 sort = uiState.sort,
                 elementsSelectedTotal = uiState.notesSelected.size,
-                onDelete = { /* ação */ },
+                onDelete = {
+                    showDeleteAllConfirmDialog = !showDeleteAllConfirmDialog
+                },
                 onSortChange = { /* ação */ },
                 onToggleSortDirection = {
                     sortDirection = !sortDirection
+                },
+                selectedAll = selectedAll,
+                onSelectedAll = {
+                    onAction(NoteAction.OnSelectAll)
                 }
             )
 
             when {
                 uiState.isLoading -> NotesLoading()
-                uiState.notes.isEmpty() -> NotesEmptyState( modifier = Modifier.padding(top = topBarHeight))
+                uiState.notes.isEmpty() -> NotesEmptyState(modifier = Modifier.padding(top = topBarHeight))
                 else -> NotesGrid(
                     state = gridState,
                     topPadding = visibleTopBarHeightDp,
@@ -219,17 +248,17 @@ private fun NotesEmptyState(
         Icon(
             imageVector = Icons.Default.Storage,
             contentDescription = null,
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(30.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(12.dp))
         Text(
             text = "Nenhuma anotação ainda",
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleSmall
         )
         Text(
             text = "Crie sua primeira anotação para começar",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -239,7 +268,9 @@ private fun NotesEmptyState(
 @Composable
 private fun NotesLoading() {
     Box(
-        modifier = Modifier.zIndex(0f).fillMaxSize(),
+        modifier = Modifier
+            .zIndex(0f)
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator()
@@ -253,6 +284,8 @@ private fun NotesTopBar(
     modeSelection: Boolean,
     sort: Order<NoteEntity>,
     elementsSelectedTotal: Int = 0,
+    selectedAll: Boolean = false,
+    onSelectedAll: () -> Unit,
     onDelete: () -> Unit,
     onSortChange: (Order<NoteEntity>) -> Unit,
     onToggleSortDirection: () -> Unit
@@ -260,7 +293,7 @@ private fun NotesTopBar(
 
     val optionsOrderBy = listOf(
         OrderByOption(
-            label = "Nome",
+            label = "Título",
             value = Order(NoteEntity::title)
         ),
         OrderByOption(
@@ -285,18 +318,43 @@ private fun NotesTopBar(
         ) {
 
             if (modeSelection) {
-                TextButton(onClick = onDelete) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(Modifier.size(4.dp))
-                    Text(
-                        "Excluir ($elementsSelectedTotal)",
-                        color = MaterialTheme.colorScheme.error
-                    )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        RadioButton(
+                            selected = selectedAll,
+                            onClick = onSelectedAll
+                        )
+                        Text(
+                            text = "Todos",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    TextButton(onClick = onDelete) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(Modifier.size(4.dp))
+                        Text(
+                            "Excluir ($elementsSelectedTotal)",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
+
             }
 
             Spacer(Modifier.weight(1f))
