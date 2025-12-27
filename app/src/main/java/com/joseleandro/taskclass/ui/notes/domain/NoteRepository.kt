@@ -1,6 +1,7 @@
 package com.joseleandro.taskclass.ui.notes.domain
 
 import com.joseleandro.taskclass.common.data.Resource
+import com.joseleandro.taskclass.core.data.model.Order
 import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -15,6 +16,9 @@ interface NoteRepository {
     ): Flow<Resource<NoteEntity>>
 
     suspend fun load(id: Int): Flow<NoteEntity?>
-    fun findAll(): Flow<Resource<List<NoteEntity>>>
+    fun findAll(
+        sort: Order<NoteEntity> = Order(NoteEntity::createdAt)
+    ): Flow<Resource<List<NoteEntity>>>
+
     suspend fun deleteAll(notes: List<NoteEntity>): Flow<Resource<Unit>>
 }

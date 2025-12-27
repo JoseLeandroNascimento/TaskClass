@@ -65,12 +65,14 @@ fun NotesScreen(
     viewModel: NotesViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val sort by viewModel.sort.collectAsStateWithLifecycle()
 
     NotesScreen(
         modifier = modifier,
         onEditNavigation = onEditNavigation,
         onAction = viewModel::onAction,
-        uiState = uiState
+        uiState = uiState,
+        sort = sort
     )
 }
 
@@ -80,11 +82,11 @@ fun NotesScreen(
     modifier: Modifier = Modifier,
     onEditNavigation: (Int) -> Unit,
     onAction: (NoteAction) -> Unit,
-    uiState: NotesUiState
+    uiState: NotesUiState,
+    sort: Order<NoteEntity>
 ) {
 
 
-    var sortDirection by remember { mutableStateOf(true) }
     val density = LocalDensity.current
     val modeSelectedNoteActive by remember(uiState.notesSelected) {
         derivedStateOf {
@@ -158,14 +160,18 @@ fun NotesScreen(
                         alpha = 1f - (topBarOffsetPx / topBarHeightPx)
                     },
                 modeSelection = modeSelectedNoteActive,
-                sort = uiState.sort,
+                sort = sort,
                 elementsSelectedTotal = uiState.notesSelected.size,
                 onDelete = {
                     showDeleteAllConfirmDialog = !showDeleteAllConfirmDialog
                 },
-                onSortChange = { /* ação */ },
+                onSortChange = { onAction(NoteAction.OnSort(it)) },
                 onToggleSortDirection = {
-                    sortDirection = !sortDirection
+                    onAction(
+                        NoteAction.OnSort(
+                            sort.copy(ascending = !sort.ascending)
+                        )
+                    )
                 },
                 selectedAll = selectedAll,
                 onSelectedAll = {
@@ -383,7 +389,8 @@ private fun NotesScreenLightPreview() {
         NotesScreen(
             uiState = NotesUiState(),
             onAction = {},
-            onEditNavigation = {}
+            onEditNavigation = {},
+            sort = Order(NoteEntity::title)
         )
     }
 }
@@ -399,7 +406,8 @@ private fun NotesScreenDarkPreview() {
         NotesScreen(
             uiState = NotesUiState(),
             onAction = {},
-            onEditNavigation = {}
+            onEditNavigation = {},
+            sort = Order(NoteEntity::title)
         )
     }
 }

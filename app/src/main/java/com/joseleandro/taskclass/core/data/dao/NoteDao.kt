@@ -19,7 +19,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes_table WHERE id = :id")
     fun findById(id: Int): Flow<NoteEntity?>
 
-    @Query("SELECT * FROM notes_table ORDER BY updatedAt DESC")
+    @Query(
+        "SELECT * FROM notes_table  ORDER BY updatedAt DESC"
+    )
     fun listAll(): Flow<List<NoteEntity>>
 
     @Delete

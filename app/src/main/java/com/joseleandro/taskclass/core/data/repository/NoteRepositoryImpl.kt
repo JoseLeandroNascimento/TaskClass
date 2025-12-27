@@ -2,11 +2,13 @@ package com.joseleandro.taskclass.core.data.repository
 
 import com.joseleandro.taskclass.common.data.Resource
 import com.joseleandro.taskclass.core.data.dao.NoteDao
+import com.joseleandro.taskclass.core.data.model.Order
 import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import com.joseleandro.taskclass.ui.notes.domain.NoteRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class NoteRepositoryImpl @Inject constructor(
     private val dao: NoteDao
@@ -80,12 +82,36 @@ class NoteRepositoryImpl @Inject constructor(
         return dao.findById(id)
     }
 
-    override fun findAll(): Flow<Resource<List<NoteEntity>>> {
+    override fun findAll(sort: Order<NoteEntity>): Flow<Resource<List<NoteEntity>>> {
 
         return flow {
             try {
                 emit(Resource.Loading())
-                dao.listAll().collect { data ->
+                dao.listAll()
+                    .map { list ->
+
+                        val comparator = Comparator<NoteEntity> { a, b ->
+                            val va = sort.getValue(a)
+                            val vb = sort.getValue(b)
+
+                            when {
+                                va == null && vb == null -> 0
+                                va == null -> if (sort.ascending) -1 else 1
+                                vb == null -> if (sort.ascending) 1 else -1
+                                else -> {
+
+                                    val ca = va as Comparable<Any>
+                                    val cb = vb as Comparable<Any>
+
+                                    if (sort.ascending) ca.compareTo(cb)
+                                    else cb.compareTo(ca)
+                                }
+                            }
+                        }
+
+                        list.sortedWith(comparator)
+                    }
+                    .collect { data ->
                     emit(Resource.Success(data))
                 }
             } catch (e: Exception) {

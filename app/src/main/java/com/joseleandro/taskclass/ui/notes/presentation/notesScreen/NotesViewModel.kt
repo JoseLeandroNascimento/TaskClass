@@ -3,13 +3,16 @@ package com.joseleandro.taskclass.ui.notes.presentation.notesScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joseleandro.taskclass.common.data.Resource
+import com.joseleandro.taskclass.core.data.model.Order
 import com.joseleandro.taskclass.core.data.model.entity.NoteEntity
 import com.joseleandro.taskclass.ui.notes.domain.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -21,6 +24,8 @@ class NotesViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NotesUiState())
     val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
 
+    private val _sort = MutableStateFlow(Order(NoteEntity::createdAt))
+    val sort: StateFlow<Order<NoteEntity>> = _sort.asStateFlow()
 
     init {
         loadData()
@@ -41,7 +46,15 @@ class NotesViewModel @Inject constructor(
             is NoteAction.OnSelectAll -> {
                 onSelectAll()
             }
+
+            is NoteAction.OnSort -> {
+                onSort(action.order)
+            }
         }
+    }
+
+    private fun onSort(order: Order<NoteEntity>) {
+        _sort.value = order
     }
 
     private fun onToggleNote(note: NoteEntity) {
@@ -65,11 +78,11 @@ class NotesViewModel @Inject constructor(
 
     }
 
-    private fun onSelectAll(){
+    private fun onSelectAll() {
 
-        with(_uiState.value){
+        with(_uiState.value) {
 
-            if(notesSelected.size == notes.size){
+            if (notesSelected.size == notes.size) {
                 _uiState.update {
                     it.copy(
                         notesSelected = emptySet()
@@ -125,9 +138,13 @@ class NotesViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadData() {
         viewModelScope.launch {
-            repo.findAll().collect { response ->
+
+            _sort.flatMapLatest { order ->
+                repo.findAll(order)
+            }.collect { response ->
 
                 when (response) {
 
